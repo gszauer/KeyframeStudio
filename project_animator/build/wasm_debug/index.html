@@ -1,0 +1,89 @@
+<!doctype html>  
+<html lang="en">  
+    <head>  
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+        <meta charset="utf-8">  
+        <title>Gabors Game Framework</title> 
+<!--
+<script type="text/javascript" src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script>
+-->
+        <style>
+            * {
+                border: 0px;
+                padding: 0px;
+                margin: 0px;
+                color: rgb(220, 220, 220);
+                text-decoration: none;
+                font-size: 14px;
+                font-family: monospace;
+
+                -webkit-user-select: none; /* Safari */
+                -ms-user-select: none; /* IE 10 and IE 11 */
+                user-select: none; /* Standard syntax */
+            }
+            html, body {
+                min-height: 100% !important;
+                min-width: 100% !important;
+                height: 100%;
+                width: 100%;
+
+                background-color: rgb(0, 0, 0);
+                color: rgb(220, 220, 220);
+                overflow: hidden; /* Hide scrollbars */
+            }
+        </style> 
+        <script type="text/javascript" src="window.js"></script>
+        <script type="text/javascript" src="memory.js"></script>
+        <script type="text/javascript" src="math.js"></script>
+        <script type="text/javascript" src="loader.js"></script>
+        <script type="text/javascript" src="graphics.js"></script>
+        <script type="text/javascript" src="audio.js"></script>
+        <script type="text/javascript">
+            const init = function(canvasName) {
+                if (window.SPECTOR !== undefined) {
+                    var spector = new SPECTOR.Spector();
+                    spector.displayUI();
+                }
+                
+                const stackSize = 1024 * 1024 * 8; // 8 MiB
+                const dataSize = 1024 * 1024 * 4; // 4 MiB
+                const heapSize = 1024 * 1024 * 128 - stackSize - dataSize; 
+
+                let importObject = {
+                    module: {},
+                    env: { }
+                };
+
+                //let allocator = new MemoryAllocator(importObject, heapSize + dataSize + stackSize);
+                let allocator = MemInjectAllocator(importObject, heapSize + dataSize + stackSize);
+                let game = new GameWindow(importObject, allocator, "webglCanvas");
+                let graphics = new GraphicsDevice(importObject, allocator, game.gl);
+                let loader = new FileLoader("com.gabor.demo", importObject, allocator);
+                let math = new GameMath(importObject);
+                let sound = new AudioDevice(importObject, allocator, "webglCanvas");
+
+                let file = 'application.debug.wasm';
+                const FileExists = function(url) {
+                    let http = new XMLHttpRequest();
+                    http.open('HEAD', url, false);
+                    http.send();
+                    return http.status!=404;
+                }
+                if (!FileExists(file)) {
+                    file = 'application.wasm';
+                }
+
+                WebAssembly.instantiateStreaming(fetch(file), importObject).then(prog => {
+                    let heapPtr = MemInitializeHeap(allocator, prog.instance);
+                    loader.AttachToWasmInstance(prog.instance);
+                    game.AttachToWasmInstance(prog.instance); // Will init and start updating
+                });
+            }
+        </script>
+        <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAvW8cAP///wCjoJ0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEREREQAAAAAiIiIiAAAAACIiIiIAAAAAIiIiIgAAAAAiIiIiAAAAACIiIiIAAAAAAAAAAAAAAAAAAAAAAAAAAAMzMzAAAAAAAzMAMAAAAAADMwAwAAAAAAMzADAAAAAAAAAAAAAAAAAAAAAAAAD//wAAwAMAAMADAADAAwAAwAMAAMADAADAAwAAwAMAAMADAADAAwAAwAMAAMADAADABwAAwA8AAP//AAD//wAA" rel="icon" type="image/x-icon" />
+    </head>  
+    <body onload="init('webglCanvas');">
+        <canvas id="webglCanvas" width="800" height="600"  oncontextmenu="return false;"></canvas>
+        <input  type="file" id="fileUploader"  accept="image/png" style="display:none" />
+    </body>  
+</html>
