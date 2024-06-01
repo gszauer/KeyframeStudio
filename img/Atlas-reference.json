@@ -119,27 +119,6 @@
 					}
 				},
 				{
-					"filename": "down.png",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 24,
-						"h": 24
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 24,
-						"h": 24
-					},
-					"frame": {
-						"x": 151,
-						"y": 473,
-						"w": 24,
-						"h": 24
-					}
-				},
-				{
 					"filename": "AdobeClean17.png",
 					"rotated": false,
 					"trimmed": false,
@@ -175,7 +154,7 @@
 						"h": 109
 					},
 					"frame": {
-						"x": 179,
+						"x": 285,
 						"y": 1,
 						"w": 111,
 						"h": 109
@@ -196,8 +175,8 @@
 						"h": 101
 					},
 					"frame": {
-						"x": 285,
-						"y": 304,
+						"x": 179,
+						"y": 1,
 						"w": 101,
 						"h": 101
 					}

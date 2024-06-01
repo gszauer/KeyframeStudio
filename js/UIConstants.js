@@ -2,6 +2,10 @@ export default class UIConstants {
     static Atlas = "Atlas";
     static Solid = "solid.png";
 
+    static Icons = {
+        ChevronDown: "down.png"
+    };
+
     static Font50 = "AdobeClean13";
     static Font75 = "AdobeClean15";
     static Font100 = "AdobeClean17";
@@ -26,7 +30,10 @@ export default class UIConstants {
         PopupMenuDividerHeight: 2,
         PopupMenuDividerPadding: 3,
         PopupMenuBorderSize: 2,
-        EditorBarHeight: 40
+        EditorBarHeight: 40,
+        DropdownMenuHeight: 26,
+        DrowdownBorderSize: 1,
+        DropdownTextIndent: 5,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

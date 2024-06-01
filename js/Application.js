@@ -2,6 +2,7 @@ import UITopMenu from './UITopMenu.js'
 import UIPopupMenu from './UIPopupMenu.js'
 import UIConstants from './UIConstants.js'
 import UIEditorBar from './UIEditorBar.js'
+import UIDropdownBox from './UIDropdownBox.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -80,7 +81,9 @@ export default class Application extends Phaser.Scene {
         helpMenu.Add("Documentation", null);
         helpMenu.Add("Source Code", null);
 
+        const testDropdown = new UIDropdownBox(this, null, 300);
 
+        testDropdown.Layout(100, 39);
         self.Layout();
 
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
