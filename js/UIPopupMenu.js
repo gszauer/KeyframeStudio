@@ -19,6 +19,8 @@ export default class UIPopupMenu {
     _numSeperators = 0;
     _visible = true;
 
+    _uiOnPointerUp = null; // same as regular OnPointerUp, but internal to the ui system
+
     constructor(scene) {
         const self = this;
 
@@ -52,6 +54,9 @@ export default class UIPopupMenu {
 
                     if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
                         console.log("Trigger callback for " + self._labels[i]);
+                        if (self._uiOnPointerUp != null) {
+                            self._uiOnPointerUp(self._labels[i]);
+                        }
                     }
 
                     UIConstants.Active = null;

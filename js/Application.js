@@ -82,8 +82,14 @@ export default class Application extends Phaser.Scene {
         helpMenu.Add("Source Code", null);
 
         const testDropdown = new UIDropdownBox(this, null, 300);
+        const testPopup = new UIPopupMenu(self);
+        testPopup.Add("Bicubic", null);
+        testPopup.Add("Bilinear", null);
+        testPopup.Add("Trilinear", null);
+        testPopup.Add("Tricubic", null);
+        testDropdown.SetMenu(testPopup);
 
-        testDropdown.Layout(100, 39);
+        testDropdown.Layout(100, 39, 240);
         self.Layout();
 
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {

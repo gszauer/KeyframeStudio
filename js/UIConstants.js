@@ -31,7 +31,7 @@ export default class UIConstants {
         PopupMenuDividerPadding: 3,
         PopupMenuBorderSize: 2,
         EditorBarHeight: 40,
-        DropdownMenuHeight: 26,
+        DropdownMenuHeight: 24,
         DrowdownBorderSize: 1,
         DropdownTextIndent: 5,
     }
@@ -41,13 +41,16 @@ export default class UIConstants {
         BackgroundLayer0: 0x1d1d1d, // Gray50,
         BackgroundLayer1: 0x262626, // Gray75
         BackgroundLayer2: 0x323232, // Gray 100
+        BackgroundLayerAux: 0x3f3f3f, // Gray 200
         BorderDecorative: 0x3f3f3f, // Gray 200
         BorderFraming: 0x545454, // Gray 300
         BorderField: 0x707070, // Gray 400
         IconDisabled: 0x707070, // Gray 400
         TextDisabled: 0x909090, // Gray 500
         IconIllustration: 0x909090, // Gray 500
-        // 600?
+        ElementBorderTintIdle: 0xb2b2b2, // Gray 600
+        ElementBorderTintHot: 0xd1d1d1, // Gray 700
+        ElementBorderTintActive: 0xebebeb, // Gray 800
         TextSub: 0xd1d1d1, // Gray 700
         IconSub: 0xd1d1d1, // Gray 700
         Text: 0xebebeb, // Gray 800
