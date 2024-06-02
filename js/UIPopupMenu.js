@@ -1,4 +1,4 @@
-import UIConstants from './UIConstants.js'
+import UIGlobals from './UIGlobals.js'
 
 export default class UIPopupMenu {
     _x = 0;
@@ -31,22 +31,22 @@ export default class UIPopupMenu {
         self._callbacks = [];
         self._labels = [];
 
-        self._borderSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-        self._borderSprite.setDepth(UIConstants.OverlayLayer);
+        self._borderSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        self._borderSprite.setDepth(UIGlobals.OverlayLayer);
 
-        self._backgroundSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-        self._backgroundSprite.setDepth(UIConstants.OverlayLayer);
+        self._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        self._backgroundSprite.setDepth(UIGlobals.OverlayLayer);
     }
 
     HandlePointerUpEvent(pointer, currentlyOver) {
         const self = this;
 
-        if (self._highlightSprites != null && UIConstants.Active != null) {
+        if (self._highlightSprites != null && UIGlobals.Active != null) {
             const size = self._highlightSprites.length;
             for (let i = 0; i < size; ++i) {
                 const sprite = self._highlightSprites[i];
 
-                if (sprite != null && sprite == UIConstants.Active) {
+                if (sprite != null && sprite == UIGlobals.Active) {
                     const left = sprite.x;
                     const right = left + sprite.scaleX;
                     const top = sprite.y;
@@ -59,8 +59,8 @@ export default class UIPopupMenu {
                         }
                     }
 
-                    UIConstants.Active = null;
-                    UIConstants.Hot = null;
+                    UIGlobals.Active = null;
+                    UIGlobals.Hot = null;
                 }
             }
         }
@@ -76,8 +76,8 @@ export default class UIPopupMenu {
         self._callbacks.push(callback);
 
         if (name === "") {
-            const seperatorSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-            seperatorSprite.setDepth(UIConstants.OverlayLayer);
+            const seperatorSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+            seperatorSprite.setDepth(UIGlobals.OverlayLayer);
             self._seperatorSprites.push(seperatorSprite);
 
             self._highlightSprites.push(null);
@@ -87,37 +87,37 @@ export default class UIPopupMenu {
         else {
             self._seperatorSprites.push(null);
 
-            const highlightSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-            highlightSprite.setDepth(UIConstants.OverlayLayer);
-            highlightSprite.setTint(UIConstants.Colors.TopMenuButtonIdle);
+            const highlightSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+            highlightSprite.setDepth(UIGlobals.OverlayLayer);
+            highlightSprite.setTint(UIGlobals.Colors.TopMenuButtonIdle);
             self._highlightSprites.push(highlightSprite);
 
-            const itemText = scene.add.bitmapText(0, 0, UIConstants.Font100, name);
-            itemText.setTint(UIConstants.Colors.Text);
-            itemText.setDepth(UIConstants.OverlayLayer);
+            const itemText = scene.add.bitmapText(0, 0, UIGlobals.Font100, name);
+            itemText.setTint(UIGlobals.Colors.Text);
+            itemText.setDepth(UIGlobals.OverlayLayer);
             self._itemTexts.push(itemText);
             self._numLabels += 1;
 
 
             highlightSprite.setInteractive();
             highlightSprite.on("pointerover", function (pointer, localX, localY, event) {
-                UIConstants.Hot = highlightSprite;
+                UIGlobals.Hot = highlightSprite;
                 
-                if (self._ContainsHighlight(UIConstants.Active)) {
-                    UIConstants.Active = highlightSprite;
+                if (self._ContainsHighlight(UIGlobals.Active)) {
+                    UIGlobals.Active = highlightSprite;
                 }
 
                 // Activate if mouse is down
                 if (pointer.buttons == 1 || pointer.buttons == 2) {
-                    UIConstants.Active = highlightSprite;
+                    UIGlobals.Active = highlightSprite;
                 }
 
                 self._UpdateHighlights();
             });
 
             highlightSprite.on("pointerout", function (pointer, event) {
-                if (UIConstants.Hot == highlightSprite) {
-                    UIConstants.Hot = null;
+                if (UIGlobals.Hot == highlightSprite) {
+                    UIGlobals.Hot = null;
                 }
                 
 
@@ -125,8 +125,8 @@ export default class UIPopupMenu {
             });
 
             highlightSprite.on("pointerdown", function (pointer, localX, localY, event) {
-                UIConstants.Active = highlightSprite;
-                UIConstants.Hot = highlightSprite;
+                UIGlobals.Active = highlightSprite;
+                UIGlobals.Hot = highlightSprite;
     
                 self._UpdateHighlights();
             });
@@ -153,7 +153,7 @@ export default class UIPopupMenu {
                 if (this._width == 0) {
                     this._width = this._defaultWidth;
                 }
-                this._width += UIConstants.Sizes.PopupMenuMargin * 2;
+                this._width += UIGlobals.Sizes.PopupMenuMargin * 2;
             }
         }
         else {
@@ -164,45 +164,45 @@ export default class UIPopupMenu {
             this._height = 100;
         }
         else {
-            this._height = UIConstants.Sizes.PopupMenuMargin;
-            this._height += this._numLabels * UIConstants.Sizes.PopupMenuItemHeight;
-            this._height += this._numSeperators * UIConstants.Sizes.PopupMenuDividerHeight;
-            this._height += this._numSeperators * UIConstants.Sizes.PopupMenuDividerPadding * 2;
+            this._height = UIGlobals.Sizes.PopupMenuMargin;
+            this._height += this._numLabels * UIGlobals.Sizes.PopupMenuItemHeight;
+            this._height += this._numSeperators * UIGlobals.Sizes.PopupMenuDividerHeight;
+            this._height += this._numSeperators * UIGlobals.Sizes.PopupMenuDividerPadding * 2;
         }
 
         this._width = Math.ceil(this._width);
         this._height = Math.ceil(this._height);
 
         const borderSprite = this._borderSprite;
-        borderSprite.setTint(UIConstants.Colors.BorderFraming);
-        borderSprite.setPosition(this._x - UIConstants.Sizes.PopupMenuBorderSize, this._y -  UIConstants.Sizes.PopupMenuBorderSize);
-        borderSprite.setScale(this._width + UIConstants.Sizes.PopupMenuBorderSize * 2, this._height + UIConstants.Sizes.PopupMenuBorderSize * 2);
+        borderSprite.setTint(UIGlobals.Colors.BorderFraming);
+        borderSprite.setPosition(this._x - UIGlobals.Sizes.PopupMenuBorderSize, this._y -  UIGlobals.Sizes.PopupMenuBorderSize);
+        borderSprite.setScale(this._width + UIGlobals.Sizes.PopupMenuBorderSize * 2, this._height + UIGlobals.Sizes.PopupMenuBorderSize * 2);
 
         const backgroundSprite = this._backgroundSprite;
-        backgroundSprite.setTint(UIConstants.Colors.BackgroundLayer1);
+        backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
         backgroundSprite.setPosition(this._x, this._y);
         backgroundSprite.setScale(this._width, this._height);
 
-        x = this._x + UIConstants.Sizes.PopupMenuMargin;
-        y = this._y + UIConstants.Sizes.PopupMenuMargin / 2;
+        x = this._x + UIGlobals.Sizes.PopupMenuMargin;
+        y = this._y + UIGlobals.Sizes.PopupMenuMargin / 2;
 
         const size = this._labels.length;
         for (let i = 0; i < size; ++i) {
             if (this._labels[i] === "") {
                 const seperatorSprite = this._seperatorSprites[i];
-                seperatorSprite.setPosition(x - UIConstants.Sizes.PopupMenuMargin / 2, y + UIConstants.Sizes.PopupMenuDividerPadding);
-                seperatorSprite.setScale(this._width - UIConstants.Sizes.PopupMenuMargin, UIConstants.Sizes.PopupMenuDividerHeight);
-                seperatorSprite.setTint(UIConstants.Colors.BorderFraming);
-                y += UIConstants.Sizes.PopupMenuDividerHeight + UIConstants.Sizes.PopupMenuDividerPadding * 2;
+                seperatorSprite.setPosition(x - UIGlobals.Sizes.PopupMenuMargin / 2, y + UIGlobals.Sizes.PopupMenuDividerPadding);
+                seperatorSprite.setScale(this._width - UIGlobals.Sizes.PopupMenuMargin, UIGlobals.Sizes.PopupMenuDividerHeight);
+                seperatorSprite.setTint(UIGlobals.Colors.BorderFraming);
+                y += UIGlobals.Sizes.PopupMenuDividerHeight + UIGlobals.Sizes.PopupMenuDividerPadding * 2;
             }
             else {
                 this._itemTexts[i].setPosition(x, y);
 
                 const highlightSprite = this._highlightSprites[i];
-                highlightSprite.setPosition(x - UIConstants.Sizes.PopupMenuMargin / 2, y);// - UIConstants.Sizes.PopupMenuMargin / 2 - UIConstants.Sizes.PopupMenuItemHeight / 2);
-                highlightSprite.setScale(this._width - UIConstants.Sizes.PopupMenuMargin, UIConstants.Sizes.PopupMenuItemHeight);// + UIConstants.Sizes.PopupMenuMargin);
+                highlightSprite.setPosition(x - UIGlobals.Sizes.PopupMenuMargin / 2, y);// - UIGlobals.Sizes.PopupMenuMargin / 2 - UIGlobals.Sizes.PopupMenuItemHeight / 2);
+                highlightSprite.setScale(this._width - UIGlobals.Sizes.PopupMenuMargin, UIGlobals.Sizes.PopupMenuItemHeight);// + UIGlobals.Sizes.PopupMenuMargin);
 
-                y += UIConstants.Sizes.PopupMenuItemHeight;
+                y += UIGlobals.Sizes.PopupMenuItemHeight;
             }
         }
     }
@@ -239,11 +239,11 @@ export default class UIPopupMenu {
         if (!visible) {
             for (const sprite of this._highlightSprites) {
                 if (sprite != null) {
-                    if (UIConstants.Hot == sprite) {
-                        UIConstants.Hot = null;
+                    if (UIGlobals.Hot == sprite) {
+                        UIGlobals.Hot = null;
                     }
-                    if (UIConstants.Active == sprite) {
-                        UIConstants.Active = null;
+                    if (UIGlobals.Active == sprite) {
+                        UIGlobals.Active = null;
                     }
                 }
             }
@@ -256,14 +256,14 @@ export default class UIPopupMenu {
     _UpdateHighlights() {
         for (const sprite of this._highlightSprites) {
             if (sprite != null) {
-                if (UIConstants.Active == sprite) {
-                    sprite.setTint(UIConstants.Colors.TopMenuButtonActive)
+                if (UIGlobals.Active == sprite) {
+                    sprite.setTint(UIGlobals.Colors.TopMenuButtonActive)
                 }
-                else if (UIConstants.Hot == sprite) {
-                    sprite.setTint(UIConstants.Colors.TopMenuButtonHot)
+                else if (UIGlobals.Hot == sprite) {
+                    sprite.setTint(UIGlobals.Colors.TopMenuButtonHot)
                 }
                 else {
-                    sprite.setTint(UIConstants.Colors.TopMenuButtonIdle)
+                    sprite.setTint(UIGlobals.Colors.TopMenuButtonIdle)
                 }
             }
         }
@@ -278,9 +278,5 @@ export default class UIPopupMenu {
             }
         }
         return false;
-    }
-
-    Destroy() {
-        // TODO: Call from UITopMenu (and clear contents)
     }
 }

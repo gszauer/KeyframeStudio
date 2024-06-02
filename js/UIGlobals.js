@@ -1,4 +1,4 @@
-export default class UIConstants {
+export default class UIGlobals {
     static Atlas = "Atlas";
     static Solid = "solid.png";
 

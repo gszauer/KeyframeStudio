@@ -1,4 +1,4 @@
-import UIConstants from './UIConstants.js'
+import UIGlobals from './UIGlobals.js'
 
 export default class UIEditorBar {
     _scene = null;
@@ -14,12 +14,12 @@ export default class UIEditorBar {
         this._scene = scene;
         const self = this;
 
-        self._seperatorSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-        self._seperatorSprite.setDepth(UIConstants.WidgetLayer);
+        self._seperatorSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        self._seperatorSprite.setDepth(UIGlobals.WidgetLayer);
         self._seperatorSprite.setOrigin(0, 0);
 
-        self._backgroundSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
-        self._backgroundSprite.setDepth(UIConstants.WidgetLayer);
+        self._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        self._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         self._backgroundSprite.setOrigin(0, 0);
     }
    
@@ -27,15 +27,15 @@ export default class UIEditorBar {
         const self = this;
        
         self._width = self._scene.scale.width;
-        self._height = UIConstants.Sizes.EditorBarHeight;
-        self._y = UIConstants.Sizes.TopMenuHeight;
+        self._height = UIGlobals.Sizes.EditorBarHeight;
+        self._y = UIGlobals.Sizes.TopMenuHeight;
 
-        self._seperatorSprite.setTint(UIConstants.Colors.BorderDecorative);
+        self._seperatorSprite.setTint(UIGlobals.Colors.BorderDecorative);
         self._seperatorSprite.setPosition(0, self._y);
         self._seperatorSprite.setScale(self._width, self._height);
 
-        const half = UIConstants.Sizes.EditorBarSeperatorHeight;
-        self._backgroundSprite.setTint(UIConstants.Colors.BackgroundLayer1);
+        const half = UIGlobals.Sizes.EditorBarSeperatorHeight;
+        self._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
         self._backgroundSprite.setPosition(0, self._y + half);
         self._backgroundSprite.setScale(self._width, self._height - half * 2);
 

@@ -1,4 +1,4 @@
-import UIConstants from './UIConstants.js'
+import UIGlobals from './UIGlobals.js'
 
 export default class UIDropdownBox {
     _scene = null;
@@ -23,47 +23,47 @@ export default class UIDropdownBox {
 
         self._defaultWidth = defaultWidth;
 
-        self._borderSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
+        self._borderSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._borderSprite.setOrigin(0, 0);
-        self._borderSprite.setDepth(UIConstants.WidgetLayer);
+        self._borderSprite.setDepth(UIGlobals.WidgetLayer);
         const borderSprite = self._borderSprite;
 
-        self._backgroundSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
+        self._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._backgroundSprite.setOrigin(0, 0);
-        self._backgroundSprite.setDepth(UIConstants.WidgetLayer);
+        self._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
 
-        self._seperatorSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Solid);
+        self._seperatorSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._seperatorSprite.setOrigin(0, 0);
-        self._seperatorSprite.setDepth(UIConstants.WidgetLayer);
+        self._seperatorSprite.setDepth(UIGlobals.WidgetLayer);
 
-        self._chevronSprite = scene.add.sprite(0, 0, UIConstants.Atlas, UIConstants.Icons.ChevronDown);
-        self._chevronSprite.setDepth(UIConstants.WidgetLayer);
+        self._chevronSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Icons.ChevronDown);
+        self._chevronSprite.setDepth(UIGlobals.WidgetLayer);
 
-        self._displayText = scene.add.bitmapText(0, 0, UIConstants.Font100, name);
-        self._displayText.setDepth(UIConstants.WidgetLayer);
+        self._displayText = scene.add.bitmapText(0, 0, UIGlobals.Font100, name);
+        self._displayText.setDepth(UIGlobals.WidgetLayer);
         self._displayText.text = "";
 
         self.SetMenu(popupMenu);
 
         borderSprite.setInteractive();
         borderSprite.on("pointerover", function (pointer, localX, localY, event) {
-            if (UIConstants.Active == null) {
-                UIConstants.Hot = borderSprite;
+            if (UIGlobals.Active == null) {
+                UIGlobals.Hot = borderSprite;
             }
 
             self._ShowActiveMenu();
             self.UpdateColors();
         });
         borderSprite.on("pointerout", function (pointer, event) {
-            if (UIConstants.Hot == borderSprite) {
-                UIConstants.Hot = null;
+            if (UIGlobals.Hot == borderSprite) {
+                UIGlobals.Hot = null;
             }
 
             self._ShowActiveMenu();
             self.UpdateColors();
         });
         borderSprite.on("pointerdown", function (pointer, localX, localY, event) {
-            UIConstants.Active = borderSprite;
+            UIGlobals.Active = borderSprite;
             self._isOpen = true;
 
             self._ShowActiveMenu();
@@ -75,7 +75,7 @@ export default class UIDropdownBox {
                 self._popupMenu.HandlePointerUpEvent(pointer, currentlyOver);
             }
 
-            if (UIConstants.Active != null && UIConstants.Active == borderSprite) {
+            if (UIGlobals.Active != null && UIGlobals.Active == borderSprite) {
                 let left = borderSprite.x;
                 let right = left + borderSprite.scaleX;
                 let top = borderSprite.y;
@@ -88,7 +88,7 @@ export default class UIDropdownBox {
                     self._isOpen = false;
                 }
                 
-                UIConstants.Active = null;
+                UIGlobals.Active = null;
                 self._ShowActiveMenu();
                 self.UpdateColors();
             }
@@ -138,16 +138,16 @@ export default class UIDropdownBox {
     }
 
     UpdateColors() {
-        let borderTint = UIConstants.Colors.ElementBorderTintIdle;
-        let backgroundTint = UIConstants.Colors.BackgroundLayer1;
+        let borderTint = UIGlobals.Colors.ElementBorderTintIdle;
+        let backgroundTint = UIGlobals.Colors.BackgroundLayer1;
 
-        if (UIConstants.Hot == this._borderSprite) {
-            borderTint = UIConstants.Colors.ElementBorderTintHot;
-            backgroundTint = UIConstants.Colors.BackgroundLayer2;
+        if (UIGlobals.Hot == this._borderSprite) {
+            borderTint = UIGlobals.Colors.ElementBorderTintHot;
+            backgroundTint = UIGlobals.Colors.BackgroundLayer2;
         }
-        if (UIConstants.Active == this._borderSprite || this._isOpen) {
-            borderTint = UIConstants.Colors.ElementBorderTintActive;
-            backgroundTint = UIConstants.Colors.BackgroundLayer2;
+        if (UIGlobals.Active == this._borderSprite || this._isOpen) {
+            borderTint = UIGlobals.Colors.ElementBorderTintActive;
+            backgroundTint = UIGlobals.Colors.BackgroundLayer2;
         }
 
         this._borderSprite.setTint(borderTint);
@@ -168,8 +168,8 @@ export default class UIDropdownBox {
         if (this._defaultWidth > 0 && this._width <= 0) {
             this._width = Math.floor(this._defaultWidth);
         }
-        const height = Math.floor(UIConstants.Sizes.DropdownMenuHeight);
-        const border = Math.floor(UIConstants.Sizes.DrowdownBorderSize);
+        const height = Math.floor(UIGlobals.Sizes.DropdownMenuHeight);
+        const border = Math.floor(UIGlobals.Sizes.DrowdownBorderSize);
 
         this._borderSprite.setPosition(x, y);
         this._borderSprite.setScale(this._width, height);
@@ -184,15 +184,11 @@ export default class UIDropdownBox {
         const chevronY = y + border + height / 2;
         this._chevronSprite.setPosition(chevronX, chevronY);
 
-        this._displayText.setPosition(this._x + UIConstants.Sizes.DropdownTextIndent, this._y + 1, chevronY);
+        this._displayText.setPosition(this._x + UIGlobals.Sizes.DropdownTextIndent, this._y + 1, chevronY);
         this.UpdateColors();
 
         if (this._popupMenu != null) {
             this._popupMenu.Layout(this._x, this._y + height + border * 2, this._width);
         }
-    }
-
-    Destroy() {
-
     }
 }
