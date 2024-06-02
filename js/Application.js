@@ -1,8 +1,8 @@
-import UITopMenu from './UITopMenu.js'
-import UIPopupMenu from './UIPopupMenu.js'
+import UIMenu from './UIMenu.js'
+import UIPopup from './UIPopup.js'
 import UIGlobals from './UIGlobals.js'
 import UIEditorBar from './UIEditorBar.js'
-import UIDropdownBox from './UIDropdownBox.js'
+import UIDropdown from './UIDropdown.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -39,10 +39,10 @@ export default class Application extends Phaser.Scene {
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font400, UIGlobals.Atlas, UIGlobals.Font400 + ".png", UIGlobals.Font400 + ".xml");
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font500, UIGlobals.Atlas, UIGlobals.Font500 + ".png", UIGlobals.Font500 + ".xml");
 
-        self._topMenu = new UITopMenu(self);
+        self._topMenu = new UIMenu(self);
         self._editorBar = new UIEditorBar(self);
 
-        const fileMenu = new UIPopupMenu(self);
+        const fileMenu = new UIPopup(self);
         self._topMenu.Add("File", fileMenu);
         fileMenu.Add("New", null);
         fileMenu.Add("Open", null);
@@ -52,7 +52,7 @@ export default class Application extends Phaser.Scene {
         fileMenu.Add("", null);
         fileMenu.Add("Load Sample Project", null);
 
-        const editMenu = new UIPopupMenu(self);
+        const editMenu = new UIPopup(self);
         self._topMenu.Add("Edit", editMenu);
         editMenu.Add("Undo", null);
         editMenu.Add("Redo", null);
@@ -61,11 +61,11 @@ export default class Application extends Phaser.Scene {
         editMenu.Add("Copy", null);
         editMenu.Add("Paste", null);
 
-        const sceneMenu = new UIPopupMenu(self);
+        const sceneMenu = new UIPopup(self);
         self._topMenu.Add("Scene", sceneMenu);
         sceneMenu.Add("New Node", null);
 
-        const animation = new UIPopupMenu(self);
+        const animation = new UIPopup(self);
         self._topMenu.Add("Animation", animation);
         animation.Add("New Animation", null);
         animation.Add("", null);
@@ -75,14 +75,14 @@ export default class Application extends Phaser.Scene {
         animation.Add("Animate Scale Track", null);
         animation.Add("Animate Tint Track", null);
 
-        const helpMenu = new UIPopupMenu(self);
+        const helpMenu = new UIPopup(self);
         self._topMenu.Add("Help", helpMenu);
         helpMenu.Add("About", null);
         helpMenu.Add("Documentation", null);
         helpMenu.Add("Source Code", null);
 
-        const testDropdown = new UIDropdownBox(this, null, 300);
-        const testPopup = new UIPopupMenu(self);
+        const testDropdown = new UIDropdown(this, null, 300);
+        const testPopup = new UIPopup(self);
         testPopup.Add("Bicubic", null);
         testPopup.Add("Bilinear", null);
         testPopup.Add("Trilinear", null);

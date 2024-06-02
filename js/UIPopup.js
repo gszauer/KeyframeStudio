@@ -1,6 +1,6 @@
 import UIGlobals from './UIGlobals.js'
 
-export default class UIPopupMenu {
+export default class UIPopup {
     _x = 0;
     _y = 0;
     _height = 100;

@@ -1,6 +1,6 @@
 import UIGlobals from './UIGlobals.js'
 
-export default class UIDropdownBox {
+export default class UIDropdown {
     _scene = null;
 
     _borderSprite = null;
