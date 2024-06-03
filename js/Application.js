@@ -4,6 +4,7 @@ import UIGlobals from './UIGlobals.js'
 import UIToggle from './UIToggle.js'
 import UIEditorBar from './UIEditorBar.js'
 import UIDropdown from './UIDropdown.js'
+import UITextBox from './UITextBox.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;

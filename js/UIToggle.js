@@ -128,8 +128,8 @@ export default class UIToggle {
 
         self._check1.setPosition(Math.floor(x + width / 2), Math.floor(y + width / 2));
         self._check2.setPosition(Math.floor(x + width / 2), Math.floor(y + width / 2));
-        self._check1.setScale(1, height - height / 4);
-        self._check2.setScale(1, height - height / 4);
+        self._check1.setScale(border * 2, height - height / 4);
+        self._check2.setScale(border * 2, height - height / 4);
         self._check1.setAngle(45);
         self._check2.setAngle(-45);
 
