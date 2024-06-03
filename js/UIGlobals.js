@@ -34,6 +34,9 @@ export default class UIGlobals {
         DropdownMenuHeight: 24,
         DrowdownBorderSize: 1,
         DropdownTextIndent: 5,
+        CheckboxSize:21,
+        CheckboxBorder: 1,
+        CheckboxMargin: 4,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

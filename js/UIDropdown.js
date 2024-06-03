@@ -157,7 +157,6 @@ export default class UIDropdown {
         
         this._displayText.setTint(borderTint);
         this._chevronSprite.setTint(borderTint);
-
     }
     
     Layout(x, y, width = 0) {

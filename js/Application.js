@@ -1,6 +1,7 @@
 import UIMenu from './UIMenu.js'
 import UIPopup from './UIPopup.js'
 import UIGlobals from './UIGlobals.js'
+import UIToggle from './UIToggle.js'
 import UIEditorBar from './UIEditorBar.js'
 import UIDropdown from './UIDropdown.js'
 
@@ -89,7 +90,12 @@ export default class Application extends Phaser.Scene {
         testPopup.Add("Tricubic", null);
         testDropdown.SetMenu(testPopup);
 
+        const testToggle = new UIToggle(this, "Foo");
+
         testDropdown.Layout(100, 39, 240);
+        testToggle.Layout(360, 39 + 3);
+
+
         self.Layout();
 
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
