@@ -10,13 +10,13 @@ export default class UIToggle {
     _background = null;
     _check1 = null;
     _check2 = null;
-    _onToggle = null; // arguments: bool value, UIToggle this
+    onToggle = null; // arguments: bool value, UIToggle this
 
-    constructor(scene, text="", onToggle = null) {
+    constructor(scene, text="", _onToggle = null) {
         this._scene = scene;
         const self = this;
 
-        self._onToggle = onToggle;
+        self.onToggle = _onToggle;
 
         self._border = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._border.setOrigin(0, 0);
@@ -70,8 +70,8 @@ export default class UIToggle {
                 if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
                     self._state = !self._state;
                     console.log("Toggle " + self._text.text + " to " + self._state);
-                    if (self._onToggle != null) {
-                        self._onToggle(self._state, self);
+                    if (self.onToggle != null) {
+                        self.onToggle(self._state, self);
                     }
                 }
                 
@@ -98,7 +98,7 @@ export default class UIToggle {
         
         self._text.setTint(borderTint);
 
-        
+
         self._border.setTint(borderTint);
         self._background.setTint(backgroundTint);
         self._check1.setTint(borderTint);

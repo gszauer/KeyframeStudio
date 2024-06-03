@@ -20,11 +20,11 @@ export default class UIPopup {
     _visible = true;
 
     _uiOnPointerUp = null; // same as regular OnPointerUp, but internal to the ui system
-    _onSelect = null; // Arguments: string item, UIPopup self
+    onSelect = null; // Arguments: string item, UIPopup self
 
-    constructor(scene, onSelect = null) {
+    constructor(scene, _onSelect = null) {
         const self = this;
-        self._onSelect = onSelect;
+        self.onSelect = _onSelect;
 
         self._scene = scene;
         self._itemTexts = [];
@@ -59,8 +59,8 @@ export default class UIPopup {
                         if (self._uiOnPointerUp != null) {
                             self._uiOnPointerUp(self._labels[i]);
                         }
-                        if (self._onSelect != null) {
-                            self._onSelect(self._labels[i], self);
+                        if (self.onSelect != null) {
+                            self.onSelect(self._labels[i], self);
                         }
                     }
 
