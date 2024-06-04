@@ -19,10 +19,7 @@ export default class Application extends Phaser.Scene {
 
     preload() {
         const scene = this;
-
-        this.load.plugin('rexbbcodetextplugin', 'js/rexbbcodetextplugin.min.js', true);
         this.load.plugin('rextexteditplugin', 'js/rextexteditplugin.js', true);
-        
 
         this._atlas = scene.load.atlas(UIGlobals.Atlas, 'img/atlas.png', 'img/atlas.json');
         
@@ -107,71 +104,18 @@ export default class Application extends Phaser.Scene {
         const testToggle = new UIToggle(this, "Foo");
         const textBoxer = new UITextBox(this, "Foo bar", 250);
 
-        testDropdown.Layout(100, 39, 240);
+        testDropdown.Layout(100, 40, 240);
         testToggle.Layout(360, 39 + 3);
-        textBoxer.Layout(50, 400);//360 + testToggle._width + 20, 39);
+        textBoxer.Layout(360 + 20 + testToggle._width, 40);
 
 
         self.Layout();
 
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
             self.Layout();
+            textBoxer.Layout(360 + 20 + testToggle._width, 40, 500);
+
         });
-
-
-        /* DEMO CODE */
-        var printText = this.add.rexBBCodeText(400, 300, 'rexBBCodeText', {
-            color: UIGlobals.Colors.Text,
-            fontSize: '17px',
-            fixedWidth: 200,
-            fixedHeight: UIGlobals.Sizes.TextboxHeight,
-            backgroundColor: UIGlobals.Colors.TopMenuButtonIdle,
-            valign: 'center',
-            padding: { left: UIGlobals.Sizes.TextboxTextMargin, right: UIGlobals.Sizes.TextboxTextMargin },
-            backgroundCornerRadius: 0
-        }).setOrigin(0.0);
-
-        const testingText = this.add.bitmapText(400, 350, UIGlobals.Font100, name);
-        testingText.setDepth(UIGlobals.WidgetLayer);
-        testingText.text = "phaserBitmapText";
-
-
-        // Things to copy:
-        testingText.style = printText.style;
-        testingText.padding = printText.padding;
-
-        /*const styleText = JSON.stringify(testingText.style, null, 4);
-        console.log("Style:\n" + styleText);
-
-        const paddingText = JSON.stringify(testingText.padding, null, 4);
-        console.log("Padding:\n" + paddingText);*/
-
-
-        this.rextexteditplugin.add(testingText, {
-            type: 'text',
-            enterClose: true,
-          
-            onOpen: function (textObject) {
-                console.log('Open text editor');
-            },
-            onTextChanged: function (textObject, text) {
-                textObject.text = text;
-                console.log(`Text: ${text}`);
-            },
-            onClose: function (textObject) {
-                console.log('Close text editor');
-            },
-            selectAll: true,
-        });
-
-        this.rextexteditplugin.add(printText, {
-            type: 'text',
-            enterClose: true,
-            selectAll: true,
-        });
-
-        
-        /* END DEMO CODE */
     }
 
     Destroy() {

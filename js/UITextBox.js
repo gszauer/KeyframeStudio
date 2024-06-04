@@ -14,6 +14,8 @@ export default class UITextBox {
     _backgroundSprite = null;
     _clickHandlerSprite = null;
 
+    _rextextedit = null;
+
     onTextChanged = null; // Callback
 
     constructor(scene, text = "", defaultWidth = 0) {
@@ -37,45 +39,30 @@ export default class UITextBox {
         self._bitmapText.text = text;
         self._text = text;
         
-        Object.defineProperty(
-            self._bitmapText, 
-            'width', 
-            {
-                get: function() { 
-                    return self._width;
-                }
-            }
-        );
+        
+        /*Object.defineProperty(self._bitmapText, 'x', { get: function() { 
+            return self._x + UIGlobals.Sizes.TextBoxBorderSize + UIGlobals.Sizes.TextboxTextMargin;
+        }});
+        Object.defineProperty(self._bitmapText, 'y', { get: function() { 
+            return self._y + UIGlobals.Sizes.TextBoxBorderSize; 
+        }});*/
+        Object.defineProperty(self._bitmapText, 'width', { get: function() { 
+            return self._width - UIGlobals.Sizes.TextboxTextMargin - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
+        }});
+        Object.defineProperty(self._bitmapText, 'height', { get: function() { 
+            return self._height - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1 - 3; // -3 matches css border
+        }});
 
-        Object.defineProperty(
-            self._bitmapText, 
-            'height', 
-            {
-                get: function() { 
-                    return self._height;
-                }
-            }
-        );
-
-        Object.defineProperty(
-            self._bitmapText, 
-            'x', 
-            {
-                get: function() { 
-                    return self._x;
-                }
-            }
-        );
-
-        Object.defineProperty(
-            self._bitmapText, 
-            'y', 
-            {
-                get: function() { 
-                    return self._y;
-                }
-            }
-        );
+        /*const getTextBounds = self._bitmapText.getTextBounds.bind(self._bitmapText);
+        Object.defineProperty(self._bitmapText, 'getTextBounds', 
+        self._bitmapText.getTextBounds = function (round) {
+            const bounds = getTextBounds(round);
+            bounds.global.x = bounds.local.x = self._x + UIGlobals.Sizes.TextBoxBorderSize + UIGlobals.Sizes.TextboxTextMargin;
+            bounds.global.y = bounds.local.y = self._y + UIGlobals.Sizes.TextBoxBorderSize; 
+            bounds.global.width = bounds.local.width = self._width - UIGlobals.Sizes.TextboxTextMargin - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
+            bounds.global.height = bounds.local.height = self._height - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
+            return bounds;
+        });*/
 
         // For rext text input
         self._bitmapText.style = 
@@ -87,8 +74,8 @@ export default class UITextBox {
             "backgroundStrokeLineWidth": 2,
             "backgroundCornerRadius": 0,
             "backgroundCornerIteration": null,
-            "fontFamily": "Courier",
-            "fontSize": "17px",
+            "fontFamily": "Arial",
+            "fontSize": "15px",
             "fontStyle": "",
             "color": "#ebebeb",
             "stroke": "#fff",
@@ -129,29 +116,13 @@ export default class UITextBox {
 
         self._bitmapText.padding = 
         {
-            "left": 4,
-            "right": 4,
+            "left": 0,
+            "right": 0,
             "top": 0,
             "bottom": 0
         };
 
-        const rextexteditplugin = scene.game.plugins.get('rextexteditplugin');
-        rextexteditplugin.add(self._bitmapText, {
-            type: 'text',
-            enterClose: true,
-            selectAll: true,
-          
-            onOpen: function (textObject) {
-                console.log('Open text editor');
-            },
-            onTextChanged: function (textObject, text) {
-                textObject.text = text;
-                console.log(`Text: ${text}`);
-            },
-            onClose: function (textObject) {
-                console.log('Close text editor');
-            },
-        });
+        
     }
 
     UpdateColors() {
@@ -170,6 +141,28 @@ export default class UITextBox {
         this._backgroundSprite.setTint(backgroundTint);
         this._borderSprite.setTint(borderTint);
         this._bitmapText.setTint(borderTint);
+    }
+
+    _MakeSureTexTextEditorExists() {
+        if (this._rextextedit == null) {
+            const rextexteditplugin = this._scene.game.plugins.get('rextexteditplugin');
+            this._rextextedit = rextexteditplugin.add(this._bitmapText, {
+                type: 'text',
+                enterClose: true,
+                selectAll: true,
+            
+                onOpen: function (textObject) {
+                    console.log('Open text editor');
+                },
+                onTextChanged: function (textObject, text) {
+                    textObject.text = text;
+                    console.log(`Text: ${text}`);
+                },
+                onClose: function (textObject) {
+                    console.log('Close text editor');
+                },
+            });
+        }
     }
     
     Layout(x, y, width = 0) {
@@ -195,11 +188,29 @@ export default class UITextBox {
         self._bitmapText.setPosition(x + border + margin, y + border);
         self._bitmapText.setMaxWidth(width);
 
+        self._bitmapText.style.fixedWidth = width;
+        self._bitmapText.style.fixedHeight = height;
+
+        const hitLeft = x + border + margin;
+        const hitTop = y + border; 
+        const hitWidth = width - margin - border * 2 - 1;
+        const hitHeight = height - border * 2 - 1;
+        
+        self._scene.input.setHitArea(self._bitmapText, 
+            new Phaser.Geom.Rectangle(hitLeft, hitTop, hitWidth, hitHeight),
+            (hitArea, x, y, gameObject) => {
+                const _hitWidth = self._width - UIGlobals.Sizes.TextboxTextMargin - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
+                const _hitHeight = self._height - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
+                return x >= 0 && y >= 0 && x <= _hitWidth && y <= _hitHeight;
+            }
+        );
+
         /*let styleText = JSON.stringify( self._bitmapText, null, 4);
         console.log("Bitmap Text:\n" + styleText);
         styleText = JSON.stringify( self._borderSprite, null, 4);
         console.log("Border Sprite:\n" + styleText);*/
 
+        self._MakeSureTexTextEditorExists();
         self.UpdateColors();
     }
 }
