@@ -5,6 +5,7 @@ export default class UIToggle {
     _state = false;
     _x = 0;
     _y = 0;
+    _width = 0; // only set in layout
     _text = null;
     _border = null;
     _background = null;
@@ -132,6 +133,8 @@ export default class UIToggle {
         self._check2.setScale(border * 2, height - height / 4);
         self._check1.setAngle(45);
         self._check2.setAngle(-45);
+
+        self._width = width + UIGlobals.Sizes.CheckboxMargin + self._text.width;
 
         self.UpdateColors();
     }

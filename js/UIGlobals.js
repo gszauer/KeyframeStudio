@@ -37,6 +37,9 @@ export default class UIGlobals {
         CheckboxSize:21,
         CheckboxBorder: 1,
         CheckboxMargin: 4,
+        TextboxHeight: 24,
+        TextboxTextMargin: 4,
+        TextBoxBorderSize: 1,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
