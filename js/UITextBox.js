@@ -15,16 +15,19 @@ export default class UITextBox {
     _clickHandlerSprite = null;
 
     _rextextedit = null;
+    _maskRect = null;
 
-    onTextChanged = null; // Callback
+    onTextEdit = null; // Callback: (string)
 
-    constructor(scene, text = "", defaultWidth = 0) {
+    constructor(scene, text = "", onTextEdit = null, defaultWidth = 0) {
         this._scene = scene;
         const self = this;
         self._defaultWidth = defaultWidth;
         if (defaultWidth == 0) {
             self._defaultWidth = 150;
         }
+        self._text = text;
+        self.onTextEdit = onTextEdit;
 
         self._borderSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._borderSprite.setDepth(UIGlobals.WidgetLayer);
@@ -37,15 +40,11 @@ export default class UITextBox {
         self._bitmapText = scene.add.bitmapText(0, 0, UIGlobals.Font100, name);
         self._bitmapText.setDepth(UIGlobals.WidgetLayer);
         self._bitmapText.text = text;
-        self._text = text;
+
+        self._maskRect = scene.add.rectangle(0, 0, 100, 100, 0x000000).setVisible(false).setOrigin(0, 0);
+        const mask = self._maskRect.createGeometryMask();
+        self._bitmapText.setMask(mask);
         
-        
-        /*Object.defineProperty(self._bitmapText, 'x', { get: function() { 
-            return self._x + UIGlobals.Sizes.TextBoxBorderSize + UIGlobals.Sizes.TextboxTextMargin;
-        }});
-        Object.defineProperty(self._bitmapText, 'y', { get: function() { 
-            return self._y + UIGlobals.Sizes.TextBoxBorderSize; 
-        }});*/
         Object.defineProperty(self._bitmapText, 'width', { get: function() { 
             return self._width - UIGlobals.Sizes.TextboxTextMargin - UIGlobals.Sizes.TextBoxBorderSize * 2 - 1;
         }});
@@ -121,19 +120,88 @@ export default class UITextBox {
             "top": 0,
             "bottom": 0
         };
+        self._rextextedit = this._scene.game.plugins.get('rextexteditplugin');
 
+        //self._bitmapText.setInteractive();
+        self._bitmapText.on("pointerover", function (pointer, localX, localY, event) {
+            if (UIGlobals.Active == null) {
+                UIGlobals.Hot = self._bitmapText;
+            }
+
+            self.UpdateColors();
+        });
+        self._bitmapText.on("pointerout", function (pointer, event) {
+            if (UIGlobals.Hot == self._bitmapText) {
+                UIGlobals.Hot = null;
+            }
+
+            self.UpdateColors();
+        });
+
+        self._bitmapText.on("pointerdown", function (pointer, localX, localY, event) {
+            UIGlobals.Active = self._bitmapText;
+
+            self.UpdateColors();
+        });
+
+        scene.input.on("pointerup", function(pointer, currentlyOver) {
+            if (UIGlobals.Active != null && UIGlobals.Active == self._bitmapText) {
+                let left = self._x;;
+                let right = left + self._width;
+                let top = self._y;
+                let bottom = top + self._height;
+
+                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                    self.EditTextBox();
+                }
+                
+                UIGlobals.Active = null;
+                self.UpdateColors();
+            }
+        });
+
+    }
+
+    EditTextBox() {
+        const self = this;
+
+        self._rextextedit.edit(this._bitmapText, {
+            type: 'text',
+            enterClose: true,
+            selectAll: true,
         
+            onOpen: function (textObject) {
+                UIGlobals.Active = self._bitmapText;
+                self.UpdateColors();
+            },
+            /*onTextChanged: function (textObject, text) {
+                textObject.text = text;
+                console.log(`Text: ${text}`);
+            },*/
+            onClose: function (textObject) {
+                if (UIGlobals.Active != null && UIGlobals.Active == self._bitmapText) {
+                    UIGlobals.Active = null;
+                    UIGlobals.Hot = null;
+                }
+
+                if (self.onTextEdit != null) {
+                    self.onTextEdit(textObject.text);
+                }
+
+                self.UpdateColors();
+            },
+        });
     }
 
     UpdateColors() {
         let borderTint = UIGlobals.Colors.ElementBorderTintIdle;
         let backgroundTint = UIGlobals.Colors.BackgroundLayer1;
 
-        if (UIGlobals.Hot == this._borderSprite) {
+        if (UIGlobals.Hot == this._bitmapText) {
             borderTint = UIGlobals.Colors.ElementBorderTintHot;
             backgroundTint = UIGlobals.Colors.BackgroundLayer2;
         }
-        if (UIGlobals.Active == this._borderSprite) {
+        if (UIGlobals.Active == this._bitmapText) {
             borderTint = UIGlobals.Colors.ElementBorderTintActive;
             backgroundTint = UIGlobals.Colors.BackgroundLayer2;
         }
@@ -141,28 +209,6 @@ export default class UITextBox {
         this._backgroundSprite.setTint(backgroundTint);
         this._borderSprite.setTint(borderTint);
         this._bitmapText.setTint(borderTint);
-    }
-
-    _MakeSureTexTextEditorExists() {
-        if (this._rextextedit == null) {
-            const rextexteditplugin = this._scene.game.plugins.get('rextexteditplugin');
-            this._rextextedit = rextexteditplugin.add(this._bitmapText, {
-                type: 'text',
-                enterClose: true,
-                selectAll: true,
-            
-                onOpen: function (textObject) {
-                    console.log('Open text editor');
-                },
-                onTextChanged: function (textObject, text) {
-                    textObject.text = text;
-                    console.log(`Text: ${text}`);
-                },
-                onClose: function (textObject) {
-                    console.log('Close text editor');
-                },
-            });
-        }
     }
     
     Layout(x, y, width = 0) {
@@ -186,7 +232,6 @@ export default class UITextBox {
         self._backgroundSprite.setScale(width - border * 2, height - border * 2);
 
         self._bitmapText.setPosition(x + border + margin, y + border);
-        self._bitmapText.setMaxWidth(width);
 
         self._bitmapText.style.fixedWidth = width;
         self._bitmapText.style.fixedHeight = height;
@@ -195,6 +240,9 @@ export default class UITextBox {
         const hitTop = y + border; 
         const hitWidth = width - margin - border * 2 - 1;
         const hitHeight = height - border * 2 - 1;
+
+        self._maskRect.setPosition(x, y);
+        self._maskRect.setSize(width - border - margin, height)
         
         self._scene.input.setHitArea(self._bitmapText, 
             new Phaser.Geom.Rectangle(hitLeft, hitTop, hitWidth, hitHeight),
@@ -205,12 +253,6 @@ export default class UITextBox {
             }
         );
 
-        /*let styleText = JSON.stringify( self._bitmapText, null, 4);
-        console.log("Bitmap Text:\n" + styleText);
-        styleText = JSON.stringify( self._borderSprite, null, 4);
-        console.log("Border Sprite:\n" + styleText);*/
-
-        self._MakeSureTexTextEditorExists();
         self.UpdateColors();
     }
 }

@@ -5,6 +5,7 @@ import UIToggle from './UIToggle.js'
 import UIEditorBar from './UIEditorBar.js'
 import UIDropdown from './UIDropdown.js'
 import UITextBox from './UITextBox.js'
+import * as TextEditPlugin from './rextexteditplugin.js';
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -19,7 +20,7 @@ export default class Application extends Phaser.Scene {
 
     preload() {
         const scene = this;
-        this.load.plugin('rextexteditplugin', 'js/rextexteditplugin.js', true);
+        //this.load.plugin('rextexteditplugin', 'js/rextexteditplugin.js', true);
 
         this._atlas = scene.load.atlas(UIGlobals.Atlas, 'img/atlas.png', 'img/atlas.json');
         
@@ -102,7 +103,7 @@ export default class Application extends Phaser.Scene {
         testDropdown.SetMenu(testPopup);
 
         const testToggle = new UIToggle(this, "Foo");
-        const textBoxer = new UITextBox(this, "Foo bar", 250);
+        const textBoxer = new UITextBox(this, "Foo bar", null, 250);
 
         testDropdown.Layout(100, 40, 240);
         testToggle.Layout(360, 39 + 3);
@@ -143,6 +144,14 @@ window.addEventListener('load', () => {
         dom: {
             createContainer: true
         },
+        plugins: {
+            global: [{
+                key: 'rextexteditplugin',
+                plugin: rextexteditplugin,
+                start: true
+            },
+            ]
+        }
     }
    
     const game = new Phaser.Game(config);
