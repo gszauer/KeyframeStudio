@@ -1,6 +1,6 @@
 import UIGlobals from './UIGlobals.js'
 
-export default class UIEditorBar {
+export default class UIToolBar {
     _scene = null;
 
     _y = 0;

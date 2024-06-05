@@ -2,14 +2,16 @@ import UIMenu from './UIMenu.js'
 import UIPopup from './UIPopup.js'
 import UIGlobals from './UIGlobals.js'
 import UIToggle from './UIToggle.js'
-import UIEditorBar from './UIEditorBar.js'
+import UIToolBar from './UIToolBar.js'
 import UIDropdown from './UIDropdown.js'
 import UITextBox from './UITextBox.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
+import UIToolBox from './UIToolBox.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
-    _editorBar = null;
+    _toolBar = null;
+    _toolBox = null;
 
     _atlas = null;
     rextexteditplugin = null;
@@ -53,7 +55,8 @@ export default class Application extends Phaser.Scene {
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font500, UIGlobals.Atlas, UIGlobals.Font500 + ".png", UIGlobals.Font500 + ".xml");
 
         self._topMenu = new UIMenu(self);
-        self._editorBar = new UIEditorBar(self);
+        self._toolBar = new UIToolBar(self);
+        self._toolBox = new UIToolBox(self);
 
         const fileMenu = new UIPopup(self);
         self._topMenu.Add("File", fileMenu);
@@ -114,19 +117,13 @@ export default class Application extends Phaser.Scene {
 
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
             self.Layout();
-            textBoxer.Layout(360 + 20 + testToggle._width, 40, 500);
-
         });
-    }
-
-    Destroy() {
-        this._topMenu.Destroy();
-        this._topMenu = null;
     }
 
     Layout() {
         this._topMenu.Layout();
-        this._editorBar.Layout();
+        this._toolBar.Layout();
+        this._toolBox.Layout();
     }
 }
 

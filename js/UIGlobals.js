@@ -40,6 +40,8 @@ export default class UIGlobals {
         TextboxHeight: 24,
         TextboxTextMargin: 4,
         TextBoxBorderSize: 1,
+        ToolboxWidth: 50,
+        ToolboxPadding: 1
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
