@@ -51,7 +51,8 @@ export default class UIGlobals {
         TextBoxBorderSize: 1,
         ToolboxWidth: 42,
         ToolboxPadding: 1,
-        ToolboxButtonSize: 24,
+        ToolboxButtonSize: 28,
+        ToolboxButtonIconSize: 20,
         ToolboxButtonPadding: 8,
         ToolboxButtonDividerHeight: 2,
     }

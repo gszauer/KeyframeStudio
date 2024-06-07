@@ -15,9 +15,13 @@ export default class UIToolBox {
     _seperators = [];
 
     _activeIndex = -1;
+    _selected = null;
+    onToolChanged = null; // onToolChanged(buttonName, buttonObject)
 
-    constructor(scene) {
+    constructor(scene, _onToolChanged = null) {
         this._scene = scene;
+        this.onToolChanged = _onToolChanged;
+        const self = this;
 
         this._borderSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._borderSprite.setDepth(UIGlobals.WidgetLayer);
@@ -26,9 +30,36 @@ export default class UIToolBox {
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         this._backgroundSprite.setOrigin(0, 0);
+
+        scene.input.on("pointerup", function(pointer, currentlyOver) {
+            const size = self._buttons.length;
+            let reColor = false;
+            for (let i = 0; i < size; ++i) {
+                if (self._buttons[i] != null) {
+                    if (self._buttons[i].HandlePointerUpEvent(pointer, currentlyOver)) {
+                        const _iconName = self._buttons[i]._iconName;
+                        self._selected = self._GetButtonByName(_iconName);
+                        console.log("Selected: " + _iconName);
+                        if (self.onToolChanged != null) {
+                            self.onToolChanged(_iconName, self._buttons[i]);
+                        }
+                        reColor = true;
+                    }
+                }
+            }
+            if (reColor) {
+                for (let i = 0; i < size; ++i) {
+                    if (self._buttons[i] != null) {
+                        self._buttons[i].UpdateColors();
+                    }
+                }
+            }
+        });
     }
 
-    Add(iconName, callback) {
+    Add(iconName, callback = null) {
+        const self = this;
+
         if (iconName == "" || iconName == null) {
             const seperator = this._scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
             this._buttons.push(null);
@@ -40,10 +71,32 @@ export default class UIToolBox {
             return seperator;
         }
 
+        /*const wrappedCallback = function(_iconName) {
+            self._selected = self._GetButtonByName(_iconName);
+            console.log("Selected: " + _iconName);
+            if (callback != null) {
+                callback(_iconName);
+            }
+            self.Layout();
+        };*/
+
         const button = new UIToolBoxButton(this._scene, iconName, callback);
+        button._parent = this;
         this._buttons.push(button);
         this._seperators.push(null);
         return button;
+    }
+
+    _GetButtonByName(iconName) {
+        const size = this._buttons.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._buttons[i] != null) {
+                if (this._buttons[i]._iconName == iconName) {
+                    return this._buttons[i];
+                }
+            }
+        }
+        return null;
     }
 
     Layout() {
