@@ -14,6 +14,15 @@ export default class UIGlobals {
     static Font400 = "AdobeClean24";
     static Font500 = "AdobeClean27";
 
+    static IconHand = "IcondHand.png";
+    static IconGrid = "IconGrid.png";
+    static IconHome = "IconHome.png";
+    static IconMove = "IconMove.png";
+    static IconRotate = "IconRotate.png";
+    static IconScale = "IconScale.png";
+    static IconZoomIn = "IconZoomIn.png";
+    static IconZoomOut = "IconZoomOut.png";
+
     static Hot = null;
     static Active = null;
 
@@ -40,8 +49,11 @@ export default class UIGlobals {
         TextboxHeight: 24,
         TextboxTextMargin: 4,
         TextBoxBorderSize: 1,
-        ToolboxWidth: 50,
-        ToolboxPadding: 1
+        ToolboxWidth: 42,
+        ToolboxPadding: 1,
+        ToolboxButtonSize: 24,
+        ToolboxButtonPadding: 8,
+        ToolboxButtonDividerHeight: 2,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

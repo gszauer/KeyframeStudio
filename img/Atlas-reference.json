@@ -10,69 +10,6 @@
 			"scale": 1,
 			"frames": [
 				{
-					"filename": "AdobeClean27.png",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 176,
-						"h": 176
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 176,
-						"h": 176
-					},
-					"frame": {
-						"x": 1,
-						"y": 1,
-						"w": 176,
-						"h": 176
-					}
-				},
-				{
-					"filename": "AdobeClean24.png",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 158,
-						"h": 158
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 158,
-						"h": 158
-					},
-					"frame": {
-						"x": 1,
-						"y": 179,
-						"w": 158,
-						"h": 158
-					}
-				},
-				{
-					"filename": "AdobeClean22.png",
-					"rotated": false,
-					"trimmed": false,
-					"sourceSize": {
-						"w": 148,
-						"h": 148
-					},
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 148,
-						"h": 148
-					},
-					"frame": {
-						"x": 1,
-						"y": 339,
-						"w": 148,
-						"h": 148
-					}
-				},
-				{
 					"filename": "solid.png",
 					"rotated": false,
 					"trimmed": false,

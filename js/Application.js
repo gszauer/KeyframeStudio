@@ -85,11 +85,12 @@ export default class Application extends Phaser.Scene {
         self._topMenu.Add("Animation", animation);
         animation.Add("New Animation", null);
         animation.Add("", null);
-        animation.Add("Animate Draw Order Track", null);
-        animation.Add("Animate Position Track", null);
-        animation.Add("Animate Rotation Track", null);
-        animation.Add("Animate Scale Track", null);
-        animation.Add("Animate Tint Track", null);
+        animation.Add("Create Position Track", null);
+        animation.Add("Create Rotation Track", null);
+        animation.Add("Create Scale Track", null);
+        animation.Add("Create Draw Order Track", null);
+        animation.Add("Create Tint Track", null);
+        animation.Add("Create Visibility Track", null);
 
         const helpMenu = new UIPopup(self);
         self._topMenu.Add("Help", helpMenu);
@@ -111,6 +112,14 @@ export default class Application extends Phaser.Scene {
         testDropdown.Layout(100, 40, 240);
         testToggle.Layout(360, 39 + 3);
         textBoxer.Layout(360 + 20 + testToggle._width, 40);
+
+        this._toolBox.Add(UIGlobals.IconMove, null);
+        this._toolBox.Add(UIGlobals.IconRotate, null);
+        this._toolBox.Add(UIGlobals.IconScale, null);
+        this._toolBox.Add("", null);
+        this._toolBox.Add(UIGlobals.IconHand, null);
+        this._toolBox.Add(UIGlobals.IconZoomIn, null);
+        this._toolBox.Add(UIGlobals.IconGrid, null);
 
 
         self.Layout();

@@ -201,6 +201,174 @@
 						"w": 101,
 						"h": 101
 					}
+				},
+				{
+					"filename": "IconGrid.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 285,
+						"y": 407,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconHome.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 362,
+						"y": 407,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconMove.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 388,
+						"y": 1,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconRotate.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 292,
+						"y": 1,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconScale.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 388,
+						"y": 78,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconZoomIn.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 292,
+						"y": 78,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconZoomOut.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 388,
+						"y": 155,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IcondHand.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 286,
+						"y": 155,
+						"w": 75,
+						"h": 75
+					}
 				}
 			]
 		}
