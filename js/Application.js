@@ -7,11 +7,14 @@ import UIDropdown from './UIDropdown.js'
 import UITextBox from './UITextBox.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
 import UIToolBox from './UIToolBox.js'
+import UISplitView from './UISplitView.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
     _toolBar = null;
     _toolBox = null;
+    _mainSplitter = null;
+    _timelineSplitter = null;
 
     _atlas = null;
     rextexteditplugin = null;
@@ -121,6 +124,14 @@ export default class Application extends Phaser.Scene {
         this._toolBox.Add(UIGlobals.IconZoomIn, null);
         this._toolBox.Add(UIGlobals.IconGrid, null);
 
+        this._mainSplitter = new UISplitView(this, null);
+        this._mainSplitter._distance = 300;
+        this._mainSplitter.pinLeft = false;
+
+        this._timelineSplitter = this._mainSplitter.a = new UISplitView(this, this._mainSplitter);
+        this._timelineSplitter.horizontal = false;
+        this._timelineSplitter._distance = 280;
+        this._timelineSplitter.pinTop = false;
 
         self.Layout();
 
@@ -133,6 +144,12 @@ export default class Application extends Phaser.Scene {
         this._topMenu.Layout();
         this._toolBar.Layout();
         this._toolBox.Layout();
+
+        const x = this._toolBox._width;
+        const y = this._topMenu._height + this._toolBar._height;
+        const width = this.scale.width - x;
+        const height = this.scale.height - y;
+        this._mainSplitter.Layout(x, y, width, height);
     }
 }
 
