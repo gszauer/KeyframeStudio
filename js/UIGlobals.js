@@ -56,6 +56,9 @@ export default class UIGlobals {
         ToolboxButtonPadding: 8,
         ToolboxButtonDividerHeight: 2,
         SplitViewSplitterSize: 3,
+        TabHeight: 30,
+        TabBorderSize: 2,
+        TabMargin: 5
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

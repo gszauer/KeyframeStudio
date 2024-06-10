@@ -96,7 +96,7 @@ export default class UISplitView extends UIView {
             this.b.UpdateColors();
         }
 
-        let borderTint = UIGlobals.Colors.BorderDecorative;//UIGlobals.Colors.ElementBorderTintIdle;
+        let borderTint = UIGlobals.Colors.BorderFraming;//UIGlobals.Colors.ElementBorderTintIdle;
 
         if (UIGlobals.Hot == this._dividerSprite) {
             borderTint = UIGlobals.Colors.ElementBorderTintIdle;//UIGlobals.Colors.ElementBorderTintHot;

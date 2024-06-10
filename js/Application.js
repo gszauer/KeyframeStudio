@@ -8,6 +8,7 @@ import UITextBox from './UITextBox.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
 import UIToolBox from './UIToolBox.js'
 import UISplitView from './UISplitView.js'
+import UITabView from './UITabView.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -15,6 +16,8 @@ export default class Application extends Phaser.Scene {
     _toolBox = null;
     _mainSplitter = null;
     _timelineSplitter = null;
+    _toolSplitter = null;
+    _inspectorTabs = null;
 
     _atlas = null;
     rextexteditplugin = null;
@@ -75,10 +78,11 @@ export default class Application extends Phaser.Scene {
         self._topMenu.Add("Edit", editMenu);
         editMenu.Add("Undo", null);
         editMenu.Add("Redo", null);
-        editMenu.Add("", null);
+        // TODO: This might make sense for frames, but i'm not sure how those will work!
+        /*editMenu.Add("", null);
         editMenu.Add("Cut", null);
         editMenu.Add("Copy", null);
-        editMenu.Add("Paste", null);
+        editMenu.Add("Paste", null);*/
 
         const sceneMenu = new UIPopup(self);
         self._topMenu.Add("Scene", sceneMenu);
@@ -132,6 +136,18 @@ export default class Application extends Phaser.Scene {
         this._timelineSplitter.horizontal = false;
         this._timelineSplitter._distance = 280;
         this._timelineSplitter.pinTop = false;
+
+        this._toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);
+        this._toolSplitter.horizontal = false;
+        this._toolSplitter._distance = 450;
+
+        this._inspectorTabs = this._toolSplitter.a = new UITabView(this, this._toolSplitter.a);
+        this._inspectorTabs.Add("Inspector", null);
+        this._inspectorTabs.Add("Draw Order", null);
+
+        const tabbedArea = this._toolSplitter.b = new UITabView(this, this._toolSplitter.b);
+        tabbedArea.Add("Empty");
+        tabbedArea.Add("Splitter Test");
 
         self.Layout();
 
