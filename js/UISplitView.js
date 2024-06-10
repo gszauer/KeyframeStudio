@@ -88,6 +88,26 @@ export default class UISplitView extends UIView {
         });
     }
 
+    Hide() {
+        this._dividerSprite.setActive(false).setVisible(false);
+        if (this.a != null) {
+            this.a.Hide();
+        }
+        if (this.b != null) {
+            this.b.Hide();
+        }
+    }
+
+    Show() {
+        this._dividerSprite.setActive(true).setVisible(true);
+        if (this.a != null) {
+            this.a.Show();
+        }
+        if (this.b != null) {
+            this.b.Show();
+        }
+    }
+
     UpdateColors() {
         if (this.a != null) {
             this.a.UpdateColors();

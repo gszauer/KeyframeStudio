@@ -18,6 +18,7 @@ export default class Application extends Phaser.Scene {
     _timelineSplitter = null;
     _toolSplitter = null;
     _inspectorTabs = null;
+    _sceneTabs = null;
 
     _atlas = null;
     rextexteditplugin = null;
@@ -145,12 +146,14 @@ export default class Application extends Phaser.Scene {
         this._inspectorTabs.Add("Inspector", null);
         this._inspectorTabs.Add("Draw Order", null);
 
-        const tabbedArea = this._toolSplitter.b = new UITabView(this, this._toolSplitter.b);
-        tabbedArea.Add("Empty");
-        tabbedArea.Add("Splitter Test");
+        this._sceneTabs = this._toolSplitter.b = new UITabView(this, this._toolSplitter.b);
+        this._sceneTabs.Add("Hierarchy", null);
+        this._sceneTabs.Add("Assets", null);
+        this._sceneTabs.Add("Animations", null);
+        //this._sceneTabs.Add("Undo History");
+        
 
         self.Layout();
-
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
             self.Layout();
         });

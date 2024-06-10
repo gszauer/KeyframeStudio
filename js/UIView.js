@@ -20,9 +20,20 @@ export default class UIView {
     }
 
     Layout(x, y, width, height) {
+        if (width < 0) { width = 0; }
+        if (height < 0) { height = 0; }
+        
         this._x = x;
         this._y = y;
         this._width = width;
         this._height = height;
+    }
+
+    Hide() {
+        throw new Error("View hide method not implemented");
+    }
+
+    Show() {
+        throw new Error("View hide method not implemented");
     }
 }

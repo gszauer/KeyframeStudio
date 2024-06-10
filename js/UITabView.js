@@ -70,7 +70,13 @@ export default class UITabView extends UIView {
     }
 
     _ActiveViewChanged(oldActive, oldActiveKey) {
-        // TODO: Hide Old View, Show new View
+        if (oldActive != null) {
+            oldActive.Hide();
+        }
+        const newActive = this._active;
+        if (newActive != null) {
+            newActive.Show();
+        }
         this.Layout(this._x, this._y, this._width, this._height);
     }
 
@@ -98,6 +104,11 @@ export default class UITabView extends UIView {
         if (this._activeKey == null) {
             this._active = view;
             this._activeKey = name;
+        }
+        else {
+            if (view != null) {
+                view.Hide();
+            }
         }
 
         background.setInteractive();
