@@ -9,19 +9,25 @@ export default class UIScrollView extends UIView {
     showHorizontal = true; // TODO: False by default
     showVertical = true;
     _hidden = false;
+    _maskRect = null;
+    _backgroundSprite = null;
 
     constructor(scene, parent = null) {
         super(scene, parent);
+
+        this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._backgroundSprite.setOrigin(0, 0);
+        this._backgroundSprite.setDepth(UIGlobals.WidgetLayer - 1); // Nudge a bit
 
         this.container = scene.add.container(0, 0);
         this.verticalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar.horizontal = true;
 
-         // debug only
-         this.horizontalScrollBar.current = 0.5;
-         this.verticalScrollBar.current = 0.5;
-         // end debug
+        this._maskRect = scene.add.rectangle(0, 0, 100, 100, 0x000000).setVisible(false).setOrigin(0, 0);
+        const mask = this._maskRect.createGeometryMask();
+        this.container.setMask(mask);
+        this.container.setDepth(UIGlobals.WidgetLayer); 
 
         const self = this;
         const scrollFunction = function(value) {
@@ -30,10 +36,10 @@ export default class UIScrollView extends UIView {
 
         this.horizontalScrollBar.onScroll = scrollFunction;
         this.verticalScrollBar.onScroll = scrollFunction;
-
     }
 
     UpdateColors() {
+        this._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
         this.verticalScrollBar.UpdateColors();
     }
 
@@ -47,6 +53,12 @@ export default class UIScrollView extends UIView {
         const scrollSize = UIGlobals.Sizes.ScrollTrackSize;
         const bounds = this.container.getBounds();
 
+        this._backgroundSprite.setPosition(x, y);
+        this._backgroundSprite.setScale(width, height);
+
+        let maskWidth = width;
+        let maskHeight = height;
+
         let contentRatio = 0.0;
         if (bounds.height > 0) {
             contentRatio = height / bounds.height;
@@ -54,9 +66,11 @@ export default class UIScrollView extends UIView {
 
         if (this.showHorizontal && this.showVertical) {
             this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height - scrollSize, contentRatio);
+            maskWidth -= scrollSize;
         }
         else if (this.showVertical) {
             this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height, contentRatio);
+            maskWidth -= scrollSize;
         }
 
         contentRatio = 0.0;
@@ -66,10 +80,15 @@ export default class UIScrollView extends UIView {
 
         if (this.showHorizontal && this.showVertical) {
             this.horizontalScrollBar.Layout(x, y + height - scrollSize, width - scrollSize, scrollSize, contentRatio);
+            maskHeight -= scrollSize;
         }
         else if (this.showHorizontal) {
             this.horizontalScrollBar.Layout(x, y + height - scrollSize, width, scrollSize, contentRatio);
+            maskHeight -= scrollSize;
         }
+
+        this._maskRect.setPosition(x, y);
+        this._maskRect.setSize(maskWidth, maskHeight)
 
         if (this.showVertical && !this._hidden) {
             this.verticalScrollBar.Show();

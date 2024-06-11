@@ -26,8 +26,8 @@ export default class UIGlobals {
     static Hot = null;
     static Active = null;
 
-    static WidgetLayer = 500;
-    static OverlayLayer = 1000;
+    static WidgetLayer = 50;
+    static OverlayLayer = 100;
 
     static Sizes = {
         TopMenuHeight: 32,
@@ -61,6 +61,7 @@ export default class UIGlobals {
         TabMargin: 5,
         ScrollTrackSize: 20,
         ScrollTrackMinGripSize: 30,
+        ScrollBorderSize: 2,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

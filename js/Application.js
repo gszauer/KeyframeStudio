@@ -174,6 +174,7 @@ export default class Application extends Phaser.Scene {
         self.Layout();
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
             self.Layout();
+            textBoxer.Layout(360 + 20 + testToggle._width, 40, 400);
         });
     }
 

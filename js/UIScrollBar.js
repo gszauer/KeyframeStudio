@@ -22,36 +22,53 @@ export default class UIScrollBar {
     onScroll = null; // OnScroll(float normalized);
     current = 0; // 0 to 1 depending on current scroll
 
-    _buttonASprite = null;
-    _buttonBSprite = null;
+    
+
     _trackSprite = null;
     _gripSprite = null;
 
     constructor(scene) {
+        const self = this;
+
         this._trackSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._trackSprite.setOrigin(0, 0);
         this._trackSprite.setDepth(UIGlobals.WidgetLayer);
 
-        this._buttonASprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._buttonASprite.setOrigin(0, 0);
-        this._buttonASprite.setDepth(UIGlobals.WidgetLayer);
-        
-        this._buttonBSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._buttonBSprite.setOrigin(0, 0);
-        this._buttonBSprite.setDepth(UIGlobals.WidgetLayer);
-        
         this._gripSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._gripSprite.setOrigin(0, 0);
         this._gripSprite.setDepth(UIGlobals.WidgetLayer);
 
+       
+
         this._gripSprite.setInteractive();
         scene.input.setDraggable(this._gripSprite);
 
-        const self = this;
-        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+        self._gripSprite.on("pointerover", function (pointer, localX, localY, event) {
+            if (UIGlobals.Active == null) {
+                UIGlobals.Hot = self._gripSprite;
+            }
+
+            self.UpdateColors();
+        });
+        self._gripSprite.on("pointerout", function (pointer, event) {
+            if (UIGlobals.Hot == self._gripSprite) {
+                UIGlobals.Hot = null;
+            }
+
+            self.UpdateColors();
+        });
+
+        scene.input.on('dragstart', (pointer, gameObject) => {
             if (gameObject != self._gripSprite) { return; }
             
-            // UIGlobals.Active = self._dividerSprite;
+            UIGlobals.Active = self._gripSprite;
+            self.UpdateColors();
+        });
+
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject != self._gripSprite) { return; }
+            UIGlobals.Active = self._gripSprite;
+
             let x = gameObject.x;
             let y = gameObject.y;
             if (self.horizontal) {
@@ -91,80 +108,80 @@ export default class UIScrollBar {
                 self.Layout(self._x, self._y, self._width, self._height, self._contentRatio);
             }
         });
+
+        scene.input.on('dragend', (pointer, gameObject) => {
+            if (gameObject != self._gripSprite) { return; }
+
+            if (UIGlobals.Active == self._gripSprite) {
+                UIGlobals.Active = null;
+            }
+            self.UpdateColors();
+
+        });
     }
 
     Hide() {
-        this._buttonASprite.setActive(false).setVisible(false);
-        this._buttonBSprite.setActive(false).setVisible(false);
         this._trackSprite.setActive(false).setVisible(false);
         this._gripSprite.setActive(false).setVisible(false);
     }
 
     Show() {
-        this._buttonASprite.setActive(true).setVisible(true);
-        this._buttonBSprite.setActive(true).setVisible(true);
         this._trackSprite.setActive(true).setVisible(true);
         this._gripSprite.setActive(true).setVisible(true);
     }
 
     UpdateColors() {
-        this._buttonASprite.setTint(0xff0000);
-        this._buttonBSprite.setTint(0xff0000);
-        this._trackSprite.setTint(0x0000ff);
-        this._gripSprite.setTint(0x00ff00);
+        this._trackSprite.setTint(UIGlobals.Colors.BackgroundLayer0);
+        let gripColor = UIGlobals.Colors.BackgroundLayer2;
+
+        if (UIGlobals.Hot == this._gripSprite) {
+            gripColor = UIGlobals.Colors.BorderDecorative;
+        }
+
+        if (UIGlobals.Active == this._gripSprite) {
+            gripColor = UIGlobals.Colors.BorderFraming;
+        }
+
+        this._gripSprite.setTint(gripColor);
     }
     
     Layout(x, y, width, height, contentRatio) {
         if (contentRatio === null || contentRatio === undefined) {
             throw Error("cotnent ratio is not optional for UIScrollBar");
         }
+
         const scrollTrackSize = UIGlobals.Sizes.ScrollTrackSize;
         const horizontal = this.horizontal;
         const minGripSize = UIGlobals.Sizes.ScrollTrackMinGripSize;
+        let borderX = UIGlobals.Sizes.ScrollBorderSize;
+        let borderY = UIGlobals.Sizes.ScrollBorderSize;
+
         this._contentRatio = contentRatio;
 
-        if (contentRatio < 0) {
-            contentRatio = 0;
-        }
-        if (contentRatio > 1) {
-            contentRatio = 1;
-        }
-        if (this.current < 0) {
-            this.current = 0;
-        }
-        if (this.current > 1) {
-            this.current = 1;
-        }
+        if (contentRatio < 0) { contentRatio = 0; }
+        if (contentRatio > 1) { contentRatio = 1; }
+        if (this.current < 0) { this.current = 0; }
+        if (this.current > 1) { this.current = 1; }
 
         if (horizontal) {
             height = scrollTrackSize;
             if (width < scrollTrackSize * 4) {
                 width = scrollTrackSize * 4;
             }
+            borderX = 0;
         }
         else {
             width = scrollTrackSize;
             if (height < scrollTrackSize * 4) {
                 height = scrollTrackSize * 4;
             }
+            borderY = 0;
         }
 
         this._x = x;
         this._y = y;
         this._width = width;
         this._height = height;
-
-        this._buttonASprite.setPosition(x, y);
-        this._buttonASprite.setScale(scrollTrackSize, scrollTrackSize);
-
-        if (horizontal) {
-            x += scrollTrackSize;
-            width -= scrollTrackSize * 2;
-        }
-        else {
-            y += scrollTrackSize;
-            height -= scrollTrackSize * 2;
-        }
 
         this._trackX = x;
         this._trackY = y;
@@ -174,8 +191,13 @@ export default class UIScrollBar {
         this._trackSprite.setPosition(x, y);
         this._trackSprite.setScale(width, height);
 
-        let gripWidth = scrollTrackSize;
-        let gripHeight = scrollTrackSize;
+        x += borderX;
+        y += borderY;
+        width -= borderX * 2;
+        height -= borderY * 2;
+
+        let gripWidth = scrollTrackSize - borderX * 2;
+        let gripHeight = scrollTrackSize - borderY * 2;
 
         if (horizontal) {
             gripWidth = width * contentRatio;
@@ -207,16 +229,6 @@ export default class UIScrollBar {
 
         this._gripSprite.setPosition(_x, _y);
         this._gripSprite.setScale(gripWidth, gripHeight);
-
-        if (horizontal) {
-            x = this._x + this._width - scrollTrackSize;
-        }
-        else {
-            y = this._y + this._height - scrollTrackSize;
-        }
-
-        this._buttonBSprite.setPosition(x, y);
-        this._buttonBSprite.setScale(scrollTrackSize, scrollTrackSize);
 
         this.UpdateColors();
     }
