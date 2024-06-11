@@ -17,6 +17,20 @@ export default class UIScrollView extends UIView {
         this.verticalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar.horizontal = true;
+
+         // debug only
+         this.horizontalScrollBar.current = 0.5;
+         this.verticalScrollBar.current = 0.5;
+         // end debug
+
+        const self = this;
+        const scrollFunction = function(value) {
+            self.Layout(self._x, self._y, self._width, self._height);
+        }
+
+        this.horizontalScrollBar.onScroll = scrollFunction;
+        this.verticalScrollBar.onScroll = scrollFunction;
+
     }
 
     UpdateColors() {
@@ -34,7 +48,7 @@ export default class UIScrollView extends UIView {
         const bounds = this.container.getBounds();
 
         let contentRatio = 0.0;
-        if (this.container != null && bounds.height > 0) {
+        if (bounds.height > 0) {
             contentRatio = height / bounds.height;
         }
 
@@ -46,7 +60,7 @@ export default class UIScrollView extends UIView {
         }
 
         contentRatio = 0.0;
-        if (this.container != null && bounds.width > 0) {
+        if (bounds.width > 0) {
             contentRatio = width / bounds.width;
         }
 
@@ -70,15 +84,26 @@ export default class UIScrollView extends UIView {
         else {
             this.horizontalScrollBar.Hide();
         }
+
+        let _w = bounds.width - width;
+        let _h = bounds.height - height;
+        if (this.showVertical) {
+            _w += scrollSize;
+        }
+        if (this.showHorizontal) {
+            _h += scrollSize;
+        }
+
+        let containerX = x - (_w) * this.horizontalScrollBar.current;
+        let containerY = y - (_h) * this.verticalScrollBar.current;
+        this.container.setPosition(containerX, containerY);
     }
 
     Hide() {
         this._hidden = true;
         this.verticalScrollBar.Hide();
         this.horizontalScrollBar.Hide();
-        if (this.container != null) {
-            this.container.setActive(false).setVisible(false);
-        }
+        this.container.setActive(false).setVisible(false);
     }
 
     Show() {
@@ -89,8 +114,6 @@ export default class UIScrollView extends UIView {
         if (this.showHorizontal) {
             this.horizontalScrollBar.Show();
         }
-        if (this.container != null) {
-            this.container.setActive(true).setVisible(true);
-        }
+        this.container.setActive(true).setVisible(true);
     }
 }

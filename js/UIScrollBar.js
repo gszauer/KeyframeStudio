@@ -11,12 +11,12 @@ export default class UIScrollBar {
     _trackY = 0;
     _trackWidth = 0;
     _trackHeight = 0;
-    _trackScroll = 0; // scrollable width or height
 
     _gripX = 0;
     _gripY = 0;
     _gripWidth = 0;
     _gripHeight = 0;
+    _contentRatio = 0;
 
     horizontal = false;
     onScroll = null; // OnScroll(float normalized);
@@ -43,6 +43,54 @@ export default class UIScrollBar {
         this._gripSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._gripSprite.setOrigin(0, 0);
         this._gripSprite.setDepth(UIGlobals.WidgetLayer);
+
+        this._gripSprite.setInteractive();
+        scene.input.setDraggable(this._gripSprite);
+
+        const self = this;
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject != self._gripSprite) { return; }
+            
+            // UIGlobals.Active = self._dividerSprite;
+            let x = gameObject.x;
+            let y = gameObject.y;
+            if (self.horizontal) {
+                let x = dragX;//pointer.x;
+                let trackWidth = self._trackWidth - self._gripWidth;
+                if (trackWidth < 0) { trackWidth = 0; }
+                if (x < self._trackX) { x = self._trackX; }
+                if (x > self._trackX + trackWidth) { x = self._trackX + trackWidth; }
+
+                if (trackWidth <= 0) {
+                    self.current = 0;
+                }
+                else {
+                    self.current = (x - self._trackX) / trackWidth;
+                }
+                
+            }
+            else {
+                let y = dragY;//pointer.y;
+                let trackHeight = self._trackHeight - self._gripHeight;
+                if (trackHeight < 0) { trackHeight = 0; }
+                if (y < self._trackY) { y = self._trackY; }
+                if (y > self._trackY + trackHeight) { y = self._trackY + trackHeight; }
+
+                if (trackHeight <= 0) {
+                    self.current = 0;
+                }
+                else {
+                    self.current = (y - self._trackY) / trackHeight;
+                }
+            }
+            gameObject.setPosition(x, y);
+            if (self.onScroll != null) {
+                self.onScroll(self.current);
+            }
+            else {
+                self.Layout(self._x, self._y, self._width, self._height, self._contentRatio);
+            }
+        });
     }
 
     Hide() {
@@ -73,12 +121,19 @@ export default class UIScrollBar {
         const scrollTrackSize = UIGlobals.Sizes.ScrollTrackSize;
         const horizontal = this.horizontal;
         const minGripSize = UIGlobals.Sizes.ScrollTrackMinGripSize;
+        this._contentRatio = contentRatio;
 
         if (contentRatio < 0) {
             contentRatio = 0;
         }
         if (contentRatio > 1) {
             contentRatio = 1;
+        }
+        if (this.current < 0) {
+            this.current = 0;
+        }
+        if (this.current > 1) {
+            this.current = 1;
         }
 
         if (horizontal) {
@@ -140,7 +195,17 @@ export default class UIScrollBar {
         this._gripWidth = gripWidth;
         this._gripHeight = gripHeight;
 
-        this._gripSprite.setPosition(x, y);
+        let _x = x;
+        let _y = y;
+
+        if (horizontal) {
+            _x = x + (width - gripWidth) * this.current;
+        }
+        else {
+            _y = y + (height - gripHeight) * this.current;
+        }
+
+        this._gripSprite.setPosition(_x, _y);
         this._gripSprite.setScale(gripWidth, gripHeight);
 
         if (horizontal) {
