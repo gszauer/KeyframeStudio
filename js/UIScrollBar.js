@@ -142,6 +142,10 @@ export default class UIScrollBar {
             gripColor = UIGlobals.Colors.BorderFraming;
         }
 
+        if (this._contentRatio == 1) {
+            gripColor = UIGlobals.Colors.BackgroundLayer0;
+        }
+
         this._gripSprite.setTint(gripColor);
     }
     
@@ -156,12 +160,12 @@ export default class UIScrollBar {
         let borderX = UIGlobals.Sizes.ScrollBorderSize;
         let borderY = UIGlobals.Sizes.ScrollBorderSize;
 
-        this._contentRatio = contentRatio;
-
         if (contentRatio < 0) { contentRatio = 0; }
         if (contentRatio > 1) { contentRatio = 1; }
         if (this.current < 0) { this.current = 0; }
         if (this.current > 1) { this.current = 1; }
+
+        this._contentRatio = contentRatio;
 
         if (horizontal) {
             height = scrollTrackSize;

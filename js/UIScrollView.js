@@ -59,7 +59,7 @@ export default class UIScrollView extends UIView {
         let maskWidth = width;
         let maskHeight = height;
 
-        let contentRatio = 0.0;
+        let contentRatio = 1.0;
         if (bounds.height > 0) {
             contentRatio = height / bounds.height;
         }
@@ -73,7 +73,7 @@ export default class UIScrollView extends UIView {
             maskWidth -= scrollSize;
         }
 
-        contentRatio = 0.0;
+        contentRatio = 1.0;
         if (bounds.width > 0) {
             contentRatio = width / bounds.width;
         }
