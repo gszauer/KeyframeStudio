@@ -80,6 +80,13 @@ export default class UITabView extends UIView {
         this.Layout(this._x, this._y, this._width, this._height);
     }
 
+    Get(name) {
+        if (this._views.has(name)) {
+            return this._views.get(name);
+        }
+        return null;
+    }
+    
     Add(name, view = null) {
         const self = this;
         const scene = this._scene;

@@ -58,7 +58,8 @@ export default class UIGlobals {
         SplitViewSplitterSize: 3,
         TabHeight: 30,
         TabBorderSize: 2,
-        TabMargin: 5
+        TabMargin: 5,
+        ScrollTrackSize: 20
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

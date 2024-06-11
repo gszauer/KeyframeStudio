@@ -9,6 +9,8 @@ import * as TextEditPlugin from './rextexteditplugin.js';
 import UIToolBox from './UIToolBox.js'
 import UISplitView from './UISplitView.js'
 import UITabView from './UITabView.js'
+import UIScrollView from './UIScrollView.js'
+import UIScrollBar from './UIScrollBar.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -143,8 +145,11 @@ export default class Application extends Phaser.Scene {
         this._toolSplitter._distance = 450;
 
         this._inspectorTabs = this._toolSplitter.a = new UITabView(this, this._toolSplitter.a);
-        this._inspectorTabs.Add("Inspector", null);
+        this._inspectorTabs.Add("Inspector", new UIScrollView(this, this._inspectorTabs));
         this._inspectorTabs.Add("Draw Order", null);
+
+        const inspectorScrollView = this._inspectorTabs.Get("Inspector");
+        //inspectorScrollView.showHorizontal = false;
 
         this._sceneTabs = this._toolSplitter.b = new UITabView(this, this._toolSplitter.b);
         this._sceneTabs.Add("Hierarchy", null);
