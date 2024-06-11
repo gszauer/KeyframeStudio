@@ -13,6 +13,7 @@ export default class UIScrollView extends UIView {
     constructor(scene, parent = null) {
         super(scene, parent);
 
+        this.container = scene.add.container(0, 0);
         this.verticalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar.horizontal = true;
@@ -27,21 +28,33 @@ export default class UIScrollView extends UIView {
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
 
+        this.container.setPosition(x, y);
+
         const scrollSize = UIGlobals.Sizes.ScrollTrackSize;
-        const debugContentRatio = 0.8;
+        const bounds = this.container.getBounds();
+
+        let contentRatio = 0.0;
+        if (this.container != null && bounds.height > 0) {
+            contentRatio = height / bounds.height;
+        }
 
         if (this.showHorizontal && this.showVertical) {
-            this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height - scrollSize, debugContentRatio);
+            this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height - scrollSize, contentRatio);
         }
         else if (this.showVertical) {
-            this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height, debugContentRatio);
+            this.verticalScrollBar.Layout(x + width - scrollSize, y, scrollSize, height, contentRatio);
+        }
+
+        contentRatio = 0.0;
+        if (this.container != null && bounds.width > 0) {
+            contentRatio = width / bounds.width;
         }
 
         if (this.showHorizontal && this.showVertical) {
-            this.horizontalScrollBar.Layout(x, y + height - scrollSize, width - scrollSize, scrollSize, debugContentRatio);
+            this.horizontalScrollBar.Layout(x, y + height - scrollSize, width - scrollSize, scrollSize, contentRatio);
         }
         else if (this.showHorizontal) {
-            this.horizontalScrollBar.Layout(x, y + height - scrollSize, width, scrollSize, debugContentRatio);
+            this.horizontalScrollBar.Layout(x, y + height - scrollSize, width, scrollSize, contentRatio);
         }
 
         if (this.showVertical && !this._hidden) {
@@ -61,10 +74,23 @@ export default class UIScrollView extends UIView {
 
     Hide() {
         this._hidden = true;
-        
+        this.verticalScrollBar.Hide();
+        this.horizontalScrollBar.Hide();
+        if (this.container != null) {
+            this.container.setActive(false).setVisible(false);
+        }
     }
 
     Show() {
         this._hidden = false;
+        if (this.showHorizontal) {
+            this.verticalScrollBar.Show();
+        }
+        if (this.showHorizontal) {
+            this.horizontalScrollBar.Show();
+        }
+        if (this.container != null) {
+            this.container.setActive(true).setVisible(true);
+        }
     }
 }

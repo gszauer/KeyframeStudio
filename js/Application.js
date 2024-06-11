@@ -149,6 +149,19 @@ export default class Application extends Phaser.Scene {
         this._inspectorTabs.Add("Draw Order", null);
 
         const inspectorScrollView = this._inspectorTabs.Get("Inspector");
+        const inspectorContainer = inspectorScrollView.container;
+        {
+            const colors = [ 0xff00ff, 0xffff00, 0x00ffff ]
+            for (let i = 0; i < 300; ++i) {
+                const sprite = this.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+                sprite.setOrigin(0, 0);
+                sprite.setDepth(UIGlobals.WidgetLayer);
+                sprite.setPosition(i * 20, i * 20);
+                sprite.setScale(20, 20);
+                sprite.setTint(colors[i % colors.length]);
+                inspectorContainer.add(sprite);
+            }
+        }
         //inspectorScrollView.showHorizontal = false;
 
         this._sceneTabs = this._toolSplitter.b = new UITabView(this, this._toolSplitter.b);

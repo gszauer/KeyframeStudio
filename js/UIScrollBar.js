@@ -67,11 +67,12 @@ export default class UIScrollBar {
     }
     
     Layout(x, y, width, height, contentRatio) {
-        if (!contentRatio) {
-            throw new Error("cotnent ratio is not optional for UIScrollBar");
+        if (contentRatio === null || contentRatio === undefined) {
+            throw Error("cotnent ratio is not optional for UIScrollBar");
         }
         const scrollTrackSize = UIGlobals.Sizes.ScrollTrackSize;
         const horizontal = this.horizontal;
+        const minGripSize = UIGlobals.Sizes.ScrollTrackMinGripSize;
 
         if (contentRatio < 0) {
             contentRatio = 0;
@@ -123,20 +124,14 @@ export default class UIScrollBar {
 
         if (horizontal) {
             gripWidth = width * contentRatio;
-            if (gripWidth < scrollTrackSize) {
-                gripWidth = scrollTrackSize;
-            }
-            if (gripWidth > scrollTrackSize * 2) {
-                gripWidth = scrollTrackSize * 2;
+            if (gripWidth < minGripSize) {
+                gripWidth = minGripSize;
             }
         }
         else {
             gripHeight = height * contentRatio;
-            if (gripHeight < scrollTrackSize) {
-                gripHeight = scrollTrackSize;
-            }
-            if (gripHeight > scrollTrackSize * 2) {
-                gripHeight = scrollTrackSize * 2;
+            if (gripHeight < minGripSize) {
+                gripHeight = minGripSize;
             }
         }
 

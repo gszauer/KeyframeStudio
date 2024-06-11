@@ -59,7 +59,8 @@ export default class UIGlobals {
         TabHeight: 30,
         TabBorderSize: 2,
         TabMargin: 5,
-        ScrollTrackSize: 20
+        ScrollTrackSize: 20,
+        ScrollTrackMinGripSize: 30,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
