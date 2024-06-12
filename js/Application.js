@@ -1,17 +1,22 @@
 import UIMenu from './UIMenu.js'
 import UIPopup from './UIPopup.js'
 import UIGlobals from './UIGlobals.js'
-import UIToggle from './UIToggle.js'
 import UIToolBar from './UIToolBar.js'
-import UIDropdown from './UIDropdown.js'
-import UITextBox from './UITextBox.js'
-import * as TextEditPlugin from './rextexteditplugin.js';
 import UIToolBox from './UIToolBox.js'
 import UISplitView from './UISplitView.js'
 import UITabView from './UITabView.js'
 import UIScrollView from './UIScrollView.js'
-import UIScrollBar from './UIScrollBar.js'
 import InspectorView from './InspectorView.js'
+
+import UIToggle from './UIToggle.js'
+import UIDropdown from './UIDropdown.js'
+import UITextBox from './UITextBox.js'
+import UIScrollBar from './UIScrollBar.js'
+
+
+import * as TextEditPlugin from './rextexteditplugin.js';
+import * as UIPlugin from './rexuiplugin.js';
+
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -82,11 +87,6 @@ export default class Application extends Phaser.Scene {
         self._topMenu.Add("Edit", editMenu);
         editMenu.Add("Undo", null);
         editMenu.Add("Redo", null);
-        // TODO: This might make sense for frames, but i'm not sure how those will work!
-        /*editMenu.Add("", null);
-        editMenu.Add("Cut", null);
-        editMenu.Add("Copy", null);
-        editMenu.Add("Paste", null);*/
 
         const sceneMenu = new UIPopup(self);
         self._topMenu.Add("Scene", sceneMenu);
@@ -109,21 +109,6 @@ export default class Application extends Phaser.Scene {
         helpMenu.Add("Documentation", null);
         helpMenu.Add("Source Code", null);
 
-        const testDropdown = new UIDropdown(this, null, 300);
-        const testPopup = new UIPopup(self);
-        testPopup.Add("Bicubic", null);
-        testPopup.Add("Bilinear", null);
-        testPopup.Add("Trilinear", null);
-        testPopup.Add("Tricubic", null);
-        testDropdown.SetMenu(testPopup);
-
-        const testToggle = new UIToggle(this, "Foo");
-        const textBoxer = new UITextBox(this, "Foo bar", null, 250);
-
-        testDropdown.Layout(100, 40, 240);
-        testToggle.Layout(360, 39 + 3);
-        textBoxer.Layout(360 + 20 + testToggle._width, 40);
-
         this._toolBox.Add(UIGlobals.IconMove, null);
         this._toolBox.Add(UIGlobals.IconRotate, null);
         this._toolBox.Add(UIGlobals.IconScale, null);
@@ -143,7 +128,7 @@ export default class Application extends Phaser.Scene {
 
         this._toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);
         this._toolSplitter.horizontal = false;
-        this._toolSplitter._distance = 450;
+        this._toolSplitter._distance = 430;
 
         this._inspectorTabs = this._toolSplitter.a = new UITabView(this, this._toolSplitter.a);
         this._inspectorTabs.Add("Inspector", new InspectorView(this, this._inspectorTabs));
@@ -162,7 +147,6 @@ export default class Application extends Phaser.Scene {
         self.Layout();
         self.scale.on('resize', function(gameSize, baseSize, displaySize, previousWidth, previousHeight) {
             self.Layout();
-            textBoxer.Layout(360 + 20 + testToggle._width, 40, 400);
         });
     }
 
@@ -194,11 +178,20 @@ window.addEventListener('load', () => {
             createContainer: true
         },
         plugins: {
-            global: [{
-                key: 'rextexteditplugin',
-                plugin: rextexteditplugin,
-                start: true
-            },
+            scene: [
+                {
+                    key: 'rexuiplugin',
+                    plugin: UIPlugin,
+                    mapping: 'rexUI',
+                    start: true
+                }
+            ],
+            global: [
+                {
+                    key: 'rextexteditplugin',
+                    plugin: rextexteditplugin,
+                    start: true
+                }
             ]
         }
     }

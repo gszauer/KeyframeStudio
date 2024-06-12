@@ -12,6 +12,7 @@ export default class UIDropdown {
     _x = 0;
     _y = 0;
     _width = 0;
+    _height = 0;
     _defaultWidth = 0;
     _isOpen = false;
 
@@ -169,6 +170,8 @@ export default class UIDropdown {
         }
         const height = Math.floor(UIGlobals.Sizes.DropdownMenuHeight);
         const border = Math.floor(UIGlobals.Sizes.DrowdownBorderSize);
+
+        this._height = height;
 
         this._borderSprite.setPosition(x, y);
         this._borderSprite.setScale(this._width, height);

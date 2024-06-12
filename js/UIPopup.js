@@ -22,9 +22,8 @@ export default class UIPopup {
     _uiOnPointerUp = null; // same as regular OnPointerUp, but internal to the ui system
     onSelect = null; // Arguments: string item, UIPopup self
 
-    constructor(scene, _onSelect = null) {
+    constructor(scene) {
         const self = this;
-        self.onSelect = _onSelect;
 
         self._scene = scene;
         self._itemTexts = [];
