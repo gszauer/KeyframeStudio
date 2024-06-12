@@ -15,7 +15,6 @@ import UIScrollBar from './UIScrollBar.js'
 
 
 import * as TextEditPlugin from './rextexteditplugin.js';
-import * as UIPlugin from './rexuiplugin.js';
 
 
 export default class Application extends Phaser.Scene {
@@ -178,14 +177,6 @@ window.addEventListener('load', () => {
             createContainer: true
         },
         plugins: {
-            scene: [
-                {
-                    key: 'rexuiplugin',
-                    plugin: UIPlugin,
-                    mapping: 'rexUI',
-                    start: true
-                }
-            ],
             global: [
                 {
                     key: 'rextexteditplugin',

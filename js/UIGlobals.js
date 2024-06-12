@@ -2,18 +2,13 @@ export default class UIGlobals {
     static Atlas = "Atlas";
     static Solid = "solid.png";
 
+    static Hot = null;
+    static Active = null;
+
     static Icons = {
         ChevronDown: "down.png"
     };
-
-    static Font50 = "AdobeClean13";
-    static Font75 = "AdobeClean15";
-    static Font100 = "AdobeClean17";
-    static Font200 = "AdobeClean19";
-    static Font300 = "AdobeClean22";
-    static Font400 = "AdobeClean24";
-    static Font500 = "AdobeClean27";
-
+    // TODO: Move the icons in there^
     static IconHand = "IcondHand.png";
     static IconGrid = "IconGrid.png";
     static IconHome = "IconHome.png";
@@ -23,9 +18,21 @@ export default class UIGlobals {
     static IconZoomIn = "IconZoomIn.png";
     static IconZoomOut = "IconZoomOut.png";
 
-    static Hot = null;
-    static Active = null;
+    static Fonts = {
 
+    };
+    // TODO: Make a container for these
+    static Font50 = "AdobeClean13";
+    static Font75 = "AdobeClean15";
+    static Font100 = "AdobeClean17";
+    static Font200 = "AdobeClean19";
+    static Font300 = "AdobeClean22";
+    static Font400 = "AdobeClean24";
+    static Font500 = "AdobeClean27";
+
+    static Layers = {
+        // TODO: Move the below elements into this container
+    };
     static WidgetLayer = 50;
     static OverlayLayer = 100;
 
@@ -65,7 +72,12 @@ export default class UIGlobals {
 
         InspectorTitleMargin: 10,
         InspectorTitleSkip: 5,
-    }
+        ColorButtonBorderSize: 2,
+        ColorButtonMarginSize: 3,
+        ColorPickerDefaultSize: 204,
+        ColorPickerInnerMargin: 10,
+        ColorPickerHueTrackWidth: 20,
+    };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
     static Colors = {
@@ -87,7 +99,6 @@ export default class UIGlobals {
         Text: 0xebebeb, // Gray 800
         Icon: 0xebebeb, // Gray 800
         TextHeading: 0xffffff, // Gray 900
-
         TopMenuButtonIdle: 0x262626, // Gray75, Background1
         TopMenuButtonHot: 0x3f3f3f, // Gray 200
         TopMenuButtonActive: 0x545454, // Gray 300

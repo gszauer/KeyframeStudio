@@ -3,6 +3,7 @@ import UIView from './UIView.js'
 import UITextBox from './UITextBox.js'
 import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
+import UIColorButton from './UIColorButton.js'
 
 export default class InspectorView extends UIView {
     _backgroundSprite = null;
@@ -34,8 +35,8 @@ export default class InspectorView extends UIView {
     _spriteSheetLabel = null;
     _spriteSheetDropdown = null;
 
-    _tintLabel = null; // Tint | Alpha | Visible
-    _tintColorPicker = null;
+    _tintLabel = null;
+    _tintButton = null;
 
     _frameXLabel = null;
     _frameXTextField = null;
@@ -63,44 +64,6 @@ export default class InspectorView extends UIView {
 
     constructor(scene, parent = null) {
         super(scene, parent);
-
-        var colorPicker = scene.rexUI.add.colorPicker({
-            // x: 0,
-            // y: 0,
-            // anchor: undefined,
-            // width: undefined,
-            // height: undefined,
-            // origin: 0.5
-            // originX:
-            // originY:
-        
-            background: backgroundGameObject,
-        
-            hPalette: {
-                position: 'bottom',
-                size: 10,
-                width: undefined,
-                height: undefined,       
-            },
-        
-            svPalette: {
-                width: undefined,
-                height: undefined,
-            },
-        
-            valuechangeCallback: function(newValue, oldValue, knob) {
-            },
-            valuechangeCallbackScope: undefined,
-        
-            value: 0xffffff,
-        
-            // space: { left: 0, right:0, top:0, bottom:0, item:0 },
-        
-            // name: '',
-            // draggable: false,
-            // sizerEvents: false,
-            // enableLayer: false,    
-        });
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
@@ -212,6 +175,8 @@ export default class InspectorView extends UIView {
         this._alphaTextField = new UITextBox(scene, "1");
         this._pivotXTextField = new UITextBox(scene, "0");
         this._pivotYTextField = new UITextBox(scene, "0");
+
+        this._tintButton = new UIColorButton(scene);
    }
 
     UpdateColors() {
@@ -287,7 +252,7 @@ export default class InspectorView extends UIView {
         this._frameYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameYLabel.height + skip;
-        //this._scaleXTextField.Layout(x, y, rowWidth);
+        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
         this._frameXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
