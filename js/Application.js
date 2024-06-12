@@ -11,6 +11,7 @@ import UISplitView from './UISplitView.js'
 import UITabView from './UITabView.js'
 import UIScrollView from './UIScrollView.js'
 import UIScrollBar from './UIScrollBar.js'
+import InspectorView from './InspectorView.js'
 
 export default class Application extends Phaser.Scene {
     _topMenu = null;
@@ -55,7 +56,7 @@ export default class Application extends Phaser.Scene {
             console.log("Loaded: rextexteditplugin");
         }
 
-        Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font15 , UIGlobals.Atlas, UIGlobals.Font15  + ".png", UIGlobals.Font15  + ".xml");
+        Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font50 , UIGlobals.Atlas, UIGlobals.Font50  + ".png", UIGlobals.Font50  + ".xml");
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font75 , UIGlobals.Atlas, UIGlobals.Font75  + ".png", UIGlobals.Font75  + ".xml");
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font100, UIGlobals.Atlas, UIGlobals.Font100 + ".png", UIGlobals.Font100 + ".xml");
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font200, UIGlobals.Atlas, UIGlobals.Font200 + ".png", UIGlobals.Font200 + ".xml");
@@ -145,23 +146,9 @@ export default class Application extends Phaser.Scene {
         this._toolSplitter._distance = 450;
 
         this._inspectorTabs = this._toolSplitter.a = new UITabView(this, this._toolSplitter.a);
-        this._inspectorTabs.Add("Inspector", new UIScrollView(this, this._inspectorTabs));
+        this._inspectorTabs.Add("Inspector", new InspectorView(this, this._inspectorTabs));
         this._inspectorTabs.Add("Draw Order", new UIScrollView(this, this._inspectorTabs));
-
-        const inspectorScrollView = this._inspectorTabs.Get("Inspector");
-        const inspectorContainer = inspectorScrollView.container;
-        {
-            const colors = [ 0xff00ff, 0xffff00, 0x00ffff ]
-            for (let i = 0; i < 300; ++i) {
-                const sprite = this.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-                sprite.setOrigin(0, 0);
-                sprite.setDepth(UIGlobals.WidgetLayer);
-                sprite.setPosition(i * 20, i * 20);
-                sprite.setScale(20, 20);
-                sprite.setTint(colors[i % colors.length]);
-                inspectorContainer.add(sprite);
-            }
-        }
+        
 
         //inspectorScrollView.showHorizontal = false;
 

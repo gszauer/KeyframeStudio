@@ -162,6 +162,13 @@ export default class UITextBox {
 
     }
 
+    AddToContainer(container) {
+        container.add(this._borderSprite);
+        container.add(this._backgroundSprite);
+        container.add(this._bitmapText);
+        container.add(this._maskRect);
+    }
+
     EditTextBox() {
         const self = this;
 

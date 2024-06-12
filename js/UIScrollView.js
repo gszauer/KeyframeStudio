@@ -11,9 +11,14 @@ export default class UIScrollView extends UIView {
     _hidden = false;
     _maskRect = null;
     _backgroundSprite = null;
+    _pin = null;
 
     constructor(scene, parent = null) {
         super(scene, parent);
+
+        this._pin = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._pin.setOrigin(0, 0);
+        this._pin.setDepth(UIGlobals.WidgetLayer); // Nudge a bit
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setOrigin(0, 0);
@@ -23,6 +28,10 @@ export default class UIScrollView extends UIView {
         this.verticalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar = new UIScrollBar(scene);
         this.horizontalScrollBar.horizontal = true;
+
+        this.container.add(this._pin);
+        this._pin.setPosition(0, 0);
+        this._pin.setVisible(false);
 
         this._maskRect = scene.add.rectangle(0, 0, 100, 100, 0x000000).setVisible(false).setOrigin(0, 0);
         const mask = this._maskRect.createGeometryMask();
@@ -39,7 +48,9 @@ export default class UIScrollView extends UIView {
     }
 
     UpdateColors() {
-        this._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
+        if (this._backgroundSprite != null) {
+            this._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
+        }
         this.verticalScrollBar.UpdateColors();
     }
 
@@ -53,8 +64,10 @@ export default class UIScrollView extends UIView {
         const scrollSize = UIGlobals.Sizes.ScrollTrackSize;
         const bounds = this.container.getBounds();
 
-        this._backgroundSprite.setPosition(x, y);
-        this._backgroundSprite.setScale(width, height);
+        if (this._backgroundSprite != null) {
+            this._backgroundSprite.setPosition(x, y);
+            this._backgroundSprite.setScale(width, height);
+        }
 
         let maskWidth = width;
         let maskHeight = height;
@@ -123,6 +136,9 @@ export default class UIScrollView extends UIView {
         this.verticalScrollBar.Hide();
         this.horizontalScrollBar.Hide();
         this.container.setActive(false).setVisible(false);
+        if (this._backgroundSprite != null) {
+            this._backgroundSprite.setActive(false).setVisible(false);
+        }
     }
 
     Show() {
@@ -134,5 +150,8 @@ export default class UIScrollView extends UIView {
             this.horizontalScrollBar.Show();
         }
         this.container.setActive(true).setVisible(true);
+        if (this._backgroundSprite != null) {
+            this._backgroundSprite.setActive(true).setVisible(true);
+        }
     }
 }

@@ -62,6 +62,9 @@ export default class UIGlobals {
         ScrollTrackSize: 20,
         ScrollTrackMinGripSize: 30,
         ScrollBorderSize: 2,
+
+        InspectorTitleMargin: 10,
+        InspectorTitleSkip: 5,
     }
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
