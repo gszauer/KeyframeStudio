@@ -152,6 +152,15 @@ export default class UIColorButton {
         this._colorPicker.Layout(Math.floor(centerX - pickerW * 0.5), Math.floor(centerY - pickerH * 0.5));
     }
 
+    SetVisibility(visible) {
+        if (visible) {
+            this.Show();
+        }
+        else {
+            this.Hide();
+        }
+    }
+
     Show() {
         this._border.setActive(true).setVisible(true);
         this._background.setActive(true).setVisible(true);

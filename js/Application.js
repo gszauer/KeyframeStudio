@@ -176,6 +176,10 @@ window.addEventListener('load', () => {
         dom: {
             createContainer: true
         },
+        audio: {
+            noAudio: true
+        },
+        roundPixels: true,
         plugins: {
             global: [
                 {

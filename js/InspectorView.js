@@ -278,7 +278,43 @@ export default class InspectorView extends UIView {
     }
 
     _SetVisibility(visible) {
-        // TODO
+        this._nameTextField.SetVisibility(visible);
+        this._positionXTextField.SetVisibility(visible);
+        this._positionYTextField.SetVisibility(visible);
+        this._rotationTextField.SetVisibility(visible);
+        this._scaleXTextField.SetVisibility(visible);
+        this._scaleYTextField.SetVisibility(visible);
+        this._frameXTextField.SetVisibility(visible);
+        this._frameYTextField.SetVisibility(visible);
+        this._frameWTextField.SetVisibility(visible);
+        this._frameHTextField.SetVisibility(visible);
+        this._alphaTextField.SetVisibility(visible);
+        this._pivotXTextField.SetVisibility(visible);
+        this._pivotYTextField.SetVisibility(visible);
+        this._scaleModeDropdown.SetVisibility(visible);
+        this._spriteSheetDropdown.SetVisibility(visible);
+        this._tintButton.SetVisibility(visible);
+        this._visibleDropdown.SetVisibility(visible);
+        this._backgroundSprite.setActive(visible).setVisible(visible);
+        this._transformLabel.setActive(visible).setVisible(visible);
+        this._spriteLabel.setActive(visible).setVisible(visible);
+        this._nameLabel.setActive(visible).setVisible(visible);
+        this._positionXLabel.setActive(visible).setVisible(visible);
+        this._positionYLabel.setActive(visible).setVisible(visible);
+        this._rotationLabel.setActive(visible).setVisible(visible);
+        this._scaleXLabel.setActive(visible).setVisible(visible);
+        this._scaleYLabel.setActive(visible).setVisible(visible);
+        this._scaleModeLabel.setActive(visible).setVisible(visible);
+        this._spriteSheetLabel.setActive(visible).setVisible(visible);
+        this._tintLabel.setActive(visible).setVisible(visible);
+        this._frameXLabel.setActive(visible).setVisible(visible);
+        this._frameYLabel.setActive(visible).setVisible(visible);
+        this._visibleLabel.setActive(visible).setVisible(visible);
+        this._frameWLabel.setActive(visible).setVisible(visible);
+        this._frameHLabel.setActive(visible).setVisible(visible);
+        this._alphaLabel.setActive(visible).setVisible(visible);
+        this._pivotXLabel.setActive(visible).setVisible(visible);
+        this._pivotYLabel.setActive(visible).setVisible(visible);
     }
 
     Hide() {

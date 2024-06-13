@@ -12,7 +12,6 @@ export default class UITextBox {
     _bitmapText = null; // phaser bitmap text object
     _borderSprite = null;
     _backgroundSprite = null;
-    _clickHandlerSprite = null;
 
     _rextextedit = null;
     _maskRect = null;
@@ -261,5 +260,18 @@ export default class UITextBox {
         );
 
         self.UpdateColors();
+    }
+
+    SetVisibility(visible) {
+        this._bitmapText.setActive(visible).setVisible(visible);
+        this._borderSprite.setActive(visible).setVisible(visible);
+        this._backgroundSprite.setActive(visible).setVisible(visible);
+    }
+    Show() {
+        this.SetVisibility(true);
+    }
+
+    Hide() {
+        this.SetVisibility(false);
     }
 }

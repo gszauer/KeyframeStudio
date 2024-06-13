@@ -193,4 +193,25 @@ export default class UIDropdown {
             this._popupMenu.Layout(this._x, this._y + height + border * 2, this._width);
         }
     }
+
+    SetVisibility(visible) {
+        this._borderSprite.setActive(visible).setVisible(visible);
+        this._backgroundSprite.setActive(visible).setVisible(visible);
+        this._seperatorSprite.setActive(visible).setVisible(visible);
+        this._chevronSprite.setActive(visible).setVisible(visible);
+        this._displayText.setActive(visible).setVisible(visible);
+
+        if (!visible) {
+            this._isOpen = false;
+            this._ShowActiveMenu();
+        }
+    }
+
+    Show() {
+        this.SetVisibility(true);
+    }
+
+    Hide() {
+        this.SetVisibility(false);
+    }
 }
