@@ -30,7 +30,7 @@ export default class ColorHSV {
         if (this.v > 1) { this.v = 1; }
 
         while (this.h < 0) { this.h += 360; }
-        while (this.h > 360) { this.h -= 360; }
+        while (this.h >= 360) { this.h -= 360; }
 
     }
 

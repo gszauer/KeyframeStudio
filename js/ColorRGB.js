@@ -100,7 +100,7 @@ export default class ColorRGB {
         while (out.h < 0.0) {
             out.h += 360.0;
         }
-        while (out.h > 360) {
+        while (out.h >= 360) {
             out.h -= 360.0;
         }
 
@@ -112,9 +112,9 @@ export default class ColorRGB {
             throw Error("value must be ColorHSV");
         }
         const rgb = value.rgb;
-        this.r = hsv.r;
-        this.g = hsv.g;
-        this.b = hsv.b;
+        this.r = rgb.r;
+        this.g = rgb.g;
+        this.b = rgb.b;
     }
 
     get color() {

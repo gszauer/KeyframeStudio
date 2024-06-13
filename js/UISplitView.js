@@ -54,7 +54,7 @@ export default class UISplitView extends UIView {
         scene.input.on('dragend', (pointer, gameObject) => {
             if (gameObject != self._dividerSprite) { return; }
 
-            if (UIGlobals.Active = self._dividerSprite) {
+            if (UIGlobals.Active == self._dividerSprite) {
                 UIGlobals.Active = null;
             }
         });

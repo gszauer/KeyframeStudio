@@ -74,7 +74,8 @@ export default class UIGlobals {
         InspectorTitleSkip: 5,
         ColorButtonBorderSize: 2,
         ColorButtonMarginSize: 3,
-        ColorPickerDefaultSize: 204,
+        ColorPickerDefaultWidth: 238,
+        ColorPickerDefaultHeight: 204,
         ColorPickerInnerMargin: 10,
         ColorPickerHueTrackWidth: 20,
     };

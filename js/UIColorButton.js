@@ -1,5 +1,6 @@
 import UIGlobals from './UIGlobals.js'
 import UIColorPicker from './UIColorPicker.js'
+import ColorRGB from './ColorRGB.js'
 
 export default class UIColorButton {
     _scene = null;
@@ -10,7 +11,7 @@ export default class UIColorButton {
     _height = 0;
 
     color = 0;
-    onClick = null;
+    onClick = null; // TODO: OnChange, not on click. And only fire when the color picker closes (probably means adding an on close event)
 
     _colorPicker = null;
 
@@ -18,9 +19,9 @@ export default class UIColorButton {
     _background = null;
     _color = null;
 
-    constructor(scene, color = 0xffffff, onClick = null) {
+    constructor(scene, onClick = null) {
         this._scene = scene;
-        this.color = color;
+        this.color = new ColorRGB(0, 0, 0);
         this.onClick = onClick;
 
         const self = this;
@@ -82,6 +83,11 @@ export default class UIColorButton {
 
         this._colorPicker = new UIColorPicker(scene);
         this._colorPicker.Hide();
+
+        this._colorPicker.onChange = function(newcolor) {
+            self.color = newcolor;
+            self.UpdateColors();
+        }
     }
 
     UpdateColors() {
@@ -99,7 +105,7 @@ export default class UIColorButton {
 
         this._border.setTint(borderTint);
         this._background.setTint(backgroundTint);
-        this._color.setTint(this.color);
+        this._color.setTint(this.color.color);
     }
 
     Layout(x, y, width, height) {
@@ -110,7 +116,8 @@ export default class UIColorButton {
 
         const border = UIGlobals.Sizes.ColorButtonBorderSize;
         const margin = UIGlobals.Sizes.ColorButtonMarginSize
-        const picker = UIGlobals.Sizes.ColorPickerDefaultSize;
+        const pickerW = UIGlobals.Sizes.ColorPickerDefaultWidth;
+        const pickerH = UIGlobals.Sizes.ColorPickerDefaultHeight;
 
         this._border.setPosition(x, y);
         this._border.setScale(width, height);
@@ -133,7 +140,7 @@ export default class UIColorButton {
 
         const centerX = Math.floor(this._x + this._width * 0.5);
         const centerY = Math.floor(this._y + this._height * 0.5);
-        this._colorPicker.Layout(Math.floor(centerX - picker * 0.5), Math.floor(centerY - picker * 0.5));
+        this._colorPicker.Layout(Math.floor(centerX - pickerW * 0.5), Math.floor(centerY - pickerH * 0.5));
     }
 
     Show() {
