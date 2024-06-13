@@ -10,8 +10,8 @@ export default class UIColorButton {
     _width = 0;
     _height = 0;
 
-    color = 0;
-    onClick = null; // TODO: OnChange, not on click. And only fire when the color picker closes (probably means adding an on close event)
+    onColorChanged = null; // onColorChanged(rgb);
+    onTintChanged = null; // onTintChanged(rgb32)
 
     _colorPicker = null;
 
@@ -19,10 +19,14 @@ export default class UIColorButton {
     _background = null;
     _color = null;
 
-    constructor(scene, onClick = null) {
+    get color() {
+        return this._colorPicker.rgb;
+    }
+
+
+    constructor(scene, tintChanged = null) {
         this._scene = scene;
-        this.color = new ColorRGB(0, 0, 0);
-        this.onClick = onClick;
+        this.onTintChanged = tintChanged;
 
         const self = this;
 
@@ -38,7 +42,18 @@ export default class UIColorButton {
         self._color.setOrigin(0, 0);
         self._color.setDepth(UIGlobals.WidgetLayer);
 
-        this.UpdateColors();
+        this._colorPicker = new UIColorPicker(scene);
+        this._colorPicker.Hide();
+        this._colorPicker.onChange = function(newcolor) {
+            if (self.onColorChanged != null) {
+                self.onColorChanged(self.color);
+            }
+            if (self.onTintChanged) {
+                self.onTintChanged(self.color.color);
+            }
+            self.UpdateColors();
+            //console.log("Color changed to: " + self.color.color);
+        }
 
         self._border.setInteractive();
         self._border.on("pointerover", function (pointer, localX, localY, event) {
@@ -70,24 +85,18 @@ export default class UIColorButton {
                 let bottom = top + self._height;
 
                 if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                    if (self.onClick != null) {
-                        self.onClick();
-                    }
                     self._colorPicker.Show();
                 }
                 
                 UIGlobals.Active = null;
                 self.UpdateColors();
             }
+            else {
+                self._colorPicker._handlePointerUp(pointer, currentlyOver);
+            }
         });
 
-        this._colorPicker = new UIColorPicker(scene);
-        this._colorPicker.Hide();
-
-        this._colorPicker.onChange = function(newcolor) {
-            self.color = newcolor;
-            self.UpdateColors();
-        }
+        this.UpdateColors();
     }
 
     UpdateColors() {

@@ -28,6 +28,11 @@ export default class UIColorPicker {
     _hueIndicator1 = null;
     _hueIndicator2 = null;
 
+    _dragging = false;
+    _visible = true;
+
+    _handlePointerUp = null; // This is for the owner to call! 
+
     get hsv() {
         return this._currentHsv;
     }
@@ -44,14 +49,7 @@ export default class UIColorPicker {
         this._scene = scene; 
         this.onChange = onChange;
         this._currentHsv = color;
-        if (color == null) {
-            this._currentHsv = new ColorRGB(0.8, 0.2, 0.2).hsv; // TODO: FIX THIS TO WHITE!
-        }
-        else {
-            if ((!(color instanceof ColorRGB)) && (!(color instanceof ColorHSV))) {
-                throw Error("color must be provided in rgb or hsv format");
-            }
-        }
+        this._currentHsv = new ColorRGB(1, 1, 1).hsv;
 
         this._borderSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._borderSprite.setDepth(UIGlobals.OverlayLayer);
@@ -121,12 +119,74 @@ export default class UIColorPicker {
         hsvTrack.setInteractive();
         scene.input.setDraggable(hsvTrack);
 
+        // Need an on click maybe?
+        /*scene.input.on("pointerup", function(pointer, currentlyOver)*/this._handlePointerUp = function(pointer, currentlyOver) {
+            if (self._visible) {
+                let left = hueTrack.x;
+                let right = left + hueTrack.scaleX;
+                let top = hueTrack.y;
+                let bottom = top + hueTrack.scaleY;
+                let hide = false;
+
+                // Inside the hue selector
+                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                    self.hsv.h = ((pointer.y - hueTrack.y) / hueTrack.scaleY) * 359.0;
+                    self.hsv.normalize();
+
+                    if (self.onChange != null) {
+                        self.onChange(self.rgb);
+                    }
+                    self.Layout(self._x, self._y);
+                }
+
+                left = hsvTrack.x;
+                right = left + hsvTrack.scaleX;
+                top = hsvTrack.y;
+                bottom = top + hsvTrack.scaleY;
+
+                // Inside the value selector
+                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                    hide = true;
+
+                    self.hsv.s = (pointer.x - hsvTrack.x) / hsvTrack.scaleX;
+                    self.hsv.v = (pointer.y - hsvTrack.y) / hsvTrack.scaleY;
+                    self.hsv.normalize();
+
+                    if (self.onChange != null) {
+                        self.onChange(self.rgb);
+                    }
+                    self.Layout(self._x, self._y);
+                }
+
+                left = self._x;
+                right = left + self._width;
+                top = self._y;
+                bottom = top + self._height;
+
+                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                    // Clicked inside
+                }
+                else {
+                    hide = true;
+                }
+
+                if (hide) {
+                    self.Hide();
+                }
+
+                if (UIGlobals.Active == hueTrack || UIGlobals.Active == hsvTrack) {
+                    UIGlobals.Active = null;
+                }
+            }
+        };//);
+
         scene.input.on('dragstart', (pointer, gameObject) => {
             if (gameObject != hueTrack && gameObject != hsvTrack) {
                 return;
             }
             
             UIGlobals.Active = gameObject;
+            self._dragging = true;
         });
 
         scene.input.on('dragend', (pointer, gameObject) => {
@@ -134,15 +194,15 @@ export default class UIColorPicker {
                 return;
             }
 
-            const hide = UIGlobals.Active == hsvTrack;
-
             if (UIGlobals.Active == hueTrack || UIGlobals.Active == hsvTrack) {
                 UIGlobals.Active = null;
             }
 
-            if (hide) {
+            if (gameObject == hsvTrack) {
+                self._handlePointerUp(pointer, [gameObject]);
                 self.Hide();
             }
+            self._dragging = false;
         });
 
         scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
@@ -167,12 +227,13 @@ export default class UIColorPicker {
             if (gameObject == hsvTrack) {
                 self.hsv.s = (pointer.x - gameObject.x) / gameObject.scaleX;
                 self.hsv.v = (pointer.y - gameObject.y) / gameObject.scaleY;
+                //self.hsv.v = 1.0 - self.hsv.v;
             }
-
+            
+            self.Layout(self._x, self._y);
             if (self.onChange != null) {
                 self.onChange(self.rgb);
             }
-            self.Layout(self._x, self._y);
         });
     }
 
@@ -241,10 +302,10 @@ export default class UIColorPicker {
         width -= hueTrackWidth;
         width -= margin;
 
-        const topLeft = new ColorHSV(this.hsv.h, 0, 1);
-        const topRight = new ColorHSV(this.hsv.h, 1, 1);
-        const bottomLeft = new ColorHSV(this.hsv.h, 0, 0);
-        const bottomRight = new ColorHSV(this.hsv.h, 1, 0);
+        const bottomLeft = new ColorHSV(this.hsv.h, 0, 1);
+        const bottomRight = new ColorHSV(this.hsv.h, 1, 1);
+        const topLeft = new ColorHSV(this.hsv.h, 0, 0);
+        const topRight = new ColorHSV(this.hsv.h, 1, 0);
 
         const pickAreaWidth = height;
         const pickAreHeight = height;
@@ -280,7 +341,7 @@ export default class UIColorPicker {
         const offsetX = this._valueIndicator1.width * 0.5;
         const offsetY = this._valueIndicator1.height * 0.5 + this._valueIndicator1.height * 0.25;
         const pointerX = x + this.hsv.s * height; // Again, not typo, square
-        const pointerY = y + this.hsv.v * height;
+        const pointerY = y + (this.hsv.v) * height;
         this._valueIndicator1.setPosition(pointerX - offsetX, pointerY - offsetY);
         this._valueIndicator2.setPosition(pointerX - offsetX * 1.2, pointerY - offsetY * 1.2);
     }
@@ -303,10 +364,12 @@ export default class UIColorPicker {
     }
 
     Show() {
+        this._visible = true;
         this.SetVisibility(true);
     }
 
     Hide() {
+        this._visible = false;
         this.SetVisibility(false);
     }
 }

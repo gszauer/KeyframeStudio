@@ -33,6 +33,16 @@ export default class ColorRGB {
         if (this.b > 1) { this.b = 1; }
     }
 
+    normalize() {
+        if (this.r < 0) { this.r = 0; }
+        if (this.g < 0) { this.g = 0; }
+        if (this.b < 0) { this.b = 0; }
+
+        if (this.r > 1) { this.r = 1; }
+        if (this.g > 1) { this.g = 1; }
+        if (this.b > 1) { this.b = 1; }
+    }
+
     compare(other) {
         if (!(other instanceof ColorRGB)) {
             return false;

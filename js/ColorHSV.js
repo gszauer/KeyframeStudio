@@ -23,15 +23,18 @@ export default class ColorHSV {
             this.v = v;
         }
 
-        if (this.s < 0) { this.g = 0; }
-        if (this.v < 0) { this.b = 0; }
+        this.normalize();
+    }
+
+    normalize() {
+        if (this.s < 0) { this.s = 0; }
+        if (this.v < 0) { this.v = 0; }
 
         if (this.s > 1) { this.s = 1; }
         if (this.v > 1) { this.v = 1; }
 
         while (this.h < 0) { this.h += 360; }
         while (this.h >= 360) { this.h -= 360; }
-
     }
 
     compare(other) {
