@@ -69,7 +69,6 @@ export default class UIGlobals {
         ScrollTrackSize: 20,
         ScrollTrackMinGripSize: 30,
         ScrollBorderSize: 2,
-
         InspectorTitleMargin: 10,
         InspectorTitleSkip: 5,
         ColorButtonBorderSize: 2,
@@ -78,12 +77,16 @@ export default class UIGlobals {
         ColorPickerDefaultHeight: 204,
         ColorPickerInnerMargin: 10,
         ColorPickerHueTrackWidth: 20,
+
+        ListBoxItemHeight: 26,
+        ListBoxItemMarginLeft: 5,
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
     static Colors = {
         BackgroundLayer0: 0x1d1d1d, // Gray50,
         BackgroundLayer1: 0x262626, // Gray75
+        BackgroundLayer1AndAHalf: 0x2c2c2c,
         BackgroundLayer2: 0x323232, // Gray 100
         BackgroundLayerAux: 0x3f3f3f, // Gray 200
         BorderDecorative: 0x3f3f3f, // Gray 200

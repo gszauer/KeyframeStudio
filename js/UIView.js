@@ -29,6 +29,15 @@ export default class UIView {
         this._height = height;
     }
 
+    SetVisibility(value) {
+        if (value) {
+            this.Show();
+        }
+        else {
+            this.Hide();
+        }
+    }
+
     Hide() {
         throw new Error("View hide method not implemented");
     }

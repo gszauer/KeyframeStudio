@@ -7,6 +7,7 @@ import UISplitView from './UISplitView.js'
 import UITabView from './UITabView.js'
 import UIScrollView from './UIScrollView.js'
 import InspectorView from './InspectorView.js'
+import DrawOrderView from './DrawOrderView.js'
 
 import UIToggle from './UIToggle.js'
 import UIDropdown from './UIDropdown.js'
@@ -131,7 +132,7 @@ export default class Application extends Phaser.Scene {
 
         this._inspectorTabs = this._toolSplitter.a = new UITabView(this, this._toolSplitter.a);
         this._inspectorTabs.Add("Inspector", new InspectorView(this, this._inspectorTabs));
-        this._inspectorTabs.Add("Draw Order", new UIScrollView(this, this._inspectorTabs));
+        this._inspectorTabs.Add("Draw Order", new DrawOrderView(this, this._inspectorTabs));
         
 
         //inspectorScrollView.showHorizontal = false;
