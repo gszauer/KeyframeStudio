@@ -3,6 +3,8 @@ import UIGlobals from './UIGlobals.js'
 export default class UIListBoxItem {
     _scene = null;
 
+    visible = true;
+
     _x = 0;
     _y = 0;
     _width = 0;
@@ -15,14 +17,18 @@ export default class UIListBoxItem {
         this._scene = scene;
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._backgroundSprite.setDepth(UIGlobals.OverlayLayer);
+        this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         this._backgroundSprite.setOrigin(0, 0);
 
         this._labelText = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
-        this._labelText.setDepth(UIGlobals.OverlayLayer);
+        this._labelText.setDepth(UIGlobals.WidgetLayer);
         this._labelText.setOrigin(0, 0);
         this._labelText.text = text;
         this._labelText.setTint(0);
+    }
+
+    UpdateText(text = "") {
+        this._labelText.text = text;
     }
 
     AddToContainer(container) {
@@ -54,6 +60,7 @@ export default class UIListBoxItem {
     SetVisibility(value) {
         this._backgroundSprite.setActive(value).setVisible(value);
         this._labelText.setActive(value).setVisible(value);
+        this.visible = value;
     }
 
     Show() {
