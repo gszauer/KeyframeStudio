@@ -23,6 +23,11 @@ export default class DrawOrderView extends UIView {
         this._listbox.Add("Item 5");
         this._listbox.Add("Item 4");
         this._listbox.Add("Item 3");
+        this._listbox.Clear();
+        for (let i = 0; i < 20; ++i) {
+            this._listbox.Add("Item " + i);
+        }
+        console.log(this._listbox._buttons.length + " / 20");
     }
 
     UpdateColors() {

@@ -11,6 +11,8 @@ export default class UIListBox {
 
     _inputItem = null;
 
+    _selectedIndex = -1;
+
     _scrollView = null;
     _buttons = null;
     _itemList = null; // doubly linked list, not array!
@@ -35,14 +37,14 @@ export default class UIListBox {
 
         this._inputItem.setInteractive();
         scene.input.setDraggable(this._inputItem);
-        //this._inputItem.setVisible(false);
 
-        this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
+
+
+        /*this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
             if (UIGlobals.Active == null) {
                 UIGlobals.Hot = self._inputItem;
             }
 
-            console.log("Pointer into list box");
 
             self.UpdateColors();
         });
@@ -51,16 +53,29 @@ export default class UIListBox {
                 UIGlobals.Hot = null;
             }
 
-            console.log("Pointer out of list box");
+
+            self.UpdateColors();
+        });*/
+
+        self._inputItem.on("pointerdown", function (pointer, localX, localY, event) {
+            UIGlobals.Active = self._inputItem;
+            const count = self._buttons.length;
+
+            let y = pointer.y - self._scrollView._y;
+            y -= self._scrollView.container.y - self._scrollView._y;
+
+            const selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+            if (selectionIndex < 0 || selectionIndex >= count) {
+                throw new Error("Listbox invalid selection");
+            }
+
+            self._selectedIndex = selectionIndex;
 
             self.UpdateColors();
         });
 
         scene.input.on('dragstart', (pointer, gameObject) => {
             if (gameObject != self._inputItem) { return; }
-
-            console.log("Drag start on list box");
-            
             UIGlobals.Active = self._inputItem;
         });
 
@@ -71,13 +86,11 @@ export default class UIListBox {
                 UIGlobals.Active = null;
             }
 
-            console.log("Drag end on list box");
         });
 
         scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
             if (gameObject != self._inputItem) { return; }
 
-            console.log("Draggin list box");
         });
     }
 
@@ -88,8 +101,14 @@ export default class UIListBox {
             UIGlobals.Colors.BackgroundLayer1,
             UIGlobals.Colors.BackgroundLayer1AndAHalf
         ];
+        const selectionIndex = this._selectedIndex;
         for (let i = 0; i < this._buttons.length; ++i) {
-            this._buttons[i].SetTint(tnitColors[i % 2]);
+            if (i == selectionIndex) {
+                this._buttons[i].SetTint(0xff0000);
+            }
+            else {
+                this._buttons[i].SetTint(tnitColors[i % 2]);
+            }
         }
     }
 
@@ -168,5 +187,7 @@ export default class UIListBox {
         }
 
         button.UpdateText(itemName);
+
+        this.Layout(this._x, this._y, this._width, this._height);
     } 
 }
