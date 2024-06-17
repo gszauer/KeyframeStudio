@@ -12,10 +12,12 @@ export default class UIListBox {
     _inputItem = null;
 
     _selectedIndex = -1;
+    _hoverIndex = -1;
+    _pressedIndex = -1;
 
     _scrollView = null;
     _buttons = null;
-    _itemList = null; // doubly linked list, not array!
+    _isDragging = false;
 
     onSelected = null; // onSelected(index: number, caption: string, userData: object);
     onReodered = null; // onReordered(delta: number, index: number, caption: string, userData: object);
@@ -27,7 +29,6 @@ export default class UIListBox {
         this._scrollView.showHorizontal = false;
         
         this._buttons = [];
-        this._itemList = null;
 
         const self = this;
 
@@ -40,58 +41,161 @@ export default class UIListBox {
 
 
 
-        /*this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
-            if (UIGlobals.Active == null) {
-                UIGlobals.Hot = self._inputItem;
+        { // Click events
+            /*self._inputItem.on("pointerdown", function (pointer, localX, localY, event) {
+                UIGlobals.Active = self._inputItem;
+                const count = self._buttons.length;
+
+                let y = pointer.y - self._scrollView._y;
+                y -= self._scrollView.container.y - self._scrollView._y;
+
+                const selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                if (selectionIndex < 0 || selectionIndex >= count) {
+                    throw new Error("Listbox invalid selection");
+                }
+
+                self._selectedIndex = selectionIndex;
+
+                self.UpdateColors();
+            });*/
+        }
+
+        { // Pointer events
+            this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
+                if (UIGlobals.Active == null) {
+                    UIGlobals.Hot = self._inputItem;
+                }
+                self._hoverIndex = -1;
+
+                self.UpdateColors();
+            });
+            self._inputItem.on("pointermove", function (pointer, localX, localY, event) {
+                UIGlobals.Active = self._inputItem;
+                const count = self._buttons.length;
+
+                let y = pointer.y - self._scrollView._y;
+                y -= self._scrollView.container.y - self._scrollView._y;
+
+                const selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                if (selectionIndex < 0 || selectionIndex >= count) {
+                    throw new Error("Listbox invalid selection");
+                }
+                self._hoverIndex = selectionIndex;
+
+                self.UpdateColors();
+            });
+            this._inputItem.on("pointerout", function (pointer, event) {
+                if (UIGlobals.Hot == self._inputItem) {
+                    UIGlobals.Hot = null;
+                }
+                self._hoverIndex = -1;
+
+                self.UpdateColors();
+            });
+        }
+        { // Drag events
+            // Drag start / mouse down
+            scene.input.on('dragstart', (pointer, gameObject) => {
+                if (gameObject != self._inputItem) { return; }
+                // Drag Start:
+                UIGlobals.Active = self._inputItem;
+                // self._isDragging = true;
+                //self._hoverIndex = -1;
+
+                // On Click:
+                let y = pointer.y - self._scrollView._y;
+                y -= self._scrollView.container.y - self._scrollView._y;
+                const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                if (index < 0 || index >= self._buttons.length) {
+                    // This isn't actually an error. Just dis-select.
+                    throw new Error("Listbox invalid selection");
+                }
+                self._pressedIndex = index;
+    
+                self.UpdateColors();
+            });
+            const mouseRelease = function(pointer, ) {
+                if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
+                    let left = self._inputItem.x;
+                    let right = left + self._inputItem.scaleX;
+                    let top = self._inputItem.y;
+                    let bottom = top + self._inputItem.scaleY;
+    
+                    if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                        let y = pointer.y - self._scrollView._y;
+                        y -= self._scrollView.container.y - self._scrollView._y;
+                        const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                        if (index < 0 || index >= self._buttons.length) {
+                            // This isn't actually an error. Just dis-select.
+                            throw new Error("Listbox invalid selection");
+                        }
+                        if (index == self._pressedIndex) {
+                            if (self.onSelected != null) {
+                                self.onSelected(index, )
+                            }
+                            self._selectedIndex = index;
+                        }
+                    }
+                    
+                    self._pressedIndex = -1;
+                    UIGlobals.Active = null;
+                    self.UpdateColors();
+                }
             }
+            scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+                if (gameObject != self._inputItem) { return; }
+                UIGlobals.Active = self._inputItem;
 
+                let y = pointer.y - self._scrollView._y;
+                y -= self._scrollView.container.y - self._scrollView._y;
+                const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
 
-            self.UpdateColors();
-        });
-        this._inputItem.on("pointerout", function (pointer, event) {
-            if (UIGlobals.Hot == self._inputItem) {
-                UIGlobals.Hot = null;
-            }
+                if (!self._isDragging) { // Same as click
+                    mouseRelease(pointer);
+                    self._isDragging = true;
+                }
 
+                console.log("dragging: " + index);
+            });
+            // Drag end / mouse up
+            scene.input.on('dragend', (pointer, gameObject) => {
+                if (gameObject != self._inputItem) { return; }
 
-            self.UpdateColors();
-        });*/
+                // Drag end:
+                self._isDragging = false;
+                self._hoverIndex = -1;
 
-        self._inputItem.on("pointerdown", function (pointer, localX, localY, event) {
-            UIGlobals.Active = self._inputItem;
-            const count = self._buttons.length;
-
-            let y = pointer.y - self._scrollView._y;
-            y -= self._scrollView.container.y - self._scrollView._y;
-
-            const selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-            if (selectionIndex < 0 || selectionIndex >= count) {
-                throw new Error("Listbox invalid selection");
-            }
-
-            self._selectedIndex = selectionIndex;
-
-            self.UpdateColors();
-        });
-
-        scene.input.on('dragstart', (pointer, gameObject) => {
-            if (gameObject != self._inputItem) { return; }
-            UIGlobals.Active = self._inputItem;
-        });
-
-        scene.input.on('dragend', (pointer, gameObject) => {
-            if (gameObject != self._inputItem) { return; }
-
-            if (UIGlobals.Active == self._inputItem) {
-                UIGlobals.Active = null;
-            }
-
-        });
-
-        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            if (gameObject != self._inputItem) { return; }
-
-        });
+                // Mouse up:
+                mouseRelease(pointer);
+                /*if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
+                    let left = self._inputItem.x;
+                    let right = left + self._inputItem.scaleX;
+                    let top = self._inputItem.y;
+                    let bottom = top + self._inputItem.scaleY;
+    
+                    if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                        let y = pointer.y - self._scrollView._y;
+                        y -= self._scrollView.container.y - self._scrollView._y;
+                        const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                        if (index < 0 || index >= self._buttons.length) {
+                            // This isn't actually an error. Just dis-select.
+                            throw new Error("Listbox invalid selection");
+                        }
+                        if (index == self._pressedIndex) {
+                            if (self.onSelected != null) {
+                                self.onSelected(index, )
+                            }
+                            self._selectedIndex = index;
+                        }
+                    }
+                    
+                    self._pressedIndex = -1;
+                    UIGlobals.Active = null;
+                    self.UpdateColors();
+                }*/
+            });
+        }
+        
     }
 
     UpdateColors() {
@@ -102,9 +206,13 @@ export default class UIListBox {
             UIGlobals.Colors.BackgroundLayer1AndAHalf
         ];
         const selectionIndex = this._selectedIndex;
+        const hoverIndex = this._hoverIndex;
         for (let i = 0; i < this._buttons.length; ++i) {
             if (i == selectionIndex) {
                 this._buttons[i].SetTint(0xff0000);
+            }
+            else if (i == hoverIndex) {
+                this._buttons[i].SetTint(0x00ff00);
             }
             else {
                 this._buttons[i].SetTint(tnitColors[i % 2]);
@@ -143,7 +251,6 @@ export default class UIListBox {
     }
 
     Clear() {
-        this._itemList = null;
         for (let i = 0; i < this._buttons.length; ++i) {
             this._buttons[i].Hide();
         }
@@ -151,26 +258,9 @@ export default class UIListBox {
 
     Add(itemName, itemUserData = null) {
         const item = {
-            prev: null,
-            next: null,
             name: itemName,
             data: itemUserData
         };
-
-        if (this._itemList == null) {
-            this._itemList = item;
-        }
-        else {
-            let iter = this._itemList;
-            while (iter != null) {
-                if (iter.next == null) {
-                    iter.next = item;
-                    item.prev = iter;
-                    break;
-                }
-                iter = iter.next;
-            }
-        }
 
         let button = null;
         for (let i = 0; i < this._buttons.length; ++i) {
