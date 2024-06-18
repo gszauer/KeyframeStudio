@@ -1,36 +1,35 @@
 import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
-import UIListBox from './UIListBox.js'
-import UIListBoxItem from './UIListBoxItem.js'
+import UITree from './UITree.js'
 
-export default class AnimationsView extends UIView {
-    _listbox = null;
+export default class HierarchyView extends UIView {
+    _tree = null;
 
     constructor(scene, parent = null) {
         super(scene, parent);
         const self = this;
 
-        this._listbox = new UIListBox(scene);
-        this._listbox.canReorder = false;
+        this._tree = new UITree(scene);
+        this._tree.canReorder = false;
 
-        for (let i = 0; i < 20; ++i) {
-            this._listbox.Add("Animation " + i);
-        }
+        /*for (let i = 0; i < 20; ++i) {
+            this._tree.Add("Hierarchy " + i);
+        }*/
     }
 
     UpdateColors() {
-        this._listbox.UpdateColors();
+        this._tree.UpdateColors();
     }
 
     Layout(x, y, width, height) {
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
-        this._listbox.Layout(x, y, width, height);
+        this._tree.Layout(x, y, width, height);
     }
 
     SetVisibility(value) {
-        this._listbox.SetVisibility(value);
+        this._tree.SetVisibility(value);
     }
 
     Hide() {

@@ -9,6 +9,7 @@ import InspectorView from './InspectorView.js'
 import DrawOrderView from './DrawOrderView.js'
 import AnimationsView from './AnimationsView.js'
 import AssetsView from './AssetsView.js'
+import HierarchyView from './HierarchyView.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
 
 
@@ -77,6 +78,7 @@ export default class Application extends Phaser.Scene {
         const sceneMenu = new UIPopup(self);
         self._menu.Add("Scene", sceneMenu);
         sceneMenu.Add("New Node", null);
+        sceneMenu.Add("Delete Node", null);
 
         const animation = new UIPopup(self);
         self._menu.Add("Animation", animation);
@@ -114,7 +116,7 @@ export default class Application extends Phaser.Scene {
         inspectorTabs.Add("Draw Order", new DrawOrderView(this, inspectorTabs));
 
         const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
-        sceneTabs.Add("Hierarchy", null);
+        sceneTabs.Add("Hierarchy", new HierarchyView(this, sceneTabs));
         sceneTabs.Add("Assets", new AssetsView(this, sceneTabs));
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
 

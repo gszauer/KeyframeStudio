@@ -1,6 +1,5 @@
 import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
-import UIScrollView from './UIScrollView.js'
 import UIListBox from './UIListBox.js'
 import UIListBoxItem from './UIListBoxItem.js'
 
@@ -12,6 +11,8 @@ export default class AssetsView extends UIView {
         const self = this;
 
         this._listbox = new UIListBox(scene);
+        this._listbox.canReorder = false;
+
         for (let i = 0; i < 20; ++i) {
             this._listbox.Add("Asset " + i);
         }

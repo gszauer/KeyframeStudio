@@ -2,8 +2,6 @@ import UIGlobals from './UIGlobals.js'
 import UIListBoxItem from './UIListBoxItem.js'
 import UIScrollView from './UIScrollView.js'
 
-// TODO: Don't hold on to hot or active!
-
 export default class UIListBox {
     _scene = null;
     _x = 0;
@@ -25,6 +23,7 @@ export default class UIListBox {
 
     onSelected = null; // onSelected(index: number, caption: string, userData: object);
     onReodered = null; // onReordered(startIndex: number, stopIndex: delta: number);
+    canReorder = true;
 
     get _numButtons() {
         let result = 0;
@@ -179,7 +178,7 @@ export default class UIListBox {
                     self._isDragging = true;
 
                     if (updateDragIndicator(pointer)) {
-                        self._orderIndicator.setActive(true).setVisible(true);
+                        self._orderIndicator.setActive(self.canReorder).setVisible(self.canReorder);
                         self._orderIndicator.setTint(UIGlobals.Colors.Dark.Blue300);
                     }
                     self.UpdateColors();
@@ -234,7 +233,7 @@ export default class UIListBox {
                             dragStopIndex -= 1;
                         }
 
-                        if (dragDelta != 0) {
+                        if (dragDelta != 0 && self.canReorder) {
                             self._selectedIndex = dragStopIndex;
                             move(this._buttons, dragStartIndex, dragStopIndex);
                             self.Layout(self._x, self._y, self._width, self._height);
@@ -276,7 +275,7 @@ export default class UIListBox {
             }
         }
 
-        this._orderIndicator.setVisible(this._isDragging);
+        this._orderIndicator.setVisible(this._isDragging && this.canReorder);
     }
 
     Layout(x, y, width, height) {
