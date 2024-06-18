@@ -2,6 +2,8 @@ import UIGlobals from './UIGlobals.js'
 import UIListBoxItem from './UIListBoxItem.js'
 import UIScrollView from './UIScrollView.js'
 
+// TODO: Don't hold on to hot or active!
+
 export default class UIListBox {
     _scene = null;
     _x = 0;
@@ -15,13 +17,25 @@ export default class UIListBox {
     _selectedIndex = -1;
     _hoverIndex = -1;
     _pressedIndex = -1;
+    _dragStartIndex = -1;
 
     _scrollView = null;
     _buttons = null;
     _isDragging = false;
 
     onSelected = null; // onSelected(index: number, caption: string, userData: object);
-    onReodered = null; // onReordered(delta: number, index: number, caption: string, userData: object);
+    onReodered = null; // onReordered(startIndex: number, stopIndex: delta: number);
+
+    get _numButtons() {
+        let result = 0;
+        const len = this._buttons.length;
+        for (let i = 0; i < len; ++i) {
+            if (this._buttons[i].visible) {
+                result += 1;
+            }
+        }
+        return result;
+    }
 
     constructor(scene) {
         this._scene = scene;
@@ -42,38 +56,31 @@ export default class UIListBox {
         this._orderIndicator.setOrigin(0, 0.5);
         this._orderIndicator.setActive(false).setVisible(false);
 
-
         this._inputItem.setInteractive();
         scene.input.setDraggable(this._inputItem);
 
         { // Pointer events
             this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
-                if (UIGlobals.Active == null) {
-                    UIGlobals.Hot = self._inputItem;
-                }
                 self._hoverIndex = -1;
 
                 self.UpdateColors();
             });
             self._inputItem.on("pointermove", function (pointer, localX, localY, event) {
-                UIGlobals.Active = self._inputItem;
-                const count = self._buttons.length;
+                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
+                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
 
                 let y = pointer.y - self._scrollView._y;
                 y -= self._scrollView.container.y - self._scrollView._y;
 
-                const selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-                if (selectionIndex < 0 || selectionIndex >= count) {
-                    throw new Error("Listbox invalid selection");
+                let selectionIndex = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                if (selectionIndex < 0 || selectionIndex >= self._numButtons) {
+                    selectionIndex = -1;
                 }
                 self._hoverIndex = selectionIndex;
 
                 self.UpdateColors();
             });
             this._inputItem.on("pointerout", function (pointer, event) {
-                if (UIGlobals.Hot == self._inputItem) {
-                    UIGlobals.Hot = null;
-                }
                 self._hoverIndex = -1;
 
                 self.UpdateColors();
@@ -82,25 +89,26 @@ export default class UIListBox {
         { // Drag events
             // Drag start / mouse down
             scene.input.on('dragstart', (pointer, gameObject) => {
+                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
+                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+
                 if (gameObject != self._inputItem) { return; }
                 // Drag Start:
                 UIGlobals.Active = self._inputItem;
-                // self._isDragging = true;
-                //self._hoverIndex = -1;
 
                 // On Click:
                 let y = pointer.y - self._scrollView._y;
                 y -= self._scrollView.container.y - self._scrollView._y;
-                const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-                if (index < 0 || index >= self._buttons.length) {
-                    // This isn't actually an error. Just dis-select.
-                    throw new Error("Listbox invalid selection");
+                let index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                if (index < 0 || index >= self._numButtons) {
+                    index = -1;
                 }
                 self._pressedIndex = index;
     
                 self.UpdateColors();
             });
             const mouseRelease = function(pointer) {
+                let index = -1;
                 if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
                     let left = self._inputItem.x;
                     let right = left + self._inputItem.scaleX;
@@ -110,14 +118,14 @@ export default class UIListBox {
                     if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
                         let y = pointer.y - self._scrollView._y;
                         y -= self._scrollView.container.y - self._scrollView._y;
-                        const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-                        if (index < 0 || index >= self._buttons.length) {
+                        index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                        if (index < 0 || index >= self._numButtons) {
                             // This isn't actually an error. Just dis-select.
-                            throw new Error("Listbox invalid selection");
+                            index = -1;
                         }
-                        if (index == self._pressedIndex) {
+                        if (index == self._pressedIndex && index >= 0) {
                             if (self.onSelected != null) {
-                                self.onSelected(index, )
+                                self.onSelected(index, self._buttons[index].item.name, self._buttons[index].item.data);
                             }
                             self._selectedIndex = index;
                         }
@@ -126,19 +134,22 @@ export default class UIListBox {
                     self._pressedIndex = -1;
                     UIGlobals.Active = null;
                     self.UpdateColors();
+                    return index;
                 }
             }
             const updateDragIndicator = function(pointer) {
+                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
+                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+
                 let y = (pointer.y + UIGlobals.Sizes.ListBoxItemHeight * 0.5) - self._scrollView._y;
-                y -= self._scrollView.container.y - self._scrollView._y;
+                const deltaY = self._scrollView.container.y - self._scrollView._y;
+                y -= deltaY;
                 const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                let itemWorldY = self._scrollView._y + deltaY + (index * UIGlobals.Sizes.ListBoxItemHeight);
 
-                let itemWorldY = self._scrollView._y + (index * UIGlobals.Sizes.ListBoxItemHeight);
-
-                if (index >= 0 && index < self._buttons.length) {
+                if (index >= 0 && index <= self._numButtons) {
                     self._orderIndicator.setPosition(self._x, itemWorldY);
-                    self._orderIndicator.setScale(self._width, UIGlobals.Sizes.ListBoxOrderIndicator);
-                    self._orderIndicator.setActive(true).setVisible(true);
+                    self._orderIndicator.setScale(self._scrollView._maskRect.width, UIGlobals.Sizes.ListBoxOrderIndicator);
                     return true;
                 }
 
@@ -148,16 +159,13 @@ export default class UIListBox {
                 if (gameObject != self._inputItem) { return; }
                 UIGlobals.Active = self._inputItem;
 
-                let y = pointer.y - self._scrollView._y;
-                y -= self._scrollView.container.y - self._scrollView._y;
-                const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-
                 if (!self._isDragging) { // Same as click
-                    mouseRelease(pointer);
+                    self._dragStartIndex = mouseRelease(pointer);
                     self._isDragging = true;
 
                     if (updateDragIndicator(pointer)) {
                         self._orderIndicator.setActive(true).setVisible(true);
+                        self._orderIndicator.setTint(UIGlobals.Colors.Dark.Blue300);
                     }
                     self.UpdateColors();
                 }
@@ -165,18 +173,66 @@ export default class UIListBox {
                     updateDragIndicator(pointer);
                 }
 
-                console.log("dragging: " + index);
             });
+            function move(arr, old_index, new_index) {
+                if (new_index >= arr.length) {
+                    var k = new_index - arr.length + 1;
+                    while (k--) {
+                        arr.push(undefined);
+                    }
+                }
+                arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+                return arr; 
+            };
+
             // Drag end / mouse up
             scene.input.on('dragend', (pointer, gameObject) => {
                 if (gameObject != self._inputItem) { return; }
 
+                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
+                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+
                 // Drag end:
+                const wasDragging = self._isDragging;
                 self._isDragging = false;
                 self._hoverIndex = -1;
 
                 // Mouse up:
-                mouseRelease(pointer);
+                if (mouseRelease(pointer) < 0 && !wasDragging) {
+                    self._selectedIndex = -1;
+                    self.UpdateColors();
+                }
+                const dragStartIndex = self._dragStartIndex;
+
+                if (wasDragging) {
+                    let dragStopIndex = Math.floor(((pointer.y + UIGlobals.Sizes.ListBoxItemHeight * 0.5) - self._scrollView._y - (self._scrollView.container.y - self._scrollView._y)) / UIGlobals.Sizes.ListBoxItemHeight);
+                    if (dragStopIndex < 0) { 
+                        dragStopIndex = -1;
+                    }
+                    else if (dragStopIndex > self._numButtons) {
+                        dragStopIndex = self._numButtons;
+                    }
+
+                    if (dragStartIndex != -1) {
+                        let dragDelta = dragStopIndex - dragStartIndex;
+
+                        if (dragDelta > 0) {
+                            dragDelta -= 1;
+                            dragStopIndex -= 1;
+                        }
+
+                        if (dragDelta != 0) {
+                            self._selectedIndex = dragStopIndex;
+                            move(this._buttons, dragStartIndex, dragStopIndex);
+                            self.Layout(self._x, self._y, self._width, self._height);
+
+                            //console.log("Started dragging: " + dragStartIndex + ", stopped: " + dragStopIndex + ", delta: " + dragDelta);
+                            if (self.onReodered != null) {
+                                self.onReodered(dragStartIndex, dragStopIndex, dragDelta);
+                            } 
+                        }
+                    }
+                }
             });
         }
         
@@ -189,17 +245,21 @@ export default class UIListBox {
             UIGlobals.Colors.BackgroundLayer1,
             UIGlobals.Colors.BackgroundLayer1AndAHalf
         ];
+        const highlightColors = [
+           UIGlobals.Colors.Dark.Blue300,
+           UIGlobals.Colors.Dark.Blue200,
+        ];
         const selectionIndex = this._selectedIndex;
         const hoverIndex = this._hoverIndex;
         for (let i = 0; i < this._buttons.length; ++i) {
+            this._buttons[i].SetTint(tnitColors[i % 2]);
             if (i == selectionIndex) {
-                this._buttons[i].SetTint(0xff0000);
+                this._buttons[i].SetTint(UIGlobals.Colors.Dark.Blue100);
             }
             else if (i == hoverIndex) {
-                this._buttons[i].SetTint(0x00ff00);
-            }
-            else {
-                this._buttons[i].SetTint(tnitColors[i % 2]);
+                if (!this._isDragging) {
+                    this._buttons[i].SetTint(highlightColors[i % 2]);
+                }
             }
         }
 
@@ -267,7 +327,7 @@ export default class UIListBox {
             this._buttons.push(button);
             button.AddToContainer(this._scrollView.container);
         }
-
+        button.item = item;
         button.UpdateText(itemName);
 
         this.Layout(this._x, this._y, this._width, this._height);

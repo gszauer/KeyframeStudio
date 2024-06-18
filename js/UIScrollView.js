@@ -128,6 +128,14 @@ export default class UIScrollView extends UIView {
 
         let containerX = x - (_w) * this.horizontalScrollBar.current;
         let containerY = y - (_h) * this.verticalScrollBar.current;
+
+        if (containerY > this._y) {
+            containerY = this._y;
+            this.verticalScrollBar.current = 0;
+            if (this.showHorizontal) {
+                this.horizontalScrollBar.Layout(this.horizontalScrollBar._x,  this.horizontalScrollBar._y,  this.horizontalScrollBar._width,  this.horizontalScrollBar._height, contentRatio);
+            }
+        }
         this.container.setPosition(containerX, containerY);
     }
 
