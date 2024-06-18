@@ -1,5 +1,6 @@
 import UIGlobals from './UIGlobals.js'
 import UIScrollView from './UIScrollView.js'
+import UITreeNode from './UITreeNode.js'
 
 export default class UITree {
     _scene = null;
