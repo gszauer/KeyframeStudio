@@ -4,7 +4,7 @@ import UIScrollView from './UIScrollView.js'
 import UIListBox from './UIListBox.js'
 import UIListBoxItem from './UIListBoxItem.js'
 
-export default class DrawOrderView extends UIView {
+export default class AnimationsView extends UIView {
     _listbox = null;
 
     constructor(scene, parent = null) {
@@ -13,7 +13,7 @@ export default class DrawOrderView extends UIView {
 
         this._listbox = new UIListBox(scene);
         for (let i = 0; i < 20; ++i) {
-            this._listbox.Add("Sprite " + i);
+            this._listbox.Add("Animation " + i);
         }
     }
 

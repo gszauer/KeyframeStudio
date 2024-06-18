@@ -37,6 +37,22 @@ export default class UIListBox {
         return result;
     }
 
+    ConstrainPointer(pointer) {
+        const result = {
+            x: pointer.x, 
+            y: pointer.y
+        };
+
+        if (result.y < this._scrollView._maskRect.y) { 
+            result.y = this._scrollView._maskRect.y 
+        }
+        if (result.y > this._scrollView._maskRect.y + this._scrollView._maskRect.height) { 
+            result.y = this._scrollView._maskRect.y + this._scrollView._maskRect.height; 
+        }
+
+        return result;
+    }
+
     constructor(scene) {
         this._scene = scene;
 
@@ -66,8 +82,7 @@ export default class UIListBox {
                 self.UpdateColors();
             });
             self._inputItem.on("pointermove", function (pointer, localX, localY, event) {
-                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
-                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+                pointer = self.ConstrainPointer(pointer);
 
                 let y = pointer.y - self._scrollView._y;
                 y -= self._scrollView.container.y - self._scrollView._y;
@@ -89,8 +104,7 @@ export default class UIListBox {
         { // Drag events
             // Drag start / mouse down
             scene.input.on('dragstart', (pointer, gameObject) => {
-                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
-                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+                pointer = self.ConstrainPointer(pointer);
 
                 if (gameObject != self._inputItem) { return; }
                 // Drag Start:
@@ -138,8 +152,7 @@ export default class UIListBox {
                 }
             }
             const updateDragIndicator = function(pointer) {
-                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
-                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+                pointer = self.ConstrainPointer(pointer);
 
                 let y = (pointer.y + UIGlobals.Sizes.ListBoxItemHeight * 0.5) - self._scrollView._y;
                 const deltaY = self._scrollView.container.y - self._scrollView._y;
@@ -156,6 +169,8 @@ export default class UIListBox {
                 return false;
             }
             scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+                pointer = self.ConstrainPointer(pointer);
+
                 if (gameObject != self._inputItem) { return; }
                 UIGlobals.Active = self._inputItem;
 
@@ -188,9 +203,7 @@ export default class UIListBox {
             // Drag end / mouse up
             scene.input.on('dragend', (pointer, gameObject) => {
                 if (gameObject != self._inputItem) { return; }
-
-                if (pointer.y < self._scrollView._maskRect.y) { pointer.y = self._scrollView._maskRect.y }
-                if (pointer.y > self._scrollView._maskRect.y + self._scrollView._maskRect.height) { pointer.y = self._scrollView._maskRect.y + self._scrollView._maskRect.height; }
+                pointer = self.ConstrainPointer(pointer);
 
                 // Drag end:
                 const wasDragging = self._isDragging;
