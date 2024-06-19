@@ -81,6 +81,9 @@ export default class UIGlobals {
         ListBoxItemHeight: 26,
         ListBoxItemMarginLeft: 5,
         ListBoxOrderIndicator: 5,
+
+        TreeItemHeight: 26,
+
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

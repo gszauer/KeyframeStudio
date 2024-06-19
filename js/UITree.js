@@ -11,6 +11,7 @@ export default class UITree {
 
     _scrollView = null;
     _inputItem = null;
+    _roots = [];
 
     constructor(scene) {
         this._scene = scene;
@@ -26,6 +27,21 @@ export default class UITree {
 
     UpdateColors() {
         this._scrollView.UpdateColors();
+
+        let current = 0;
+        const colors = [
+            0xff0000,
+            0x00ff00
+        ];
+
+        const roots = this._roots;
+        const length = this._roots.length;
+        
+        for (let i = 0; i < length; ++i) {
+            roots[i].ForEach((node, depth) => {
+                node._SetColor(colors[current++ % 2 == 0? true : false]);
+            });
+        }
     }
 
     Layout(x, y, width, height) {
@@ -41,10 +57,33 @@ export default class UITree {
         this._inputItem.setScale(width, height);
 
         this._scrollView.Layout(x, y, width, height);
+
+        // Lay out tree nodes
+        x = 0;
+        y = 0;
+        width = 200; // TODO: Figure this out
+        height = UIGlobals.Sizes.TreeItemHeight;
+
+        const roots = this._roots;
+        const length = this._roots.length;
+        for (let i = 0; i < length; ++i) {
+            roots[i].ForEach((node, depth) => {
+                node.Layout(x, y, width, height);
+                y += height;
+            });
+        }
     }
 
     SetVisibility(value) {
         this._scrollView.SetVisibility(value);
         this._inputItem.setActive(value).setVisible(value);
+    }
+
+    Add(name, userData = null) {
+        const node = new UITreeNode(this, name, null);
+        node._userData = userData;
+        node._AddToContainer(this._scrollView.container);
+        this._roots.push(node);
+        return node;
     }
 }
