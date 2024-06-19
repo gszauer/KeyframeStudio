@@ -83,6 +83,8 @@ export default class UIGlobals {
         ListBoxOrderIndicator: 5,
 
         TreeItemHeight: 26,
+        TreeItemMarginLeft: 5,
+        TreeItemIndent: 24
 
     };
 

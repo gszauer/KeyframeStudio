@@ -44,6 +44,31 @@ export default class UITree {
         }
     }
 
+    _AddToRoots(element) {
+        const length = this._roots.length;
+        for (let i = 0; i < length; ++i) {
+            if (this._roots[i] == element) {
+                throw new Error("Duplicate root found");
+            }
+        }
+        this._roots.push(element);
+    }
+
+    _RemoveFromRoots(element) {
+        let toRemove = -1;
+        const length = this._roots.length;
+        for (let i = 0; i < length; ++i) {
+            if (this._roots[i] == element) {
+                toRemove = i;
+                break;
+            }
+        }
+
+        if (toRemove != -1) {
+            this._roots.splice(toRemove, 1);
+        }
+    }
+
     Layout(x, y, width, height) {
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
@@ -68,7 +93,7 @@ export default class UITree {
         const length = this._roots.length;
         for (let i = 0; i < length; ++i) {
             roots[i].ForEach((node, depth) => {
-                node.Layout(x, y, width, height);
+                node.Layout(x, y, width, height, depth);
                 y += height;
             });
         }

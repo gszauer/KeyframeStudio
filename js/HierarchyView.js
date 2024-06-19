@@ -12,10 +12,14 @@ export default class HierarchyView extends UIView {
         this._tree = new UITree(scene);
         this._tree.canReorder = false;
 
-        this._tree.Add("One");
-        this._tree.Add("Two");
-        this._tree.Add("Three");
-        this._tree.Add("Four");
+        let one = this._tree.Add("One");
+        let two = this._tree.Add("Two");
+        let three = this._tree.Add("Three");
+        let four = this._tree.Add("Four");
+
+        one.AddChild(two);
+        three.SetParent(four);
+        three.SetParent(two);
 
         /*for (let i = 0; i < 20; ++i) {
             this._tree.Add("Hierarchy " + i);
