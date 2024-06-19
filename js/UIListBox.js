@@ -268,7 +268,7 @@ export default class UIListBox {
             if (i == selectionIndex) {
                 this._buttons[i].SetTint(UIGlobals.Colors.Dark.Blue100);
             }
-            else if (i == hoverIndex) {
+            else if (i == hoverIndex && UIGlobals.Active == null) {
                 if (!this._isDragging) {
                     this._buttons[i].SetTint(highlightColors[i % 2]);
                 }
