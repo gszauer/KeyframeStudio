@@ -15,6 +15,8 @@ export default class UITabView extends UIView {
     _tagBackgrounds = [];
     _seperators = [];
 
+    _laidOutForTheFirstTime = false;
+
     constructor(scene, parent = null) {
         super(scene, parent);
 

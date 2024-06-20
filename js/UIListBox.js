@@ -261,16 +261,17 @@ export default class UIListBox {
            UIGlobals.Colors.Dark.Blue300,
            UIGlobals.Colors.Dark.Blue200,
         ];
+        const textTint = UIGlobals.Colors.Text;
         const selectionIndex = this._selectedIndex;
         const hoverIndex = this._hoverIndex;
         for (let i = 0; i < this._buttons.length; ++i) {
-            this._buttons[i].SetTint(tnitColors[i % 2]);
+            this._buttons[i].SetTint(tnitColors[i % 2], textTint);
             if (i == selectionIndex) {
-                this._buttons[i].SetTint(UIGlobals.Colors.Dark.Blue100);
+                this._buttons[i].SetTint(UIGlobals.Colors.Dark.Blue100, textTint);
             }
             else if (i == hoverIndex && UIGlobals.Active == null) {
                 if (!this._isDragging) {
-                    this._buttons[i].SetTint(highlightColors[i % 2]);
+                    this._buttons[i].SetTint(highlightColors[i % 2], textTint);
                 }
             }
         }
@@ -290,18 +291,26 @@ export default class UIListBox {
         this._inputItem.setPosition(x, y);
         this._inputItem.setScale(width, height);
 
-        this._scrollView.Layout(x, y, width, height);
         const buttonHeight = UIGlobals.Sizes.ListBoxItemHeight;
+        const scrollSize = UIGlobals.Sizes.ScrollTrackSize;
+        if (this._scrollView.showHorizontal) {
+            width -= scrollSize;
+        }
+        else if (this._scrollView.showVertical) {
+            height -= scrollSize;
+        }
 
         x = 0;
         y = 0;
-        width = this._scrollView._width;
         for (let i = 0; i < this._buttons.length; ++i) {
             if (!this._buttons[i].visible) {
                 break;
             }
             this._buttons[i].Layout(x, y + (buttonHeight * i), width);
         }
+
+        this._scrollView.Layout(this._x, this._y, this._width, this._height);
+
 
         this.UpdateColors();
     }
@@ -342,6 +351,7 @@ export default class UIListBox {
         button.item = item;
         button.UpdateText(itemName);
 
-        this.Layout(this._x, this._y, this._width, this._height);
+        // Call Layout manually elsewhewre
+        //this.Layout(this._x, this._y, this._width, this._height);
     } 
 }

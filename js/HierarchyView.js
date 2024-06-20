@@ -21,9 +21,9 @@ export default class HierarchyView extends UIView {
         three.SetParent(four);
         three.SetParent(two);
 
-        /*for (let i = 0; i < 20; ++i) {
+        for (let i = 0; i < 20; ++i) {
             this._tree.Add("Hierarchy " + i);
-        }*/
+        }
     }
 
     UpdateColors() {
