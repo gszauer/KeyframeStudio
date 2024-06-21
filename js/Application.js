@@ -29,7 +29,7 @@ export default class Application extends Phaser.Scene {
 
     preload() {
         const scene = this;
-        this._atlas = scene.load.atlas(UIGlobals.Atlas, 'img/atlas.png', 'img/atlas.json');
+        this._atlas = scene.load.atlas(UIGlobals.Atlas, 'img/Atlas.png', 'img/Atlas.json');
         
         this.load.xml(UIGlobals.Font50 + ".xml", "img/" + UIGlobals.Font50 + ".xml");
         this.load.xml(UIGlobals.Font75 + ".xml", "img/" + UIGlobals.Font75 + ".xml");
