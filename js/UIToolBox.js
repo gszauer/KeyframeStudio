@@ -1,5 +1,5 @@
 import UIGlobals from './UIGlobals.js'
-import UIToolBoxButton from './UIToolBoxButton.js'
+import UIToolBoxButton from './UIToolboxButton.js'
 
 export default class UIToolBox {
     _scene = null;
