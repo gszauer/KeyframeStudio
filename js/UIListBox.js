@@ -36,26 +36,12 @@ export default class UIListBox {
         return result;
     }
 
-    ConstrainPointer(pointer) {
-        const result = {
-            x: pointer.x, 
-            y: pointer.y
-        };
-
-        if (result.y < this._scrollView._maskRect.y) { 
-            result.y = this._scrollView._maskRect.y 
-        }
-        if (result.y > this._scrollView._maskRect.y + this._scrollView._maskRect.height) { 
-            result.y = this._scrollView._maskRect.y + this._scrollView._maskRect.height; 
-        }
-
-        return result;
-    }
+   
 
     constructor(scene) {
         this._scene = scene;
 
-        this._scrollView = new UIScrollView(scene, this);
+        const scrollView = this._scrollView = new UIScrollView(scene, this);
         this._scrollView.showHorizontal = false;
         
         this._buttons = [];
@@ -74,6 +60,33 @@ export default class UIListBox {
         this._inputItem.setInteractive();
         scene.input.setDraggable(this._inputItem);
 
+        const ConstrainPointer = function(pointer) {
+            const result = {
+                x: pointer.x, 
+                y: pointer.y
+            };
+    
+            if (result.y < scrollView._maskRect.y) { 
+                result.y = scrollView._maskRect.y 
+            }
+            if (result.y > scrollView._maskRect.y + scrollView._maskRect.height) { 
+                result.y = scrollView._maskRect.y + scrollView._maskRect.height; 
+            }
+    
+            return result;
+        };
+
+        const move = function(arr, old_index, new_index) {
+            if (new_index >= arr.length) {
+                var k = new_index - arr.length + 1;
+                while (k--) {
+                    arr.push(undefined);
+                }
+            }
+            arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+            return arr; 
+        };
+
         { // Pointer events
             this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
                 self._hoverIndex = -1;
@@ -81,7 +94,7 @@ export default class UIListBox {
                 self.UpdateColors();
             });
             self._inputItem.on("pointermove", function (pointer, localX, localY, event) {
-                pointer = self.ConstrainPointer(pointer);
+                pointer = ConstrainPointer(pointer);
 
                 let y = pointer.y - self._scrollView._y;
                 y -= self._scrollView.container.y - self._scrollView._y;
@@ -100,10 +113,58 @@ export default class UIListBox {
                 self.UpdateColors();
             });
         }
+        const mouseRelease = function(pointer) {
+            let index = -1;
+            if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
+                let left = self._inputItem.x;
+                let right = left + self._inputItem.scaleX;
+                let top = self._inputItem.y;
+                let bottom = top + self._inputItem.scaleY;
+
+                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                    let y = pointer.y - self._scrollView._y;
+                    y -= self._scrollView.container.y - self._scrollView._y;
+                    index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                    if (index < 0 || index >= self._numButtons) {
+                        // This isn't actually an error. Just dis-select.
+                        index = -1;
+                    }
+                    if (index == self._pressedIndex && index >= 0) {
+                        if (self.onSelected != null) {
+                            self.onSelected(index, self._buttons[index].item.name, self._buttons[index].item.data);
+                        }
+                        self._selectedIndex = index;
+                    }
+                }
+                
+                self._pressedIndex = -1;
+                UIGlobals.Active = null;
+                self.UpdateColors();
+                return index;
+            }
+        }
+        const updateDragIndicator = function(pointer) {
+            pointer = ConstrainPointer(pointer);
+
+            let y = (pointer.y + UIGlobals.Sizes.ListBoxItemHeight * 0.5) - self._scrollView._y;
+            const deltaY = self._scrollView.container.y - self._scrollView._y;
+            y -= deltaY;
+            const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+            let itemWorldY = self._scrollView._y + deltaY + (index * UIGlobals.Sizes.ListBoxItemHeight);
+
+            if (index >= 0 && index <= self._numButtons) {
+                self._orderIndicator.setPosition(self._x, itemWorldY);
+                self._orderIndicator.setScale(self._scrollView._maskRect.width, UIGlobals.Sizes.ListBoxOrderIndicator);
+                return true;
+            }
+
+            return false;
+        }
+        
         { // Drag events
             // Drag start / mouse down
             scene.input.on('dragstart', (pointer, gameObject) => {
-                pointer = self.ConstrainPointer(pointer);
+                pointer = ConstrainPointer(pointer);
 
                 if (gameObject != self._inputItem) { return; }
                 // Drag Start:
@@ -120,55 +181,8 @@ export default class UIListBox {
     
                 self.UpdateColors();
             });
-            const mouseRelease = function(pointer) {
-                let index = -1;
-                if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
-                    let left = self._inputItem.x;
-                    let right = left + self._inputItem.scaleX;
-                    let top = self._inputItem.y;
-                    let bottom = top + self._inputItem.scaleY;
-    
-                    if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                        let y = pointer.y - self._scrollView._y;
-                        y -= self._scrollView.container.y - self._scrollView._y;
-                        index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-                        if (index < 0 || index >= self._numButtons) {
-                            // This isn't actually an error. Just dis-select.
-                            index = -1;
-                        }
-                        if (index == self._pressedIndex && index >= 0) {
-                            if (self.onSelected != null) {
-                                self.onSelected(index, self._buttons[index].item.name, self._buttons[index].item.data);
-                            }
-                            self._selectedIndex = index;
-                        }
-                    }
-                    
-                    self._pressedIndex = -1;
-                    UIGlobals.Active = null;
-                    self.UpdateColors();
-                    return index;
-                }
-            }
-            const updateDragIndicator = function(pointer) {
-                pointer = self.ConstrainPointer(pointer);
-
-                let y = (pointer.y + UIGlobals.Sizes.ListBoxItemHeight * 0.5) - self._scrollView._y;
-                const deltaY = self._scrollView.container.y - self._scrollView._y;
-                y -= deltaY;
-                const index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
-                let itemWorldY = self._scrollView._y + deltaY + (index * UIGlobals.Sizes.ListBoxItemHeight);
-
-                if (index >= 0 && index <= self._numButtons) {
-                    self._orderIndicator.setPosition(self._x, itemWorldY);
-                    self._orderIndicator.setScale(self._scrollView._maskRect.width, UIGlobals.Sizes.ListBoxOrderIndicator);
-                    return true;
-                }
-
-                return false;
-            }
             scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-                pointer = self.ConstrainPointer(pointer);
+                pointer = ConstrainPointer(pointer);
 
                 if (gameObject != self._inputItem) { return; }
                 UIGlobals.Active = self._inputItem;
@@ -188,21 +202,10 @@ export default class UIListBox {
                 }
 
             });
-            function move(arr, old_index, new_index) {
-                if (new_index >= arr.length) {
-                    var k = new_index - arr.length + 1;
-                    while (k--) {
-                        arr.push(undefined);
-                    }
-                }
-                arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-                return arr; 
-            };
-
             // Drag end / mouse up
             scene.input.on('dragend', (pointer, gameObject) => {
                 if (gameObject != self._inputItem) { return; }
-                pointer = self.ConstrainPointer(pointer);
+                pointer = ConstrainPointer(pointer);
 
                 // Drag end:
                 const wasDragging = self._isDragging;
