@@ -130,10 +130,10 @@ export default class UIListBox {
                         index = -1;
                     }
                     if (index == self._pressedIndex && index >= 0) {
+                        self._selectedIndex = index;
                         if (self.onSelected != null) {
                             self.onSelected(index, self._buttons[index].item.name, self._buttons[index].item.data);
                         }
-                        self._selectedIndex = index;
                     }
                 }
                 
@@ -215,6 +215,9 @@ export default class UIListBox {
                 // Mouse up:
                 if (mouseRelease(pointer) < 0 && !wasDragging) {
                     self._selectedIndex = -1;
+                    if (self.onSelected != null) {
+                        self.onSelected(-1, "", null);
+                    }
                     self.UpdateColors();
                 }
                 const dragStartIndex = self._dragStartIndex;
@@ -238,6 +241,10 @@ export default class UIListBox {
 
                         if (dragDelta != 0 && self.canReorder) {
                             self._selectedIndex = dragStopIndex;
+                            if (self.onSelected != null) {
+                                self.onSelected(dragStopIndex, self._buttons[dragStopIndex].item.name, self._buttons[dragStopIndex].item.data);
+                            }
+
                             move(this._buttons, dragStartIndex, dragStopIndex);
                             self.Layout(self._x, self._y, self._width, self._height);
 
