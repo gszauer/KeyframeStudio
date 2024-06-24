@@ -58,23 +58,6 @@ export default class UITree {
     
             return result;
         };
-        const UpdateDragIndicator = function(pointer) {
-            pointer = ConstrainPointer(pointer);
-
-            let y = (pointer.y + UIGlobals.Sizes.TreeItemHeight * 0.5) - self._scrollView._y;
-            const deltaY = self._scrollView.container.y - self._scrollView._y;
-            y -= deltaY;
-            const index = Math.floor(y / UIGlobals.Sizes.TreeItemHeight);
-            let itemWorldY = self._scrollView._y + deltaY + (index * UIGlobals.Sizes.TreeItemHeight);
-
-            if (index >= 0 && index <= self._numButtons) {
-                self._orderIndicator.setPosition(self._x, itemWorldY);
-                self._orderIndicator.setScale(self._scrollView._maskRect.width, UIGlobals.Sizes.ListBoxOrderIndicator);
-                return true;
-            }
-
-            return false;
-        }
         const GetNodeByIndex = function(index) {
             const roots = self._roots;
             const length = roots.length;
@@ -93,7 +76,89 @@ export default class UITree {
             }
             return result;
         }
-        const mouseRelease = function(pointer) {
+        const GetDepthByIndex = function(index) {
+            const roots = self._roots;
+            const length = roots.length;
+            let idx = 0;
+            let result = -1;
+            for (let i = 0; i < length; ++i) {
+                roots[i].ForEach((node, depth) => {
+                    if (idx == index) {
+                        result = depth;
+                    }
+                    idx += 1;
+                });
+                if (result != -1) {
+                    break;
+                }
+            }
+            return result;
+        }
+        const GetNodeIndexUnderMouse = function(pointer) { 
+            let y = pointer.y - self._scrollView._y;
+            y -= self._scrollView.container.y - self._scrollView._y;
+
+            let selectionIndex = Math.floor(y / UIGlobals.Sizes.TreeItemHeight);
+            if (selectionIndex < 0 || selectionIndex >= self._numButtons) {
+                selectionIndex = -1;
+            }
+            return selectionIndex;
+        }
+        const UpdateDragIndicator = function(pointer) {
+            let y = pointer.y - self._scrollView._y;
+            y -= self._scrollView.container.y - self._scrollView._y;
+            const pointerY = pointer.y - self._scrollView._y;
+            const deltaY = self._scrollView.container.y - self._scrollView._y;
+
+            let selectionIndex = Math.floor(y / UIGlobals.Sizes.TreeItemHeight);
+            let selectionPosition = 0; // -1, 0, 1
+            let index = selectionIndex;
+
+            if (selectionIndex < 0 || selectionIndex >= self._numButtons) {
+                selectionIndex = -1;
+                index = -1;
+            }
+            else {
+                const quarter = Math.floor(UIGlobals.Sizes.TreeItemHeight * 0.25);
+                if (quarter < 5) { quarter = 5; }
+
+                let top = selectionIndex * UIGlobals.Sizes.TreeItemHeight;
+                let bottom = top + quarter;
+                if (pointerY >= top && pointerY <= bottom) {
+                    selectionPosition = -1;
+                }
+                else {
+                    index += 1;
+                }
+
+                top = (selectionIndex * UIGlobals.Sizes.TreeItemHeight) + UIGlobals.Sizes.TreeItemHeight - quarter;
+                bottom = top + quarter;
+                if (pointerY >= top && pointerY <= bottom) {
+                    selectionPosition = 1;
+                }
+            }
+            
+            let itemWorldY = self._scrollView._y + deltaY + (index * UIGlobals.Sizes.TreeItemHeight);
+
+            if (selectionIndex >= 0 && selectionIndex <= self._numButtons) {
+                let x = self._x;
+                let width = self._scrollView._maskRect.width;
+                
+                let indent = UIGlobals.Sizes.TreeItemIndent * GetDepthByIndex(selectionIndex);
+                if (selectionPosition == 1) {
+                    indent = UIGlobals.Sizes.TreeItemIndent * (GetDepthByIndex(selectionIndex) + 1);
+                }
+                x += indent;
+                width -= indent;
+
+                self._orderIndicator.setPosition(x, itemWorldY);
+                self._orderIndicator.setScale(width, UIGlobals.Sizes.ListBoxOrderIndicator);
+                return true;
+            }
+
+            return false;
+        }
+        const MouseUp = function(pointer) {
             let index = -1;
             if (UIGlobals.Active != null && UIGlobals.Active == self._inputItem) {
                 let left = self._inputItem.x;
@@ -104,7 +169,8 @@ export default class UITree {
                 if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
                     let y = pointer.y - self._scrollView._y;
                     y -= self._scrollView.container.y - self._scrollView._y;
-                    index = Math.floor(y / UIGlobals.Sizes.ListBoxItemHeight);
+                    index = GetNodeIndexUnderMouse(pointer);
+                    
                     if (index < 0 || index >= self._numButtons) {
                         // This isn't actually an error. Just dis-select.
                         index = -1;
@@ -118,11 +184,10 @@ export default class UITree {
                 }
                 
                 self._pressedIndex = -1;
-                //console.log("[Mouse Release] Pressed index: " + self._pressedIndex);
                 UIGlobals.Active = null;
                 self.UpdateColors();
-                return index;
             }
+            return index;
         }
         const CanReparent = function(child, parent) {
             if (child == null) {
@@ -135,6 +200,7 @@ export default class UITree {
             }
             return true;
         }
+        
 
         { // Pointer events
             this._inputItem.on("pointerover", function (pointer, localX, localY, event) {
@@ -143,16 +209,7 @@ export default class UITree {
             });
             this._inputItem.on("pointermove", function (pointer, localX, localY, event) {
                 pointer = ConstrainPointer(pointer);
-
-                let y = pointer.y - self._scrollView._y;
-                y -= self._scrollView.container.y - self._scrollView._y;
-
-                let selectionIndex = Math.floor(y / UIGlobals.Sizes.TreeItemHeight);
-                if (selectionIndex < 0 || selectionIndex >= self._numButtons) {
-                    selectionIndex = -1;
-                }
-                self._hoverIndex = selectionIndex;
-
+                self._hoverIndex = GetNodeIndexUnderMouse(pointer);
                 self.UpdateColors();
             });
             this._inputItem.on("pointerout", function (pointer, event) {
@@ -163,51 +220,41 @@ export default class UITree {
         { // Drag events
             // Drag start / mouse down
             scene.input.on('dragstart', (pointer, gameObject) => {
+                if (gameObject != self._inputItem) { return; }
                 pointer = ConstrainPointer(pointer);
 
-                if (gameObject != self._inputItem) { return; }
-                // Drag Start:
                 UIGlobals.Active = self._inputItem;
-
-                // On Click:
-                let y = pointer.y - self._scrollView._y;
-                y -= self._scrollView.container.y - self._scrollView._y;
-                let index = Math.floor(y / UIGlobals.Sizes.TreeItemHeight);
-                if (index < 0 || index >= self._numButtons) {
-                    index = -1;
-                }
-                self._pressedIndex = index;
-                //console.log("[Drag Start] Pressed index: " + self._pressedIndex);
-                self._selectedIndex = index;
+                self._pressedIndex = self._selectedIndex =  GetNodeIndexUnderMouse(pointer);
+                
                 if (self.onSelected != null) {
-                    self.onSelected(GetNodeByIndex(index));
+                    const node = GetNodeByIndex(self._pressedIndex);
+                    self.onSelected(node);
                 }
     
                 self.UpdateColors();
             });
             scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+                if (gameObject != self._inputItem) { return; }
                 pointer = ConstrainPointer(pointer);
 
-                if (gameObject != self._inputItem) { return; }
                 UIGlobals.Active = self._inputItem;
 
-                if (!self._isDragging) { // Same as click
-                    self._dragStartIndex = mouseRelease(pointer);
+                if (!self._isDragging) { // First time moved
+                    self._dragStartIndex = GetNodeIndexUnderMouse(pointer);
                     self._isDragging = true;
                     
-                    if (UpdateDragIndicator(pointer)) {
-                        self._orderIndicator.setActive(true).setVisible(true);
-                        self._orderIndicator.setTint(UIGlobals.Colors.Dark.Blue300);
-                    }
-                    self.UpdateColors();
+                    self._orderIndicator.setActive(true).setVisible(true);
+                    self._orderIndicator.setTint(UIGlobals.Colors.Dark.Blue300);
 
                     if (self.onSelected != null) {
-                        self.onSelected(GetNodeByIndex(self._dragStartIndex));
+                        const node = GetNodeByIndex(self._dragStartIndex);
+                        self.onSelected(node);
                     }
+
+                    self.UpdateColors();
                 }
-                else {
-                    UpdateDragIndicator(pointer);
-                }
+
+                UpdateDragIndicator(pointer);
             });
             // Drag end / mouse up
             scene.input.on('dragend', (pointer, gameObject) => {
@@ -218,34 +265,92 @@ export default class UITree {
                     UIGlobals.Active = null;
                 }
                 this._pressedIndex = -1;
-                //console.log("[Drag End] Pressed index: " + self._pressedIndex);
-
 
                 const wasDragging = self._isDragging;
                 const dragStartIndex = self._dragStartIndex;
+                
                 self._isDragging = false;
                 self._dragStartIndex = -1;
                 self._hoverIndex = -1; // Not sure about this
 
                 // Mouse up:
-                if (mouseRelease(pointer) < 0 && !wasDragging) {
+                if (MouseUp(pointer) < 0 && !wasDragging) {
                     self._selectedIndex = -1;
                     if (self.onSelected != null) {
                         self.onSelected(null);
                     }
-                    self.UpdateColors();
                 }
 
-                if (wasDragging) {
-                    let dragStopIndex = Math.floor(((pointer.y + UIGlobals.Sizes.TreeItemHeight * 0.5) - self._scrollView._y - (self._scrollView.container.y - self._scrollView._y)) / UIGlobals.Sizes.TreeItemHeight);
-                    if (dragStopIndex < 0) { 
+                if (wasDragging) { // TODO: LEFT OFF HERE!
+                    const pointerY = pointer.y - self._scrollView._y;
+        
+                    let selectionIndex = GetNodeIndexUnderMouse(pointer);
+                    let dragStopIndex = selectionIndex;
+        
+                    if (selectionIndex < 0) {
+                        selectionIndex = -1;
                         dragStopIndex = -1;
                     }
-                    else if (dragStopIndex > self._numButtons) {
+                    else if (selectionIndex > self._numButtons && self._numButtons > 0) {
+                        selectionIndex = -1;
                         dragStopIndex = self._numButtons;
                     }
+                    else {
+                        const quarter = Math.floor(UIGlobals.Sizes.TreeItemHeight * 0.25);
+                        if (quarter < 5) { quarter = 5; }
+        
+                        let top = selectionIndex * UIGlobals.Sizes.TreeItemHeight;
+                        let bottom = top + quarter;
 
-                    if (dragStartIndex != -1) {
+                        let reLayout = false;
+                        
+                        // In the top third!
+                        if (pointerY >= top && pointerY <= bottom) {
+                            //selectionPosition = -1;
+                            // TODO: HANDLE TOP LOGIC
+                        }
+                        else {
+                            top = (selectionIndex * UIGlobals.Sizes.TreeItemHeight) + UIGlobals.Sizes.TreeItemHeight - quarter;
+                            bottom = top + quarter;
+
+                            // In the bottom third
+                            if (pointerY >= top && pointerY <= bottom) { // Bottom Logic
+                                const newParentNode = GetNodeByIndex(dragStopIndex);
+                                const newChildNode = GetNodeByIndex(dragStartIndex);
+                                if (CanReparent(newChildNode, newParentNode)) {
+                                    newParentNode.AddChildFront(newChildNode);
+                                    reLayout = true;
+                                }
+                            }
+                            else {
+                                top = selectionIndex * UIGlobals.Sizes.TreeItemHeight;
+                                bottom = top + UIGlobals.Sizes.TreeItemHeight;
+                                
+                                if (pointerY >= top && pointerY <= bottom) { // Middle Logic
+                                    const newChildNode = GetNodeByIndex(dragStartIndex);
+                                    const insertAfter = GetNodeByIndex(dragStopIndex);
+
+                                    if (insertAfter != null) {
+                                        if (insertAfter._parent != null) {
+                                            insertAfter._parent.AddChildAfter(newChildNode, insertAfter);
+                                            reLayout = true;
+                                        }
+                                        else {
+                                            // TODO: Handle inserting into roots!
+                                        }
+                                    }
+
+                                    console.log("in general");
+                                }
+                            }
+                        }
+
+                        if (reLayout) {
+                            self.Layout(self._x, self._y, self._width, self._height);
+                        }
+                    }
+
+                    /*if (dragStartIndex != -1) {
                         let dragDelta = dragStopIndex - dragStartIndex;
 
                         if (dragDelta > 0) {
@@ -266,15 +371,9 @@ export default class UITree {
                                 startNode.SetParent(stopNode);
                             }
                             
-                            //move(this._buttons, dragStartIndex, dragStopIndex);
                             self.Layout(self._x, self._y, self._width, self._height);
-
-                            //console.log("Started dragging: " + dragStartIndex + ", stopped: " + dragStopIndex + ", delta: " + dragDelta);
-                            /*if (self.onReodered != null) {
-                                self.onReodered(dragStartIndex, dragStopIndex, dragDelta);
-                            }*/ 
                         }
-                    }
+                    }*/
                 }
             });
         }

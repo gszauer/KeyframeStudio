@@ -77,15 +77,12 @@ export default class UIGlobals {
         ColorPickerDefaultHeight: 204,
         ColorPickerInnerMargin: 10,
         ColorPickerHueTrackWidth: 20,
-
         ListBoxItemHeight: 26,
         ListBoxItemMarginLeft: 5,
         ListBoxOrderIndicator: 5,
-
         TreeItemHeight: 26,
         TreeItemMarginLeft: 5,
-        TreeItemIndent: 24
-
+        TreeItemIndent: 24,
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

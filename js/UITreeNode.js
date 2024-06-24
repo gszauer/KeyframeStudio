@@ -94,7 +94,7 @@ export default class UITreeNode {
         }
     }
 
-    AddChild(child) {
+    _AddCommon(child, message = "undefined") {
         // Unlink child from old tree if applicable
         if (child.parent != null) {
             child.parent._RemoveChild(child);
@@ -105,6 +105,13 @@ export default class UITreeNode {
 
         // Set the parent of the node
         child._parent = this;
+        if (child._nextSibling != null) {
+            throw new Error("Expected next sibling to be null in: " + message);
+        }
+    }
+
+    AddChild(child) {
+        this._AddCommon(child, "AddChild");
 
         // Add to the end of the tree list
         if (this._firstChild == null) {
@@ -117,9 +124,37 @@ export default class UITreeNode {
             }
             iter._nextSibling = child;
         }
+    }
 
-        if (child._nextSibling != null) {
-            throw new Error("Expected next sibling to be null on add");
+    AddChildFront(child) {
+        this._AddCommon(child, "AddChildFront");
+
+        // Add to the front of the tree list
+        child._nextSibling = this._firstChild;
+        this._firstChild = child;
+    }
+
+    AddChildAfter(newChild, addAfterThisChild) {
+        this._AddCommon(newChild, "AddChildAfter");
+
+        // Add to the end of the tree list
+        if (this._firstChild == null) {
+            this._firstChild = child;
+        }
+        else {
+            let found = false;
+            for (let iter = this._firstChild; iter != null; iter = iter._nextSibling) {
+                if (iter == addAfterThisChild) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                throw new Error("AddChildAfter second argument is not a valid child");
+            }
+
+            newChild._nextSibling = addAfterThisChild._nextSibling;
+            addAfterThisChild._nextSibling = newChild;
         }
     }
 
