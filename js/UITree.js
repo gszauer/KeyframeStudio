@@ -321,8 +321,44 @@ export default class UITree {
                         
                         // In the top third!
                         if (pointerY >= top && pointerY <= bottom) {
-                            //selectionPosition = -1;
-                            // TODO: HANDLE TOP LOGIC
+                            const topIndex = selectionIndex - 1;
+
+                            if (topIndex < 0) { // Insert head
+                                const newRoot = GetNodeByIndex(dragStartIndex);
+                                if (newRoot.parent != null) {
+                                    newRoot.SetParent(null);
+                                }
+                                self._RemoveFromRoots(newRoot);
+                                self._AddToRootsFront(newRoot);
+                                reLayout = true;
+                                self._selectedIndex = 0;
+                            }
+                            else { // Insert above node
+                                const topNode = GetNodeByIndex(topIndex);
+                                const newChildNode = GetNodeByIndex(dragStartIndex);
+                                let newParentNode = null;
+
+                                if (topNode.parent != null) {
+                                    newParentNode = topNode.parent; 
+
+                                    if (CanReparent(newChildNode, newParentNode)) {
+                                        newParentNode.AddChildAfter(newChildNode, topNode);
+                                        reLayout = true;
+                                        self._selectedIndex = GetIndexByNode(newChildNode);
+                                    }
+                                }
+                                else {
+                                    const newRoot = GetNodeByIndex(dragStartIndex);
+                                    if (newRoot.parent != null) {
+                                        newRoot.SetParent(null);
+                                    }
+                                    self._RemoveFromRoots(newRoot);
+                                    self._AddToRootsAfter(newRoot, topNode);
+                                    //console.log("Add " + newRoot.name + " after " + topNode.name);
+                                    reLayout = true;
+                                    self._selectedIndex = GetIndexByNode(newRoot);
+                                }
+                            }
                         }
                         else {
                             top = (selectionIndex * UIGlobals.Sizes.TreeItemHeight) + UIGlobals.Sizes.TreeItemHeight - quarter;
@@ -353,6 +389,7 @@ export default class UITree {
                                             self._selectedIndex = GetIndexByNode(newChildNode);
                                         }
                                         else {
+                                            console.log("Insert somewhere in roots");
                                             // TODO: Handle inserting into roots!
                                         }
                                     }
@@ -378,14 +415,7 @@ export default class UITree {
                                 self.onSelected(GetNodeByIndex(self._selectedIndex));
                             }
 
-                            /*const startNode = GetNodeByIndex(dragStartIndex);
-                            const stopNode = GetNodeByIndex(dragStopIndex);
-
-                            if (CanReparent(startNode, stopNode)) {
-                                startNode.SetParent(stopNode);
-                            }*/
-                            
-                            self.Layout(self._x, self._y, self._width, self._height);
+                            //self.Layout(self._x, self._y, self._width, self._height);
                         }
                     }
                 }
@@ -433,7 +463,21 @@ export default class UITree {
         this._orderIndicator.setVisible(this._isDragging);
     }
 
+    static ArrayMove = function(arr, old_index, new_index) {
+        if (new_index >= arr.length) {
+            var k = new_index - arr.length + 1;
+            while (k--) {
+                arr.push(undefined);
+            }
+        }
+        arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+        return arr; 
+    };
+
     _AddToRoots(element) {
+        if (element._parent != null) {
+            throw new Error("Can't add parented element to roots");
+        }
         const length = this._roots.length;
         for (let i = 0; i < length; ++i) {
             if (this._roots[i] == element) {
@@ -445,6 +489,32 @@ export default class UITree {
 
         element._parent = null;
         element._nextSibling = null;
+    }
+
+    _AddToRootsAfter(newElement, addAfterThis) {
+        this._AddToRoots(newElement);
+
+        let newIndex = -1;
+        let oldIndex = -1
+
+        const length = this._roots.length;
+        for (let i = 0; i < length; ++i) {
+            if (this._roots[i] == addAfterThis) {
+                newIndex = i + 1;
+            }
+            else if (this._roots[i] == newElement) {
+                oldIndex = i;
+            }
+        }
+
+        if (newIndex != -1 && oldIndex != -1 && newIndex < length) {
+            UITree.ArrayMove(this._roots, oldIndex, newIndex);
+        }
+    }
+
+    _AddToRootsFront(element) {
+        this._AddToRoots(element);
+        UITree.ArrayMove(this._roots, this._roots.length - 1, 0);
     }
 
     _RemoveFromRoots(element) {

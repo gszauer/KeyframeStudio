@@ -23,7 +23,11 @@ export default class HierarchyView extends UIView {
 
         for (let i = 0; i < 5; ++i) {
             this._tree.Add("Child " + i).SetParent(one);
+        }
 
+        let tmpParent = three;
+        for (let i = 0; i < 10; ++i) {
+            tmpParent = this._tree.Add("Nested " + i).SetParent(tmpParent);
         }
 
         for (let i = 0; i < 20; ++i) {

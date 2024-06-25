@@ -84,9 +84,7 @@ export default class UITreeNode {
         if (this._parent != null) {
             this._parent._RemoveChild(this);
         }
-        else {
-            this._tree._RemoveFromRoots(this);
-        }
+        this._tree._RemoveFromRoots(this);
 
         if (newParent != null) {
             newParent.AddChild(this);
@@ -95,6 +93,8 @@ export default class UITreeNode {
             this._parent = null;
             this._tree._AddToRoots(this);
         }
+
+        return this;
     }
 
     _AddCommon(child, message = "undefined") {
@@ -222,5 +222,13 @@ export default class UITreeNode {
         }
 
         //this._parent = oldParent;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get parent() {
+        return this._parent;
     }
 }
