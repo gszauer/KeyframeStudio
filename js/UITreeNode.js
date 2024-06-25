@@ -70,9 +70,12 @@ export default class UITreeNode {
                     prev._nextSibling = cur._nextSibling;
                     break;
                 }
+                cur = cur._nextSibling;
+                prev = prev._nextSibling;
             }
         }
 
+        child._nextSibling = null;
         child._parent = null;
         this._tree._AddToRoots(child);
     }
@@ -96,15 +99,12 @@ export default class UITreeNode {
 
     _AddCommon(child, message = "undefined") {
         // Unlink child from old tree if applicable
-        if (child.parent != null) {
-            child.parent._RemoveChild(child);
+        if (child._parent != null) {
+            child._parent._RemoveChild(child);
         }
-        else {
-            this._tree._RemoveFromRoots(child);
-        }
+        this._tree._RemoveFromRoots(child);
 
         // Set the parent of the node
-        child._parent = this;
         if (child._nextSibling != null) {
             throw new Error("Expected next sibling to be null in: " + message);
         }
@@ -112,6 +112,7 @@ export default class UITreeNode {
 
     AddChild(child) {
         this._AddCommon(child, "AddChild");
+        child._parent = this;
 
         // Add to the end of the tree list
         if (this._firstChild == null) {
@@ -128,6 +129,7 @@ export default class UITreeNode {
 
     AddChildFront(child) {
         this._AddCommon(child, "AddChildFront");
+        child._parent = this;
 
         // Add to the front of the tree list
         child._nextSibling = this._firstChild;
@@ -135,11 +137,16 @@ export default class UITreeNode {
     }
 
     AddChildAfter(newChild, addAfterThisChild) {
+        if (newChild == addAfterThisChild) {
+            return;
+        }
+        
         this._AddCommon(newChild, "AddChildAfter");
+        newChild._parent = this;
 
         // Add to the end of the tree list
         if (this._firstChild == null) {
-            this._firstChild = child;
+            this._firstChild = newChild;
         }
         else {
             let found = false;
@@ -179,8 +186,8 @@ export default class UITreeNode {
 
     ForEach(callback) {
         // const root = this
-        const oldParent = this._parent;
-        this._parent = null;
+        //const oldParent = this._parent;
+        //this._parent = null;
 
         const root = this;
         let itr = root;
@@ -188,9 +195,9 @@ export default class UITreeNode {
         let depth = 0;
 
         while (traversing) {
-            if (itr == this) { this._parent = oldParent; }
+            //if (itr == this) { this._parent = oldParent; }
             callback(itr, depth);
-            if (itr == this) { this._parent = null; }
+            //if (itr == this) { this._parent = null; }
      
             if (itr._firstChild != null) {
                 itr = itr._firstChild;
@@ -214,6 +221,6 @@ export default class UITreeNode {
             }
         }
 
-        this._parent = oldParent;
+        //this._parent = oldParent;
     }
 }
