@@ -409,10 +409,10 @@ export default class UITree {
                         }
 
                         if (reLayout) {
-                            /*if (self.onRearranged != null) {
+                            if (self.onRearranged != null) {
                                 let callbackNode = GetNodeByIndex(self._selectedIndex);
                                 self.onRearranged(callbackNode);
-                            }*/
+                            }
                             self.Layout(self._x, self._y, self._width, self._height);
                         }
                     }
@@ -429,8 +429,7 @@ export default class UITree {
                             if (self.onSelected != null) {
                                 self.onSelected(GetNodeByIndex(self._selectedIndex));
                             }
-
-                            //self.Layout(self._x, self._y, self._width, self._height);
+                            self.UpdateColors();
                         }
                     }
                 }
@@ -577,14 +576,32 @@ export default class UITree {
             height -= scrollSize;
         }
 
+        const horizontalScrollBar = this._scrollView.horizontalScrollBar;
+
         const roots = this._roots;
         const length = this._roots.length;
+        let right = this._width;
+
         for (let i = 0; i < length; ++i) {
             roots[i].ForEach((node, depth) => {
                 node.Layout(x, y, width, height, depth);
+                if (node._label.x + node._label.width > right) {
+                    right = node._label.x + node._label.width;
+                }
                 y += height;
             });
         }
+
+        // Make sure BG graphics are wide enough
+        if (right != this._width) {
+            const itemHeight = UIGlobals.Sizes.TreeItemHeight;
+            for (let i = 0; i < length; ++i) {
+                roots[i].ForEach((node, depth) => {
+                    node._background.setScale(right, itemHeight);
+                });
+            }
+        }
+
 
         this._scrollView.Layout(this._x, this._y, this._width, this._height);
 

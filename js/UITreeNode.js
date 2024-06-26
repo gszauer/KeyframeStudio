@@ -19,6 +19,14 @@ export default class UITreeNode {
     _label = null;
     _userData = null;
 
+    get indentLevel() {
+        let result = 0;
+        for (let iter = this._parent; iter != null; iter = iter._parent) {
+            result += 1;
+        }
+        return result;
+    }
+
     constructor(tree, name = "New Node", parent = null) {
         this._tree = tree;
         this._name = name;
