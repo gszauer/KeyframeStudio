@@ -112,6 +112,10 @@ export default class UIListBox {
 
                 self.UpdateColors();
             });
+            this._inputItem.on('wheel', (pointer, deltaX, deltaY, deltaZ, event) => {
+                if (deltaY > 0) { self._scrollView.ScrollUp(); }
+                else if (deltaY < 0) { self._scrollView.ScrollDown(); }
+            });
         }
         const mouseRelease = function(pointer) {
             let index = -1;

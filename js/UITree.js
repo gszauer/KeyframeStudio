@@ -198,7 +198,7 @@ export default class UITree {
                 }
                 
                 self._pressedIndex = -1;
-                console.log("pressed index (MouseUp): " + self._pressedIndex);
+                //console.log("pressed index (MouseUp): " + self._pressedIndex);
                 UIGlobals.Active = null;
                 self.UpdateColors();
             }
@@ -247,7 +247,7 @@ export default class UITree {
 
                 UIGlobals.Active = self._inputItem;
                 self._pressedIndex = self._selectedIndex =  GetNodeIndexUnderMouse(pointer);
-                console.log("pressed index (dragstart): " + self._pressedIndex);
+                //console.log("pressed index (dragstart): " + self._pressedIndex);
                 
                 if (self.onSelected != null) {
                     const node = GetNodeByIndex(self._pressedIndex);
