@@ -6,7 +6,7 @@ export default class UIScrollView extends UIView {
     container = null; // Phaser container
     horizontalScrollBar = null;
     verticalScrollBar = null;
-    showHorizontal = true; // TODO: False by default
+    showHorizontal = true;
     showVertical = true;
     _hidden = false;
     _maskRect = null;
@@ -39,12 +39,38 @@ export default class UIScrollView extends UIView {
         this.container.setDepth(UIGlobals.WidgetLayer); 
 
         const self = this;
+
         const scrollFunction = function(value) {
             self.Layout(self._x, self._y, self._width, self._height);
         }
-
         this.horizontalScrollBar.onScroll = scrollFunction;
         this.verticalScrollBar.onScroll = scrollFunction;
+
+        this._backgroundSprite.setInteractive();
+        this._backgroundSprite.on('wheel', (pointer, deltaX, deltaY, deltaZ, event) => {
+            if (deltaY > 0) { // Up is negative
+                self.ScrollUp();
+            }
+            else if (deltaY < 0) { // Down is positive
+                self.ScrollDown();
+            }
+        });
+    }
+
+    ScrollUp() {
+        this.verticalScrollBar.current += this.verticalScrollBar.scrollStep;
+        if (this.verticalScrollBar.current > 1) {
+            this.verticalScrollBar.current = 1;
+        }
+        this.Layout(this._x, this._y, this._width, this._height);
+    }
+
+    ScrollDown() {
+        this.verticalScrollBar.current -= this.verticalScrollBar.scrollStep;
+        if (this.verticalScrollBar.current < 0) {
+            this.verticalScrollBar.current = 0;
+        }
+        this.Layout(this._x, this._y, this._width, this._height);
     }
 
     UpdateColors() {

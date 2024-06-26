@@ -22,10 +22,12 @@ export default class UIScrollBar {
     onScroll = null; // OnScroll(float normalized);
     current = 0; // 0 to 1 depending on current scroll
 
-    
-
     _trackSprite = null;
     _gripSprite = null;
+
+    get scrollStep() {
+        return 0.1;
+    }
 
     constructor(scene) {
         const self = this;
@@ -37,8 +39,6 @@ export default class UIScrollBar {
         this._gripSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._gripSprite.setOrigin(0, 0);
         this._gripSprite.setDepth(UIGlobals.WidgetLayer);
-
-       
 
         this._gripSprite.setInteractive();
         scene.input.setDraggable(this._gripSprite);
