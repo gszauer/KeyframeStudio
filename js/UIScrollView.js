@@ -45,16 +45,6 @@ export default class UIScrollView extends UIView {
         }
         this.horizontalScrollBar.onScroll = scrollFunction;
         this.verticalScrollBar.onScroll = scrollFunction;
-
-        this._backgroundSprite.setInteractive();
-        this._backgroundSprite.on('wheel', (pointer, deltaX, deltaY, deltaZ, event) => {
-            if (deltaY > 0) { // Up is negative
-                self.ScrollUp();
-            }
-            else if (deltaY < 0) { // Down is positive
-                self.ScrollDown();
-            }
-        });
     }
 
     ScrollUp() {

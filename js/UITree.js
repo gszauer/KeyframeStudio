@@ -24,6 +24,7 @@ export default class UITree {
     _numButtons = 0;
 
     onSelected = null; //onSelected(UITreeNode node);
+    onRearranged = null; // onRearranged(UITreeNode target);
 
     constructor(scene) {
         this._scene = scene;
@@ -233,6 +234,10 @@ export default class UITree {
                 self._hoverIndex = -1;
                 self.UpdateColors();
             });
+            this._inputItem.on('wheel', (pointer, deltaX, deltaY, deltaZ, event) => {
+                if (deltaY > 0) { self._scrollView.ScrollUp(); }
+                else if (deltaY < 0) { self._scrollView.ScrollDown(); }
+            });
         }
         { // Drag events
             // Drag start / mouse down
@@ -404,7 +409,10 @@ export default class UITree {
                         }
 
                         if (reLayout) {
-                            // TODO: Fire off re-order event
+                            /*if (self.onRearranged != null) {
+                                let callbackNode = GetNodeByIndex(self._selectedIndex);
+                                self.onRearranged(callbackNode);
+                            }*/
                             self.Layout(self._x, self._y, self._width, self._height);
                         }
                     }
