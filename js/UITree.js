@@ -295,7 +295,7 @@ export default class UITree {
                     }
                 }
 
-                if (wasDragging) { // TODO: LEFT OFF HERE!
+                if (wasDragging) { 
                     const pointerY = (pointer.y - self._scrollView._y) -
                                      (self._scrollView.container.y - self._scrollView._y);
         
@@ -374,6 +374,7 @@ export default class UITree {
                                     self._selectedIndex = GetIndexByNode(newChildNode);
                                 }
                             }
+                            // In the middle
                             else {
                                 top = selectionIndex * UIGlobals.Sizes.TreeItemHeight;
                                 bottom = top + UIGlobals.Sizes.TreeItemHeight;
@@ -389,8 +390,13 @@ export default class UITree {
                                             self._selectedIndex = GetIndexByNode(newChildNode);
                                         }
                                         else {
-                                            console.log("Insert somewhere in roots");
-                                            // TODO: Handle inserting into roots!
+                                            if (newChildNode.parent != null) {
+                                                newChildNode.SetParent(null);
+                                            }
+                                            self._RemoveFromRoots(newChildNode);
+                                            self._AddToRootsAfter(newChildNode, insertAfter);
+                                            reLayout = true;
+                                            self._selectedIndex = GetIndexByNode(newChildNode);
                                         }
                                     }
                                 }
@@ -398,6 +404,7 @@ export default class UITree {
                         }
 
                         if (reLayout) {
+                            // TODO: Fire off re-order event
                             self.Layout(self._x, self._y, self._width, self._height);
                         }
                     }
