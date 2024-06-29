@@ -4,7 +4,7 @@
 			"image": "Atlas",
 			"format": "RGBA8888",
 			"size": {
-				"w": 512,
+				"w": 1024,
 				"h": 512
 			},
 			"scale": 1,
@@ -91,7 +91,8 @@
 						"y": 491,
 						"w": 1,
 						"h": 1
-					},
+					}
+					,
 					"pivot": {
 						"x": 0.0,
 						"y": 0.0
@@ -203,7 +204,7 @@
 					}
 				},
 				{
-					"filename": "IconGrid.png",
+					"filename": "IconBottomBar.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -224,7 +225,7 @@
 					}
 				},
 				{
-					"filename": "IconHome.png",
+					"filename": "IconDeselect.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -245,6 +246,69 @@
 					}
 				},
 				{
+					"filename": "IconGrid.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 286,
+						"y": 112,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconHierarchyNew.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 292,
+						"y": 1,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconHome.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 286,
+						"y": 189,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
 					"filename": "IconMove.png",
 					"rotated": false,
 					"trimmed": false,
@@ -259,7 +323,28 @@
 						"h": 75
 					},
 					"frame": {
-						"x": 388,
+						"x": 363,
+						"y": 78,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconRightBar.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 369,
 						"y": 1,
 						"w": 75,
 						"h": 75
@@ -280,8 +365,8 @@
 						"h": 75
 					},
 					"frame": {
-						"x": 292,
-						"y": 1,
+						"x": 363,
+						"y": 155,
 						"w": 75,
 						"h": 75
 					}
@@ -302,7 +387,28 @@
 					},
 					"frame": {
 						"x": 388,
-						"y": 78,
+						"y": 232,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconTrash.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 388,
+						"y": 309,
 						"w": 75,
 						"h": 75
 					}
@@ -322,8 +428,8 @@
 						"h": 75
 					},
 					"frame": {
-						"x": 292,
-						"y": 78,
+						"x": 439,
+						"y": 386,
 						"w": 75,
 						"h": 75
 					}
@@ -343,8 +449,8 @@
 						"h": 75
 					},
 					"frame": {
-						"x": 388,
-						"y": 155,
+						"x": 516,
+						"y": 386,
 						"w": 75,
 						"h": 75
 					}
@@ -364,8 +470,29 @@
 						"h": 75
 					},
 					"frame": {
-						"x": 286,
-						"y": 155,
+						"x": 440,
+						"y": 78,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "NewTreeNodeImage.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 465,
+						"y": 1,
 						"w": 75,
 						"h": 75
 					}

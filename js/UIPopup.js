@@ -61,6 +61,9 @@ export default class UIPopup {
                         if (self.onSelect != null) {
                             self.onSelect(self._labels[i], self);
                         }
+                        if (self._callbacks[i] != null) {
+                            self._callbacks[i]();
+                        }
                     }
 
                     UIGlobals.Active = null;
@@ -72,7 +75,7 @@ export default class UIPopup {
         self._UpdateHighlights();
     }
 
-    Add(name, callback) {
+    Add(name, callback = null) {
         const self = this;
         const scene = self._scene;
 

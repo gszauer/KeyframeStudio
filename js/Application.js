@@ -11,20 +11,29 @@ import AnimationsView from './AnimationsView.js'
 import AssetsView from './AssetsView.js'
 import HierarchyView from './HierarchyView.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
+import XForm from './Transform.js'
 
 
 export default class Application extends Phaser.Scene {
+    /* State */
+    _hierarchyView = null;
+
+    /* Layout */
     _menu = null;
     _toolBar = null;
     _toolBox = null;
-
     _mainSplitter = null; // Need to call layout (it's recursive)
 
+    /* rendering and plugins */
     _atlas = null;
     rextexteditplugin = null;
 
     constructor() {
         super('Application');
+    }
+
+    AddNewNode() {
+        
     }
 
     preload() {
@@ -77,7 +86,10 @@ export default class Application extends Phaser.Scene {
 
         const sceneMenu = new UIPopup(self);
         self._menu.Add("Scene", sceneMenu);
-        sceneMenu.Add("New Node", null);
+        sceneMenu.Add("New Node", () => {
+            const hierarchyNode = self._hierarchyView.AddNewNode();
+            const transformNode = new XForm(hierarchyNode);
+        });
         sceneMenu.Add("Delete Node", null);
 
         const animation = new UIPopup(self);
@@ -116,7 +128,8 @@ export default class Application extends Phaser.Scene {
         inspectorTabs.Add("Draw Order", new DrawOrderView(this, inspectorTabs));
 
         const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
-        sceneTabs.Add("Hierarchy", new HierarchyView(this, sceneTabs));
+        this._hierarchyView = new HierarchyView(this, sceneTabs)
+        sceneTabs.Add("Hierarchy", this._hierarchyView);
         sceneTabs.Add("Assets", new AssetsView(this, sceneTabs));
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
 

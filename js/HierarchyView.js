@@ -3,7 +3,10 @@ import UIView from './UIView.js'
 import UITree from './UITree.js'
 
 export default class HierarchyView extends UIView {
+    static _nameCounter = 0;
     _tree = null;
+    _footer = null;
+    _active = null;
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -12,27 +15,29 @@ export default class HierarchyView extends UIView {
         this._tree = new UITree(scene);
         this._tree.canReorder = false;
 
-        let one = this._tree.Add("One");
-        let two = this._tree.Add("Two");
-        let three = this._tree.Add("Three");
-        let four = this._tree.Add("Four");
+        this._tree.onSelected = (treeNode) => {
+            self._active = treeNode;
+        }
+    }
 
-        one.AddChild(two);
-        three.SetParent(four);
-        three.SetParent(two);
-
-        for (let i = 0; i < 5; ++i) {
-            this._tree.Add("Child " + i).SetParent(one);
+    AddNewNode(nodeName) {
+        if (!nodeName) {
+            nodeName = "Unnamed Node " + (HierarchyView._nameCounter++);;
         }
 
-        let tmpParent = three;
-        for (let i = 0; i < 10; ++i) {
-            tmpParent = this._tree.Add("Nested " + i).SetParent(tmpParent);
+        let parent = null;
+        if (this._active) {
+            parent = this._active;
         }
+        
+        const newNode = this._tree.Add(nodeName);
+        if (parent) {
+            newNode.SetParent(parent);
+        }
+        //newNode.
 
-        for (let i = 0; i < 20; ++i) {
-            this._tree.Add("Hierarchy " + i);
-        }
+        this.Layout(this._x, this._y, this._width, this._height);
+        return newNode;
     }
 
     UpdateColors() {
@@ -43,7 +48,7 @@ export default class HierarchyView extends UIView {
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
-        this._tree.Layout(x, y, width, height);
+        this._tree.Layout(x, y, width, height - UIGlobals.Sizes.TreeFooterHeight);
     }
 
     SetVisibility(value) {

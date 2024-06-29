@@ -354,6 +354,9 @@ export default class UITree {
                                 }
                                 else {
                                     const newRoot = GetNodeByIndex(dragStartIndex);
+                                    if (newRoot == null) {
+                                        console.error("Debugging, stop here");
+                                    }
                                     if (newRoot.parent != null) {
                                         newRoot.SetParent(null);
                                     }
@@ -395,6 +398,9 @@ export default class UITree {
                                             self._selectedIndex = GetIndexByNode(newChildNode);
                                         }
                                         else {
+                                            if (newChildNode == null) {
+                                                console.log("Going to crahs");
+                                            }
                                             if (newChildNode.parent != null) {
                                                 newChildNode.SetParent(null);
                                             }
