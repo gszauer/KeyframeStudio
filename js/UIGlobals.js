@@ -83,7 +83,11 @@ export default class UIGlobals {
         TreeItemHeight: 26,
         TreeItemMarginLeft: 5,
         TreeItemIndent: 24,
-        TreeFooterHeight: 28,
+        TreeFooterHeight: 34,
+        TreeFooterPadding: 4,
+        TreeFooterMargin: 4,
+        ImageButtonBorderSize: 2,
+        ImageButtonMarginSize: 3,
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

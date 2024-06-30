@@ -133,6 +133,8 @@ export default class UITreeNode {
             }
             iter._nextSibling = child;
         }
+
+        this._tree._UpdateNumButtons();
     }
 
     AddChildFront(child) {
@@ -142,6 +144,7 @@ export default class UITreeNode {
         // Add to the front of the tree list
         child._nextSibling = this._firstChild;
         this._firstChild = child;
+        this._tree._UpdateNumButtons();
     }
 
     AddChildAfter(newChild, addAfterThisChild) {
@@ -171,6 +174,7 @@ export default class UITreeNode {
             newChild._nextSibling = addAfterThisChild._nextSibling;
             addAfterThisChild._nextSibling = newChild;
         }
+        this._tree._UpdateNumButtons();
     }
 
     Layout(x, y, width, height, depth = 0) {

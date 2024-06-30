@@ -1,11 +1,13 @@
 import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
 import UITree from './UITree.js'
+import UIImageButton from './UIImageButton.js'
 
 export default class HierarchyView extends UIView {
     static _nameCounter = 0;
     _tree = null;
     _footer = null;
+    _buttons = [];
     _active = null;
 
     constructor(scene, parent = null) {
@@ -18,6 +20,21 @@ export default class HierarchyView extends UIView {
         this._tree.onSelected = (treeNode) => {
             self._active = treeNode;
         }
+
+        this._footer =  scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._footer.setDepth(UIGlobals.WidgetLayer);
+        this._footer.setOrigin(0, 0);
+
+        const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
+            self.AddNewNode();
+        });
+        const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
+        });
+        const deselectButton = new UIImageButton(scene, "SmallIconDeselect.png", () => {
+        });
+        this._buttons.push(newNodeButton);
+        this._buttons.push(deleteNodeButton);
+        this._buttons.push(deselectButton);
     }
 
     AddNewNode(nodeName) {
@@ -34,7 +51,6 @@ export default class HierarchyView extends UIView {
         if (parent) {
             newNode.SetParent(parent);
         }
-        //newNode.
 
         this.Layout(this._x, this._y, this._width, this._height);
         return newNode;
@@ -42,17 +58,46 @@ export default class HierarchyView extends UIView {
 
     UpdateColors() {
         this._tree.UpdateColors();
+        this._footer.setTint(UIGlobals.Colors.BackgroundLayer0);
+        const length = this._buttons.length;
+        for (let i = 0; i < length; ++i) {
+            this._buttons[i].UpdateColors();
+        }
     }
 
     Layout(x, y, width, height) {
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
-        this._tree.Layout(x, y, width, height - UIGlobals.Sizes.TreeFooterHeight);
+
+        const footerHeight = UIGlobals.Sizes.TreeFooterHeight;
+        const size = footerHeight - UIGlobals.Sizes.TreeFooterMargin * 2;
+        const padding = UIGlobals.Sizes.TreeFooterPadding;
+        const margin = UIGlobals.Sizes.TreeFooterMargin;
+
+        this._tree.Layout(x, y + footerHeight, width, height - footerHeight);
+
+        this._footer.setPosition(x, y);
+        this._footer.setScale(width, footerHeight);
+
+        let xPos = x + padding + (size / 2);
+        let yPos = y + margin + (size / 2);
+
+        const length = this._buttons.length;
+        for (let i = 0; i < length; ++i) {
+            this._buttons[i].Layout(xPos, yPos, size, size);
+            xPos += (size + padding);
+        }
     }
 
     SetVisibility(value) {
         this._tree.SetVisibility(value);
+        this._footer.setActive(value).setVisible(value);
+
+        const length = this._buttons.length;
+        for (let i = 0; i < length; ++i) {
+            this._buttons[i].SetVisibility(value);
+        }
     }
 
     Hide() {

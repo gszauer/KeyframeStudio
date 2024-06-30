@@ -79,23 +79,6 @@ export default class Application extends Phaser.Scene {
         fileMenu.Add("", null);
         fileMenu.Add("Load Sample Project", null);
 
-        const editMenu = new UIPopup(self);
-        self._menu.Add("Edit", editMenu);
-        editMenu.Add("Undo", null);
-        editMenu.Add("Redo", null);
-
-        const sceneMenu = new UIPopup(self);
-        self._menu.Add("Scene", sceneMenu);
-        sceneMenu.Add("New Node", () => {
-            const hierarchyNode = self._hierarchyView.AddNewNode();
-            const transformNode = new XForm(hierarchyNode);
-        });
-        sceneMenu.Add("Delete Node", null);
-
-        const animation = new UIPopup(self);
-        self._menu.Add("Animation", animation);
-        animation.Add("New Animation", null);
-
         const helpMenu = new UIPopup(self);
         self._menu.Add("Help", helpMenu);
         helpMenu.Add("About", null);
