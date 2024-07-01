@@ -29,14 +29,15 @@ export default class UITree {
     constructor(scene) {
         this._scene = scene;
         const self = this;
-
-        const scrollView = this._scrollView = new UIScrollView(scene, this);
     
         this._inputItem = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._inputItem.setDepth(UIGlobals.WidgetLayer - 2);
+        this._inputItem.setDepth(UIGlobals.WidgetLayer);
         this._inputItem.setOrigin(0, 0);
         this._inputItem.setInteractive();
+        this._inputItem.setTint(UIGlobals.Colors.BackgroundLayer1);
         scene.input.setDraggable(this._inputItem);
+
+        const scrollView = this._scrollView = new UIScrollView(scene, this);
 
         this._orderIndicator = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._orderIndicator.setDepth(UIGlobals.WidgetLayer + 2);

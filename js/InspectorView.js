@@ -8,7 +8,6 @@ import UIColorButton from './UIColorButton.js'
 export default class InspectorView extends UIView {
     _focused = null;
 
-
     _backgroundSprite = null;
 
     _transformLabel = null;
@@ -34,6 +33,7 @@ export default class InspectorView extends UIView {
 
     _scaleModeLabel = null;
     _scaleModeDropdown = null;
+    _doUniformScale = false;
 
     _spriteSheetLabel = null;
     _spriteSheetDropdown = null;
@@ -148,10 +148,15 @@ export default class InspectorView extends UIView {
         this._pivotYLabel.setDepth(UIGlobals.WidgetLayer);
         this._pivotYLabel.text = "Pivot Y";
 
+        const self = this;
+
         let popup = new UIPopup(scene);
         popup.Add("False");
         popup.Add("True");
         this._scaleModeDropdown = new UIDropdown(scene, popup);
+        popup.onSelect = (name, obj) => {
+            self._doUniformScale = name == "True";
+        };
 
         popup = new UIPopup(scene);
         popup.Add("True");
@@ -165,7 +170,26 @@ export default class InspectorView extends UIView {
         popup.Add("Filler 3 delete me.png");
         this._spriteSheetDropdown = new UIDropdown(scene, popup);
 
-        const self = this;
+        const NumerisizeString = (str) => {
+            let result = "";
+            if (str[0] == '-') {
+                result += '-';
+            }
+            let period = false;
+            for (let i = 0, length = str.length; i < length; ++i) {
+                if (str[i] >= '0' && str[i] <= '9') {
+                    result += str[i];
+                }
+                if (str[i] == '.' && !period) {
+                    result += '.';
+                    period = true;
+                }
+            }
+            if (result == "") {
+                result = '0';
+            }
+            return result;
+        }
 
         this._nameTextField = new UITextBox(scene, "Name");
         this._nameTextField.onTextEdit = (value) => {
@@ -175,23 +199,54 @@ export default class InspectorView extends UIView {
         };
         this._positionXTextField = new UITextBox(scene, "0");
         this._positionXTextField.onTextEdit = (value) => {
-            
+            if (self._focused != null) {
+                self._focused._userData.transform.x = NumerisizeString(value);
+            }
         }
         this._positionYTextField = new UITextBox(scene, "0");
-        this._positionXTextField.onTextEdit = (value) => {
-            
+        this._positionYTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                self._focused._userData.transform.y = NumerisizeString(value);
+            }
         }
         this._rotationTextField = new UITextBox(scene, "0");
         this._rotationTextField.onTextEdit = (value) => {
-            
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                while(value < 0) {
+                    value += 360;
+                }
+                while (value > 360) {
+                    value -= 360;
+                }
+                if (value == 360) {
+                    value = 0;
+                }
+                self._focused._userData.transform.degrees = value;
+            }
         }
         this._scaleXTextField = new UITextBox(scene, "1");
-        this._scaleXTextField.onTextEdit = (value) => {
-            
-        }
         this._scaleYTextField = new UITextBox(scene, "1");
+
+        this._scaleXTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.transform.scaleX = value;
+                if (self._doUniformScale) {
+                    self._focused._userData.transform.scaleY = value;
+                    self._scaleYTextField.text = value;
+                }
+            }
+        }
         this._scaleYTextField.onTextEdit = (value) => {
-            
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.transform.scaleY = value;
+                if (self._doUniformScale) {
+                    self._focused._userData.transform.scaleX = value;
+                    self._scaleXTextField.text = value;
+                }
+            }
         }
         this._frameXTextField = new UITextBox(scene, "0");
         this._frameYTextField = new UITextBox(scene, "0");
