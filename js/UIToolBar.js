@@ -28,7 +28,7 @@ export default class UIToolBar {
        
         self._width = self._scene.scale.width;
         self._height = UIGlobals.Sizes.EditorBarHeight;
-        self._y = UIGlobals.Sizes.TopMenuHeight;
+        self._y = 0;
 
         self._seperatorSprite.setTint(UIGlobals.Colors.BorderDecorative);
         self._seperatorSprite.setPosition(0, self._y);

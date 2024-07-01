@@ -308,7 +308,7 @@
 					}
 				},
 				{
-					"filename": "IconGrid.png",
+					"filename": "IconDownload.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -329,7 +329,7 @@
 					}
 				},
 				{
-					"filename": "IconHierarchyNew.png",
+					"filename": "IconGrid.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -350,7 +350,7 @@
 					}
 				},
 				{
-					"filename": "IconHome.png",
+					"filename": "IconHelp.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -371,7 +371,7 @@
 					}
 				},
 				{
-					"filename": "IconMove.png",
+					"filename": "IconHierarchyNew.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -392,7 +392,7 @@
 					}
 				},
 				{
-					"filename": "IconRightBar.png",
+					"filename": "IconHome.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -413,7 +413,7 @@
 					}
 				},
 				{
-					"filename": "IconRotate.png",
+					"filename": "IconMove.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -434,7 +434,7 @@
 					}
 				},
 				{
-					"filename": "IconScale.png",
+					"filename": "IconNew.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -455,7 +455,7 @@
 					}
 				},
 				{
-					"filename": "IconTrash.png",
+					"filename": "IconRightBar.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -476,7 +476,7 @@
 					}
 				},
 				{
-					"filename": "IconZoomIn.png",
+					"filename": "IconRotate.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -497,7 +497,7 @@
 					}
 				},
 				{
-					"filename": "IconZoomOut.png",
+					"filename": "IconScale.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -518,7 +518,7 @@
 					}
 				},
 				{
-					"filename": "IcondHand.png",
+					"filename": "IconTrash.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -539,7 +539,7 @@
 					}
 				},
 				{
-					"filename": "NewTreeNodeImage.png",
+					"filename": "IconUpload.png",
 					"rotated": false,
 					"trimmed": false,
 					"sourceSize": {
@@ -555,6 +555,90 @@
 					"frame": {
 						"x": 474,
 						"y": 2,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconZoomIn.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 553,
+						"y": 2,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IconZoomOut.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 449,
+						"y": 160,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "IcondHand.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 474,
+						"y": 239,
+						"w": 75,
+						"h": 75
+					}
+				},
+				{
+					"filename": "NewTreeNodeImage.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 75,
+						"h": 75
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 75,
+						"h": 75
+					},
+					"frame": {
+						"x": 474,
+						"y": 318,
 						"w": 75,
 						"h": 75
 					}

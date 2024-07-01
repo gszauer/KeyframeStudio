@@ -18,6 +18,40 @@ export default class UITextBox {
 
     onTextEdit = null; // Callback: (string)
 
+    get text() {
+        if (this._text == null) {
+            return "";
+        }
+        return this._text;
+    }
+
+    set text(value) {
+        this._text = value;
+        this._bitmapText.text = value;
+    }
+
+    get number() {
+        if (this._text == null) {
+            return 0;
+        }
+        let numString = "";
+        const txt = this._text;
+        for (let i = 0; i < txt.length; ++i) {
+            if (txt[i] >= '0' && txt[i] <= '9') {
+                numString += txt[i];
+            }
+        }
+        if (numString == "") {
+            numString = "0";
+        }
+
+        return Number(numString);
+    }
+
+    set number(value) {
+        this.text = "" + value;
+    }
+
     constructor(scene, text = "", onTextEdit = null, defaultWidth = 0) {
         this._scene = scene;
         const self = this;
@@ -267,6 +301,7 @@ export default class UITextBox {
         this._borderSprite.setActive(visible).setVisible(visible);
         this._backgroundSprite.setActive(visible).setVisible(visible);
     }
+
     Show() {
         this.SetVisibility(true);
     }

@@ -2,6 +2,7 @@ import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
 import UITree from './UITree.js'
 import UIImageButton from './UIImageButton.js'
+import XForm from './Transform.js'
 
 export default class HierarchyView extends UIView {
     static _nameCounter = 0;
@@ -9,6 +10,21 @@ export default class HierarchyView extends UIView {
     _footer = null;
     _buttons = [];
     _active = null;
+
+    onSelectionChanged = null; // (oldActive, newActive)
+
+    get active() {
+        return this._active;
+    }
+
+    set active(valeu) {
+        if (this._active != valeu) {
+            if (this.onSelectionChanged != null) {
+                this.onSelectionChanged(this._active, valeu);
+            }
+        }
+        this._active = valeu;
+    }
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -18,7 +34,7 @@ export default class HierarchyView extends UIView {
         this._tree.canReorder = false;
 
         this._tree.onSelected = (treeNode) => {
-            self._active = treeNode;
+            self.active = treeNode;
         }
 
         this._footer =  scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
@@ -26,7 +42,8 @@ export default class HierarchyView extends UIView {
         this._footer.setOrigin(0, 0);
 
         const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
-            self.AddNewNode();
+            const hierarchyNode = self.AddNewNode();
+            const transformNode = new XForm(hierarchyNode);
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
             self.Delete();
@@ -40,17 +57,17 @@ export default class HierarchyView extends UIView {
     }
 
     Delete() {
-        if (this._active == null) {
+        if (this.active == null) {
             return;
         }
-        const toRemove = this._active;
+        const toRemove = this.active;
         this.Deselect();
         this._tree.Remove(toRemove);
     }
 
     Deselect() {
         this._tree.Deselect();
-        this._active = null;
+        this.active = null;
     }
 
     AddNewNode(nodeName) {
@@ -59,8 +76,8 @@ export default class HierarchyView extends UIView {
         }
 
         let parent = null;
-        if (this._active) {
-            parent = this._active;
+        if (this.active) {
+            parent = this.active;
         }
         
         const newNode = this._tree.Add(nodeName);

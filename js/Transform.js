@@ -98,6 +98,14 @@ export default class XForm {
     get uiTreeNode() {
         return this._uiTreeNode;
     }
+
+    get degrees() {
+        return this.rotation * 57.2958;
+    }
+
+    set degrees(valuue) {
+        this.rotation = valuue * 0.0174533; 
+    }
 }
 
 export class Mat3 {

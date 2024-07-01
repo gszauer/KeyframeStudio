@@ -4,6 +4,7 @@ import UIToolBoxButton from './UIToolboxButton.js'
 export default class UIToolBox {
     _scene = null;
 
+    _x = 0;
     _y = 0;
     _width = 0;
     _height = 0;
@@ -13,6 +14,8 @@ export default class UIToolBox {
 
     _buttons = [];
     _seperators = [];
+
+    _actions = []; // buttons on bottom
 
     _activeIndex = -1;
     _selected = null;
@@ -32,8 +35,8 @@ export default class UIToolBox {
         this._backgroundSprite.setOrigin(0, 0);
 
         scene.input.on("pointerup", function(pointer, currentlyOver) {
-            const size = self._buttons.length;
             let reColor = false;
+            let size = self._buttons.length;
             for (let i = 0; i < size; ++i) {
                 if (self._buttons[i] != null) {
                     if (self._buttons[i].HandlePointerUpEvent(pointer, currentlyOver)) {
@@ -43,8 +46,17 @@ export default class UIToolBox {
                         if (self.onToolChanged != null) {
                             self.onToolChanged(_iconName, self._buttons[i]);
                         }
+                        // TODO: Trigger callback
                         reColor = true;
                     }
+                }
+            }
+            size = self._actions.length;
+            for (let i = 0; i < size; ++i) {
+                if (self._actions[i].HandlePointerUpEvent(pointer, currentlyOver)) {
+                    // TODO: Trigger callback
+
+                    reColor = true;
                 }
             }
             if (reColor) {
@@ -57,7 +69,7 @@ export default class UIToolBox {
         });
     }
 
-    Add(iconName, callback = null) {
+    AddTop(iconName, callback = null) {
         const self = this;
 
         if (iconName == "" || iconName == null) {
@@ -71,15 +83,6 @@ export default class UIToolBox {
             return seperator;
         }
 
-        /*const wrappedCallback = function(_iconName) {
-            self._selected = self._GetButtonByName(_iconName);
-            console.log("Selected: " + _iconName);
-            if (callback != null) {
-                callback(_iconName);
-            }
-            self.Layout();
-        };*/
-
         const button = new UIToolBoxButton(this._scene, iconName, callback);
         button._parent = this;
         this._buttons.push(button);
@@ -87,8 +90,17 @@ export default class UIToolBox {
         return button;
     }
 
+    AddBottom(iconName, callback = null) {
+        const self = this;
+
+        const button = new UIToolBoxButton(this._scene, iconName, callback);
+        button._parent = this;
+        this._actions.push(button);
+        return button;
+    }
+
     _GetButtonByName(iconName) {
-        const size = this._buttons.length;
+        let size = this._buttons.length;
         for (let i = 0; i < size; ++i) {
             if (this._buttons[i] != null) {
                 if (this._buttons[i]._iconName == iconName) {
@@ -96,12 +108,20 @@ export default class UIToolBox {
                 }
             }
         }
+        size = this._actions.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._actions[i] != null) {
+                if (this._actions[i]._iconName == iconName) {
+                    return this._actions[i];
+                }
+            }
+        }
         return null;
     }
 
     Layout() {
-        let x = 0;
-        let y = this._y = UIGlobals.Sizes.TopMenuHeight + UIGlobals.Sizes.EditorBarHeight;
+        let x = this._x = 0;
+        let y = this._y = UIGlobals.Sizes.EditorBarHeight;
         let width = this._width = UIGlobals.Sizes.ToolboxWidth;
         let height = this._height = this._scene.scale.height - y;
 
@@ -113,11 +133,11 @@ export default class UIToolBox {
         this._backgroundSprite.setScale(width - UIGlobals.Sizes.ToolboxPadding, height);
         this._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
 
-        const size = this._buttons.length;
         x = x + width / 2; // Center
         y += UIGlobals.Sizes.ToolboxButtonSize / 2; // Start at 0
         y += (width - UIGlobals.Sizes.ToolboxButtonSize) / 2; // Pad out equal to button
 
+        let size = this._buttons.length;
         for (let i = 0; i < size; ++i) {
             if (this._buttons[i] != null) {
                 this._buttons[i].Layout(x, y);
@@ -132,6 +152,17 @@ export default class UIToolBox {
                 y += UIGlobals.Sizes.ToolboxButtonPadding;
                 y += UIGlobals.Sizes.ToolboxButtonSize * 0.5;
             }
+        }
+
+        y = this._y + height;
+        y -= UIGlobals.Sizes.ToolboxButtonSize / 2; // Start at 0
+        y -= (width - UIGlobals.Sizes.ToolboxButtonSize) / 2; // Pad out equal to button
+
+        size = this._actions.length;
+        for (let i = 0; i < size; ++i) {
+            this._actions[i].Layout(x, y);
+            y -= UIGlobals.Sizes.ToolboxButtonSize;
+            y -= UIGlobals.Sizes.ToolboxButtonPadding;
         }
     }
 }

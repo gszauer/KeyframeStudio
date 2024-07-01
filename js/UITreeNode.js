@@ -267,6 +267,15 @@ export default class UITreeNode {
         return this._name;
     }
 
+    set name(value) {
+        if (value === undefined || value == null) {
+            value = "";
+        }
+
+        this._name = value;
+        this._label.text = value;
+    }
+
     get parent() {
         return this._parent;
     }

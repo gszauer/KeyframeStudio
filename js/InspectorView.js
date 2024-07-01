@@ -6,6 +6,9 @@ import UIPopup from './UIPopup.js'
 import UIColorButton from './UIColorButton.js'
 
 export default class InspectorView extends UIView {
+    _focused = null;
+
+
     _backgroundSprite = null;
 
     _transformLabel = null;
@@ -162,12 +165,34 @@ export default class InspectorView extends UIView {
         popup.Add("Filler 3 delete me.png");
         this._spriteSheetDropdown = new UIDropdown(scene, popup);
 
+        const self = this;
+
         this._nameTextField = new UITextBox(scene, "Name");
+        this._nameTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                self._focused.name = value;
+            }
+        };
         this._positionXTextField = new UITextBox(scene, "0");
+        this._positionXTextField.onTextEdit = (value) => {
+            
+        }
         this._positionYTextField = new UITextBox(scene, "0");
+        this._positionXTextField.onTextEdit = (value) => {
+            
+        }
         this._rotationTextField = new UITextBox(scene, "0");
+        this._rotationTextField.onTextEdit = (value) => {
+            
+        }
         this._scaleXTextField = new UITextBox(scene, "1");
+        this._scaleXTextField.onTextEdit = (value) => {
+            
+        }
         this._scaleYTextField = new UITextBox(scene, "1");
+        this._scaleYTextField.onTextEdit = (value) => {
+            
+        }
         this._frameXTextField = new UITextBox(scene, "0");
         this._frameYTextField = new UITextBox(scene, "0");
         this._frameWTextField = new UITextBox(scene, "0");
@@ -323,5 +348,37 @@ export default class InspectorView extends UIView {
 
     Show() {
         this._SetVisibility(true);
+    }
+
+    FocusOn(node) {
+        this._focused = node;
+
+        let name = "";
+        let xPos = "";
+        let yPos = "";
+        let xScale = "";
+        let yScale = "";
+        let rotation = "";
+
+        if (node != null) {
+            if (node._userData == null) {
+                throw new Error("User data can't be null here!");
+            }
+            const xForm = node._userData.transform;
+
+            name = node._name;
+            xPos = "" + xForm.x;
+            yPos = "" + xForm.y;
+            xScale = "" + xForm.scaleX;
+            yScale = "" + xForm.scaleY;
+            rotation = "" + xForm.degrees;
+        }
+
+        this._nameTextField.text = name;
+        this._positionXTextField.text = xPos;
+        this._positionYTextField.text = yPos;
+        this._rotationTextField.text = rotation;
+        this._scaleXTextField.text = xScale;
+        this._scaleYTextField.text = yScale;
     }
 }
