@@ -439,6 +439,30 @@ export default class UITree {
         }
     }
 
+    Remove(node) {
+        if (node._parent != null) {
+            node._parent._RemoveChild(node);
+        }
+        this._RemoveFromRoots(node);
+        // The node should be orphaned at this point
+        this._UpdateNumButtons();
+        this.Layout();
+        this.UpdateColors();
+        node.Destroy();
+    }
+
+    Deselect() {
+        if (this._selectedIndex == -1) {
+            return;
+        }
+
+        this._selectedIndex = -1;
+        if (this.onSelected != null) {
+            this.onSelected(null);
+        }
+        this.UpdateColors();
+    }
+
     UpdateColors() {
         this._scrollView.UpdateColors();
 
@@ -556,6 +580,12 @@ export default class UITree {
     }
 
     Layout(x, y, width, height) {
+        if (x === undefined && y === undefined && width === undefined && height === undefined) {
+            x = this._x;
+            y = this._y;
+            width = this._width;
+            height = this._height;
+        }
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
 

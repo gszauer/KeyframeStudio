@@ -29,12 +29,28 @@ export default class HierarchyView extends UIView {
             self.AddNewNode();
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
+            self.Delete();
         });
         const deselectButton = new UIImageButton(scene, "SmallIconDeselect.png", () => {
+            self.Deselect();
         });
         this._buttons.push(newNodeButton);
         this._buttons.push(deleteNodeButton);
         this._buttons.push(deselectButton);
+    }
+
+    Delete() {
+        if (this._active == null) {
+            return;
+        }
+        const toRemove = this._active;
+        this.Deselect();
+        this._tree.Remove(toRemove);
+    }
+
+    Deselect() {
+        this._tree.Deselect();
+        this._active = null;
     }
 
     AddNewNode(nodeName) {

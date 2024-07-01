@@ -47,6 +47,33 @@ export default class UITreeNode {
         this._label.text = name;
     }
 
+    Destroy() {
+        const toDestroy = [];
+        this.ForEach((obj, depth) => {
+            toDestroy.push(obj);
+        });
+        for (let i = 0; i < toDestroy.length; ++i) {
+            const target = toDestroy[i];
+
+            target._userData = null;
+            target._tree = null;
+            target._name = null;
+        
+            target._parent = null;
+            target._firstChild = null;
+            target._nextSibling = null;
+            
+            if (target._background != null) {
+                target._background.destroy();
+            }
+            if (target._label != null) {
+                target._label.destroy();
+            }
+            target._background = null;
+            target._label = null;
+        }
+    }
+
     _SetColor(background = 0x000000, text = 0xffffff) {
         this._background.setTint(background);
         this._label.setTint(text);
