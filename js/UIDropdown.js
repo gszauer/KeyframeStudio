@@ -9,6 +9,8 @@ export default class UIDropdown {
     _chevronSprite = null;
     _displayText = null;
 
+    _disabled = false;
+
     _x = 0;
     _y = 0;
     _width = 0;
@@ -65,38 +67,43 @@ export default class UIDropdown {
         });
         borderSprite.on("pointerdown", function (pointer, localX, localY, event) {
             UIGlobals.Active = borderSprite;
-            self._isOpen = true;
+
+            if (!self._disabled) {
+                self._isOpen = true;
+            }
 
             self._ShowActiveMenu();
             self.UpdateColors();
         });
 
         scene.input.on("pointerup", function(pointer, currentlyOver) {
-            if (self._popupMenu != null) {
-                self._popupMenu.HandlePointerUpEvent(pointer, currentlyOver);
-            }
-
-            if (UIGlobals.Active != null && UIGlobals.Active == borderSprite) {
-                let left = borderSprite.x;
-                let right = left + borderSprite.scaleX;
-                let top = borderSprite.y;
-                let bottom = top + borderSprite.scaleY;
-
-                if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                    self._isOpen = true;
+            if (!self._disabled) {
+                if (self._popupMenu != null) {
+                    self._popupMenu.HandlePointerUpEvent(pointer, currentlyOver);
                 }
-                else {
+
+                if (UIGlobals.Active != null && UIGlobals.Active == borderSprite) {
+                    let left = borderSprite.x;
+                    let right = left + borderSprite.scaleX;
+                    let top = borderSprite.y;
+                    let bottom = top + borderSprite.scaleY;
+
+                    if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
+                        self._isOpen = true;
+                    }
+                    else {
+                        self._isOpen = false;
+                    }
+                    
+                    UIGlobals.Active = null;
+                    self._ShowActiveMenu();
+                    self.UpdateColors();
+                }
+                else if (self._isOpen) {
                     self._isOpen = false;
+                    self._ShowActiveMenu();
+                    self.UpdateColors();
                 }
-                
-                UIGlobals.Active = null;
-                self._ShowActiveMenu();
-                self.UpdateColors();
-            }
-            else if (self._isOpen) {
-                self._isOpen = false;
-                self._ShowActiveMenu();
-                self.UpdateColors();
             }
         });
     }
@@ -138,6 +145,16 @@ export default class UIDropdown {
         }
     }
 
+    Disable() {
+        this._disabled = true;
+        this.UpdateColors();
+    }
+
+    Enable() {
+        this._disabled = false;
+        this.UpdateColors();
+    }
+
     UpdateColors() {
         let borderTint = UIGlobals.Colors.ElementBorderTintIdle;
         let backgroundTint = UIGlobals.Colors.BackgroundLayer1;
@@ -149,6 +166,11 @@ export default class UIDropdown {
         if (UIGlobals.Active == this._borderSprite || this._isOpen) {
             borderTint = UIGlobals.Colors.ElementBorderTintActive;
             backgroundTint = UIGlobals.Colors.BackgroundLayer2;
+        }
+
+        if (this._disabled) {
+            backgroundTint = UIGlobals.Colors.BackgroundLayer1;
+            borderTint = UIGlobals.Colors.IconDisabled;
         }
 
         this._borderSprite.setTint(borderTint);

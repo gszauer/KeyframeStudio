@@ -157,6 +157,7 @@ export default class InspectorView extends UIView {
         popup.onSelect = (name, obj) => {
             self._doUniformScale = name == "True";
         };
+        this._scaleModeDropdown.Disable();
 
         popup = new UIPopup(scene);
         popup.Add("True");
@@ -191,42 +192,46 @@ export default class InspectorView extends UIView {
             return result;
         }
 
-        this._nameTextField = new UITextBox(scene, "Name");
+        this._nameTextField = new UITextBox(scene, "");
         this._nameTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 self._focused.name = value;
             }
         };
-        this._positionXTextField = new UITextBox(scene, "0");
+        this._nameTextField.Disable();
+
+        this._positionXTextField = new UITextBox(scene, "");
         this._positionXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 self._focused._userData.transform.x = NumerisizeString(value);
             }
         }
-        this._positionYTextField = new UITextBox(scene, "0");
+        this._positionXTextField.Disable();
+
+        this._positionYTextField = new UITextBox(scene, "");
         this._positionYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 self._focused._userData.transform.y = NumerisizeString(value);
             }
         }
-        this._rotationTextField = new UITextBox(scene, "0");
+        this._positionYTextField.Disable();
+
+        this._rotationTextField = new UITextBox(scene, "");
         this._rotationTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                while(value < 0) {
-                    value += 360;
-                }
-                while (value > 360) {
-                    value -= 360;
-                }
-                if (value == 360) {
-                    value = 0;
-                }
+                while(value < 0) {  value += 360; }
+                while (value > 360) { value -= 360; }
+                if (value == 360) { value = 0; }
                 self._focused._userData.transform.degrees = value;
             }
         }
-        this._scaleXTextField = new UITextBox(scene, "1");
-        this._scaleYTextField = new UITextBox(scene, "1");
+        this._rotationTextField.Disable();
+
+        this._scaleXTextField = new UITextBox(scene, "");
+        this._scaleXTextField.Disable();
+        this._scaleYTextField = new UITextBox(scene, "");
+        this._scaleYTextField.Disable();
 
         this._scaleXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
@@ -427,6 +432,23 @@ export default class InspectorView extends UIView {
             xScale = "" + xForm.scaleX;
             yScale = "" + xForm.scaleY;
             rotation = "" + xForm.degrees;
+
+            this._nameTextField.Enable();
+            this._positionXTextField.Enable();
+            this._positionYTextField.Enable();
+            this._rotationTextField.Enable();
+            this._scaleXTextField.Enable();
+            this._scaleYTextField.Enable();
+            this._scaleModeDropdown.Enable();
+        }
+        else {
+            this._nameTextField.Disable();
+            this._positionXTextField.Disable();
+            this._positionYTextField.Disable();
+            this._rotationTextField.Disable();
+            this._scaleXTextField.Disable();
+            this._scaleYTextField.Disable();
+            this._scaleModeDropdown.Disable();
         }
 
         this._nameTextField.text = name;

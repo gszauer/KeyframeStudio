@@ -13,9 +13,9 @@ export default class AssetsView extends UIView {
         this._listbox = new UIListBox(scene);
         this._listbox.canReorder = false;
 
-        for (let i = 0; i < 20; ++i) {
+        /*for (let i = 0; i < 20; ++i) {
             this._listbox.Add("Asset " + i);
-        }
+        }*/
     }
 
     UpdateColors() {

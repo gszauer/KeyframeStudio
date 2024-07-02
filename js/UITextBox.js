@@ -13,6 +13,8 @@ export default class UITextBox {
     _borderSprite = null;
     _backgroundSprite = null;
 
+    _disabled = false;
+
     _rextextedit = null;
     _maskRect = null;
 
@@ -185,7 +187,9 @@ export default class UITextBox {
                 let bottom = top + self._height;
 
                 if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                    self.EditTextBox();
+                    if (!self._disabled) {
+                        self.EditTextBox();
+                    }
                 }
                 
                 UIGlobals.Active = null;
@@ -245,10 +249,24 @@ export default class UITextBox {
             borderTint = UIGlobals.Colors.ElementBorderTintActive;
             backgroundTint = UIGlobals.Colors.BackgroundLayer2;
         }
+        if (this._disabled) {
+            backgroundTint = UIGlobals.Colors.BackgroundLayer1;
+            borderTint = UIGlobals.Colors.IconDisabled;
+        }
 
         this._backgroundSprite.setTint(backgroundTint);
         this._borderSprite.setTint(borderTint);
         this._bitmapText.setTint(borderTint);
+    }
+    
+    Disable() {
+        this._disabled = true;
+        this.UpdateColors();
+    }
+
+    Enable() {
+        this._disabled = false;
+        this.UpdateColors();
     }
     
     Layout(x, y, width = 0) {

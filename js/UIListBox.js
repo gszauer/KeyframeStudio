@@ -41,16 +41,17 @@ export default class UIListBox {
     constructor(scene) {
         this._scene = scene;
 
+        this._inputItem = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._inputItem.setDepth(UIGlobals.WidgetLayer);
+        this._inputItem.setOrigin(0, 0);
+        this._inputItem.setTint(UIGlobals.Colors.BackgroundLayer1);
+
         const scrollView = this._scrollView = new UIScrollView(scene, this);
         this._scrollView.showHorizontal = false;
         
         this._buttons = [];
 
         const self = this;
-
-        this._inputItem = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._inputItem.setDepth(UIGlobals.WidgetLayer - 2);
-        this._inputItem.setOrigin(0, 0);
 
         this._orderIndicator = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._orderIndicator.setDepth(UIGlobals.WidgetLayer + 2);
