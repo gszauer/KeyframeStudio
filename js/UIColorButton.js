@@ -15,6 +15,9 @@ export default class UIColorButton {
 
     _colorPicker = null;
 
+    _disabled = false;
+    _visible = true;
+
     _border = null;
     _background = null;
     _color = null;
@@ -23,6 +26,19 @@ export default class UIColorButton {
         return this._colorPicker.rgb;
     }
 
+    Disable() {
+        this._disabled = true;
+        this.UpdateColors();
+        this._color.setActive(false).setVisible(false);
+    }
+
+    Enable() {
+        this._disabled = false;
+        this.UpdateColors();
+        if (this._visible) {
+            this._color.setActive(!this._disabled).setVisible(!this._disabled);
+        }
+    }
 
     constructor(scene, tintChanged = null) {
         this._scene = scene;
@@ -57,6 +73,12 @@ export default class UIColorButton {
 
         self._border.setInteractive();
         self._border.on("pointerover", function (pointer, localX, localY, event) {
+            if (self._disabled) {
+                if (UIGlobals.Hot == self._border) {
+                    UIGlobals.Hot = null;
+                }  
+                return;
+            }
             if (UIGlobals.Active == null) {
                 UIGlobals.Hot = self._border;
             }
@@ -72,12 +94,24 @@ export default class UIColorButton {
         });
 
         self._border.on("pointerdown", function (pointer, localX, localY, event) {
+            if (self._disabled) {
+                if (UIGlobals.Hot == self._border) {
+                    UIGlobals.Hot = null;
+                }  
+                return;
+            }
             UIGlobals.Active = self._border;
 
             self.UpdateColors();
         });
 
         scene.input.on("pointerup", function(pointer, currentlyOver) {
+            if (self._disabled) {
+                if (UIGlobals.Hot == self._border) {
+                    UIGlobals.Hot = null;
+                }  
+                return;
+            }
             if (UIGlobals.Active != null && UIGlobals.Active == self._border) {
                 let left = self._x;;
                 let right = left + self._width;
@@ -110,6 +144,10 @@ export default class UIColorButton {
         if (UIGlobals.Active == this._border) {
             borderTint = UIGlobals.Colors.ElementBorderTintActive;
             backgroundTint = UIGlobals.Colors.BackgroundLayer2;
+        }
+
+        if (this._disabled) {
+            borderTint = UIGlobals.Colors.IconDisabled;
         }
 
         this._border.setTint(borderTint);
@@ -162,12 +200,14 @@ export default class UIColorButton {
     }
 
     Show() {
+        this._visible = true;
         this._border.setActive(true).setVisible(true);
         this._background.setActive(true).setVisible(true);
-        this._color.setActive(true).setVisible(true);
+        this._color.setActive(!this._disabled).setVisible(!this._disabled);
     }
 
     Hide() {
+        this._visible = false;
         if (UIGlobals.Active == self._border) {
             UIGlobals.Active = null;
         }

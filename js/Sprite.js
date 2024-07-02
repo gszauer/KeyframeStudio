@@ -21,15 +21,17 @@ export default class SpriteImg {
     _next = null;
 
     constructor(treeNode = null) {
-        this.color = new ColorRGB(1, 1, 1);
-        this.sprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this.sprite.setDepth(UIGlobals.ContentLayer);
-        this.sprite.setOrigin(0, 0);
-
         if (!treeNode) {
             throw new Error("Sprite must be attached to tree node");
         }
         this._uiTreeNode = treeNode;
+
+        const scene = treeNode._tree._scene;
+
+        this.color = new ColorRGB(1, 1, 1);
+        this.sprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this.sprite.setDepth(UIGlobals.ContentLayer);
+        this.sprite.setOrigin(0, 0);
 
         if (!treeNode._userData) {
             treeNode._userData = {

@@ -3,6 +3,7 @@ import UIView from './UIView.js'
 import UITree from './UITree.js'
 import UIImageButton from './UIImageButton.js'
 import XForm from './Transform.js'
+import SpriteImg from './Sprite.js'
 
 export default class HierarchyView extends UIView {
     static _nameCounter = 0;
@@ -44,6 +45,7 @@ export default class HierarchyView extends UIView {
         const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
             const hierarchyNode = self.AddNewNode();
             const transformNode = new XForm(hierarchyNode);
+            const spriteNode = new SpriteImg(hierarchyNode);
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
             self.Delete();

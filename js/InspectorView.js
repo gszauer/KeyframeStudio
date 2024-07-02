@@ -65,6 +65,7 @@ export default class InspectorView extends UIView {
     _pivotYLabel = null;
     _pivotYTextField = null;
 
+
     constructor(scene, parent = null) {
         super(scene, parent);
 
@@ -253,15 +254,25 @@ export default class InspectorView extends UIView {
                 }
             }
         }
-        this._frameXTextField = new UITextBox(scene, "0");
-        this._frameYTextField = new UITextBox(scene, "0");
-        this._frameWTextField = new UITextBox(scene, "0");
-        this._frameHTextField = new UITextBox(scene, "0");
-        this._alphaTextField = new UITextBox(scene, "1");
-        this._pivotXTextField = new UITextBox(scene, "0");
-        this._pivotYTextField = new UITextBox(scene, "0");
-
+        this._frameXTextField = new UITextBox(scene, "");
+        this._frameYTextField = new UITextBox(scene, "");
+        this._frameWTextField = new UITextBox(scene, "");
+        this._frameHTextField = new UITextBox(scene, "");
+        this._alphaTextField = new UITextBox(scene, "");
+        this._pivotXTextField = new UITextBox(scene, "");
+        this._pivotYTextField = new UITextBox(scene, "");
         this._tintButton = new UIColorButton(scene);
+
+        this._frameXTextField.Disable();
+        this._frameYTextField.Disable();
+        this._frameWTextField.Disable();
+        this._frameHTextField.Disable();
+        this._alphaTextField.Disable();
+        this._pivotXTextField.Disable();
+        this._pivotYTextField.Disable();
+        this._spriteSheetDropdown.Disable();
+        this._visibleDropdown.Disable();
+        this._tintButton.Disable();
    }
 
     UpdateColors() {
@@ -420,11 +431,20 @@ export default class InspectorView extends UIView {
         let yScale = "";
         let rotation = "";
 
+        let frameX = "";
+        let frameY = "";
+        let frameW = "";
+        let frameH = "";
+        let pivotX = "";
+        let pivotY = "";
+        let alpha = "";
+
         if (node != null) {
             if (node._userData == null) {
                 throw new Error("User data can't be null here!");
             }
             const xForm = node._userData.transform;
+            const sprite = node._userData.sprite;
 
             name = node._name;
             xPos = "" + xForm.x;
@@ -433,6 +453,14 @@ export default class InspectorView extends UIView {
             yScale = "" + xForm.scaleY;
             rotation = "" + xForm.degrees;
 
+            frameX = "" + sprite.x;
+            frameY = "" + sprite.y;
+            frameW = "" + sprite.width;
+            frameH = "" + sprite.height;
+            pivotX = "" + sprite.pivotX;
+            pivotY = "" + sprite.pivotY;
+            alpha = "" + sprite.alpha;
+
             this._nameTextField.Enable();
             this._positionXTextField.Enable();
             this._positionYTextField.Enable();
@@ -440,6 +468,17 @@ export default class InspectorView extends UIView {
             this._scaleXTextField.Enable();
             this._scaleYTextField.Enable();
             this._scaleModeDropdown.Enable();
+
+            this._frameXTextField.Enable();
+            this._frameYTextField.Enable();
+            this._frameWTextField.Enable();
+            this._frameHTextField.Enable();
+            this._alphaTextField.Enable();
+            this._pivotXTextField.Enable();
+            this._pivotYTextField.Enable();
+            this._spriteSheetDropdown.Enable();
+            this._visibleDropdown.Enable();
+            this._tintButton.Enable();
         }
         else {
             this._nameTextField.Disable();
@@ -449,6 +488,17 @@ export default class InspectorView extends UIView {
             this._scaleXTextField.Disable();
             this._scaleYTextField.Disable();
             this._scaleModeDropdown.Disable();
+
+            this._frameXTextField.Disable();
+            this._frameYTextField.Disable();
+            this._frameWTextField.Disable();
+            this._frameHTextField.Disable();
+            this._alphaTextField.Disable();
+            this._pivotXTextField.Disable();
+            this._pivotYTextField.Disable();
+            this._spriteSheetDropdown.Disable();
+            this._visibleDropdown.Disable();
+            this._tintButton.Disable();
         }
 
         this._nameTextField.text = name;
@@ -457,5 +507,13 @@ export default class InspectorView extends UIView {
         this._rotationTextField.text = rotation;
         this._scaleXTextField.text = xScale;
         this._scaleYTextField.text = yScale;
+
+        this._alphaTextField.text = alpha;
+        this._pivotYTextField.text = pivotX;
+        this._pivotXTextField.text = pivotY;
+        this._frameXTextField.text = frameX;
+        this._frameYTextField.text = frameY;
+        this._frameWTextField.text = frameW;
+        this._frameHTextField.text = frameH;
     }
 }
