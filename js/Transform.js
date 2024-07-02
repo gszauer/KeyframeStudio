@@ -4,7 +4,7 @@
 
 // Transforms are not stand-alone. The parent / child relationship comes from the owning UITreeNode
 export default class XForm {
-    _uiTreeNode = null;
+    _uiTreeNode = null; // Node that this transform is attached to
 
     x = 0;
     y = 0;

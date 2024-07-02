@@ -33,8 +33,9 @@ export default class UIGlobals {
     static Layers = {
         // TODO: Move the below elements into this container
     };
-    static WidgetLayer = 50;
-    static OverlayLayer = 100;
+    static ContentLayer = 0;
+    static WidgetLayer = 500;
+    static OverlayLayer = 1000;
 
     static Sizes = {
         TopMenuHeight: 32,
