@@ -7,14 +7,19 @@ import UIListBoxItem from './UIListBoxItem.js'
 export default class DrawOrderView extends UIView {
     _listbox = null;
 
+    get count() {
+        return this._listbox.count;
+    }
+
     constructor(scene, parent = null) {
         super(scene, parent);
         const self = this;
 
         this._listbox = new UIListBox(scene);
-        for (let i = 0; i < 20; ++i) {
-            this._listbox.Add("Sprite " + i);
-        }
+    }
+
+    Add(name, callback = null) {
+        return this._listbox.Add(name, callback);
     }
 
     UpdateColors() {

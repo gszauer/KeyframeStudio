@@ -93,10 +93,11 @@ export default class Application extends Phaser.Scene {
         const inspectorTabs = toolSplitter.a = new UITabView(this, toolSplitter.a);
         const inspectorView = new InspectorView(this,  inspectorTabs);
         inspectorTabs.Add("Inspector", inspectorView);
-        inspectorTabs.Add("Draw Order", new DrawOrderView(this, inspectorTabs));
+        const drawOrderView = new DrawOrderView(this, inspectorTabs);
+        inspectorTabs.Add("Draw Order", drawOrderView);
 
         const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
-        const hierarchyView = new HierarchyView(this, sceneTabs)
+        const hierarchyView = new HierarchyView(this, sceneTabs, drawOrderView)
         sceneTabs.Add("Hierarchy", hierarchyView);
         sceneTabs.Add("Assets", new AssetsView(this, sceneTabs));
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));

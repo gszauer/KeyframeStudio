@@ -26,6 +26,11 @@ export default class UIColorButton {
         return this._colorPicker.rgb;
     }
 
+    set color(rgb) {
+        this._colorPicker.rgb = rgb;
+        this.UpdateColors();
+    }
+
     Disable() {
         this._disabled = true;
         this.UpdateColors();

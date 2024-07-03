@@ -10,6 +10,7 @@ export default class UIDropdown {
     _displayText = null;
 
     _disabled = false;
+    _visible = true;
 
     _x = 0;
     _y = 0;
@@ -108,6 +109,24 @@ export default class UIDropdown {
         });
     }
 
+    set selected(value) {
+        if (this._popupMenu != null) {
+            const items = this._popupMenu._labels;
+            if (items != null) {
+                let selectIndex = -1;
+                for (let i = 0, size = items.length; i < size; ++i) {
+                    if (items[i] == value) {
+                        selectIndex = i;
+                        break;
+                    }
+                }
+                if (selectIndex >= 0) {
+                    this._displayText.text = items[selectIndex];
+                }
+            }
+        }
+    }
+
     SetMenu(popupMenu) {
         if (this._popupMenu != null) {
             this._popupMenu._uiOnPointerUp = null;
@@ -156,6 +175,8 @@ export default class UIDropdown {
     }
 
     UpdateColors() {
+        this._displayText.setActive(!this._disabled && this._visible).setVisible(!this._disabled && this._visible);
+
         let borderTint = UIGlobals.Colors.ElementBorderTintIdle;
         let backgroundTint = UIGlobals.Colors.BackgroundLayer1;
 
@@ -217,6 +238,7 @@ export default class UIDropdown {
     }
 
     SetVisibility(visible) {
+        this._visible = visible;
         this._borderSprite.setActive(visible).setVisible(visible);
         this._backgroundSprite.setActive(visible).setVisible(visible);
         this._seperatorSprite.setActive(visible).setVisible(visible);

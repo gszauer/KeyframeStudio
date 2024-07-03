@@ -12,9 +12,9 @@ export default class UIListBox {
     _inputItem = null;
     _orderIndicator = null;
 
-    _selectedIndex = -1;
-    _hoverIndex = -1;
-    _pressedIndex = -1;
+    _selectedIndex  = -1;
+    _hoverIndex     = -1;
+    _pressedIndex   = -1;
     _dragStartIndex = -1;
 
     _scrollView = null;
@@ -25,6 +25,17 @@ export default class UIListBox {
     onReodered = null; // onReordered(startIndex: number, stopIndex: delta: number);
     canReorder = true;
 
+    get count() {
+        let result = 0;
+        const len = this._buttons.length;
+        for (let i = 0; i < len; ++i) {
+            if (this._buttons[i].visible) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+    
     get _numButtons() {
         let result = 0;
         const len = this._buttons.length;
@@ -35,8 +46,6 @@ export default class UIListBox {
         }
         return result;
     }
-
-   
 
     constructor(scene) {
         this._scene = scene;
@@ -359,14 +368,30 @@ export default class UIListBox {
             }
         }
         if (button == null) {
-            button = new UIListBoxItem(this._scene);
+            button = new UIListBoxItem(this);
             this._buttons.push(button);
             button.AddToContainer(this._scrollView.container);
         }
         button.item = item;
         button.UpdateText(itemName);
 
-        // Call Layout manually elsewhewre
-        //this.Layout(this._x, this._y, this._width, this._height);
+        return button;
     } 
+
+    Deselect() {
+        this._selectedIndex  = -1;
+        this._hoverIndex     = -1;
+        this._pressedIndex   = -1;
+        this._dragStartIndex = -1;
+        this.UpdateColors();
+    }
+
+    Remove(item) {
+        this.Deselect();
+        const index = this._buttons.indexOf(item);
+        if (index > -1) {
+            this._buttons.splice(index, 1);
+        }
+        this.Layout(this._x, this._y, this._width, this._height);
+    }
 }

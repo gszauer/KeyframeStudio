@@ -1,6 +1,7 @@
 import XForm from './Transform.js'
 import ColorRGB from './ColorRGB.js'
 import UIGlobals from './UIGlobals.js'
+import DrawOrderView from './DrawOrderView.js'
 
 export default class SpriteImg {
     _uiTreeNode = null; // Node that this sprite is attached to
@@ -20,7 +21,7 @@ export default class SpriteImg {
     _prev = null;
     _next = null;
 
-    constructor(treeNode = null) {
+    constructor(treeNode, drawOrderView = null) {
         if (!treeNode) {
             throw new Error("Sprite must be attached to tree node");
         }
@@ -30,7 +31,7 @@ export default class SpriteImg {
 
         this.color = new ColorRGB(1, 1, 1);
         this.sprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this.sprite.setDepth(UIGlobals.ContentLayer);
+        this.sprite.setDepth(UIGlobals.WidgetLayer - drawOrderView.count);
         this.sprite.setOrigin(0, 0);
 
         if (!treeNode._userData) {

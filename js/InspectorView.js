@@ -4,6 +4,7 @@ import UITextBox from './UITextBox.js'
 import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
 import UIColorButton from './UIColorButton.js'
+import ColorRGB from './ColorRGB.js'
 
 export default class InspectorView extends UIView {
     _focused = null;
@@ -65,6 +66,7 @@ export default class InspectorView extends UIView {
     _pivotYLabel = null;
     _pivotYTextField = null;
 
+    _drawIndexLabel = null;
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -80,6 +82,10 @@ export default class InspectorView extends UIView {
         this._spriteLabel = scene.add.bitmapText(0, 0, UIGlobals.Font400, name);
         this._spriteLabel.setDepth(UIGlobals.WidgetLayer);
         this._spriteLabel.text = "Sprite";
+
+        this._drawIndexLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
+        this._drawIndexLabel.setDepth(UIGlobals.WidgetLayer);
+        this._drawIndexLabel.text = "Nothing selected";
 
         this._nameLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._nameLabel.setDepth(UIGlobals.WidgetLayer);
@@ -161,8 +167,18 @@ export default class InspectorView extends UIView {
         this._scaleModeDropdown.Disable();
 
         popup = new UIPopup(scene);
-        popup.Add("True");
-        popup.Add("False");
+        popup.Add("True", () => {
+            if (self._focused != null) {
+                self._focused._userData.sprite.visible = true;
+                self._visibleDropdown.selected = "True";
+            }
+        });
+        popup.Add("False", () => {
+            if (self._focused != null) {
+                self._focused._userData.sprite.visible = false;
+                self._visibleDropdown.selected = "False";
+            }
+        });
         this._visibleDropdown = new UIDropdown(scene, popup);
 
         popup = new UIPopup(scene);
@@ -197,6 +213,7 @@ export default class InspectorView extends UIView {
         this._nameTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 self._focused.name = value;
+                self._focused._userData.drawOrder._labelText.text = value;
             }
         };
         this._nameTextField.Disable();
@@ -204,7 +221,9 @@ export default class InspectorView extends UIView {
         this._positionXTextField = new UITextBox(scene, "");
         this._positionXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                self._focused._userData.transform.x = NumerisizeString(value);
+                value = NumerisizeString(value);
+                self._focused._userData.transform.x = value;
+                self._positionXTextField.text = "" + value;
             }
         }
         this._positionXTextField.Disable();
@@ -212,7 +231,9 @@ export default class InspectorView extends UIView {
         this._positionYTextField = new UITextBox(scene, "");
         this._positionYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                self._focused._userData.transform.y = NumerisizeString(value);
+                value = NumerisizeString(value);
+                self._focused._userData.transform.y = value;
+                self._positionYTextField.text = "" + value;
             }
         }
         this._positionYTextField.Disable();
@@ -225,6 +246,7 @@ export default class InspectorView extends UIView {
                 while (value > 360) { value -= 360; }
                 if (value == 360) { value = 0; }
                 self._focused._userData.transform.degrees = value;
+                this._rotationTextField.text = "" + value;
             }
         }
         this._rotationTextField.Disable();
@@ -242,6 +264,7 @@ export default class InspectorView extends UIView {
                     self._focused._userData.transform.scaleY = value;
                     self._scaleYTextField.text = value;
                 }
+                self._scaleXTextField.text = "" + value;
             }
         }
         this._scaleYTextField.onTextEdit = (value) => {
@@ -250,8 +273,9 @@ export default class InspectorView extends UIView {
                 self._focused._userData.transform.scaleY = value;
                 if (self._doUniformScale) {
                     self._focused._userData.transform.scaleX = value;
-                    self._scaleXTextField.text = value;
+                    self._scaleXTextField.text = "" + value;
                 }
+                self._scaleYTextField.text = "" + value;
             }
         }
         this._frameXTextField = new UITextBox(scene, "");
@@ -262,6 +286,63 @@ export default class InspectorView extends UIView {
         this._pivotXTextField = new UITextBox(scene, "");
         this._pivotYTextField = new UITextBox(scene, "");
         this._tintButton = new UIColorButton(scene);
+
+        this._tintButton.onColorChanged = (rgb) => {
+            if (self._focused != null) {
+                self._focused._userData.sprite.color = rgb;
+                self._tintButton.color = rgb;
+            }
+        };
+
+        this._frameXTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.x = value;
+                self._frameXTextField.text = "" + value;
+            }
+        };
+        this._frameYTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.y = value;
+                self._frameYTextField.text = "" + value;
+            }
+        };
+        this._frameWTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.width = value;
+                self._frameWTextField.text = "" + value;
+            }
+        };
+        this._frameHTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.height = value;
+                self._frameHTextField.text = "" + value;
+            }
+        };
+        this._alphaTextField.onTextEdit  = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.alpha = value;
+                self._alphaTextField.text = "" + value;
+            }
+        };
+        this._pivotXTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.pivotX = value;
+                self._pivotXTextField.text = "" + value;
+            }
+        };
+        this._pivotYTextField.onTextEdit = (value) => {
+            if (self._focused != null) {
+                value = NumerisizeString(value);
+                self._focused._userData.sprite.pivotY = value;
+                self._pivotYTextField.text = "" + value;
+            }
+        };
 
         this._frameXTextField.Disable();
         this._frameYTextField.Disable();
@@ -335,6 +416,8 @@ export default class InspectorView extends UIView {
         y += margin * 0.5;
 
         this._spriteLabel.setPosition(x - margin, y);
+        this._drawIndexLabel.setPosition(x - margin + this._spriteLabel.width + skip, 
+                                         y + this._spriteLabel.height - this._drawIndexLabel.height);
         y = y + this._spriteLabel.height + skip;
 
         this._spriteSheetLabel.setPosition(x, y);
@@ -394,6 +477,7 @@ export default class InspectorView extends UIView {
         this._backgroundSprite.setActive(visible).setVisible(visible);
         this._transformLabel.setActive(visible).setVisible(visible);
         this._spriteLabel.setActive(visible).setVisible(visible);
+        this._drawIndexLabel.setActive(visible).setVisible(visible);
         this._nameLabel.setActive(visible).setVisible(visible);
         this._positionXLabel.setActive(visible).setVisible(visible);
         this._positionYLabel.setActive(visible).setVisible(visible);
@@ -438,6 +522,9 @@ export default class InspectorView extends UIView {
         let pivotX = "";
         let pivotY = "";
         let alpha = "";
+        let visible = "True";
+        let drawIndex = "";
+        let color = new ColorRGB(1, 1, 1);
 
         if (node != null) {
             if (node._userData == null) {
@@ -460,6 +547,11 @@ export default class InspectorView extends UIView {
             pivotX = "" + sprite.pivotX;
             pivotY = "" + sprite.pivotY;
             alpha = "" + sprite.alpha;
+            visible = sprite.visible? "True" : "False";
+            color = sprite.color;
+
+
+            drawIndex = "Draw index: " + sprite.sprite.depth;
 
             this._nameTextField.Enable();
             this._positionXTextField.Enable();
@@ -515,5 +607,9 @@ export default class InspectorView extends UIView {
         this._frameYTextField.text = frameY;
         this._frameWTextField.text = frameW;
         this._frameHTextField.text = frameH;
+        this._visibleDropdown.selected = visible;
+        this._tintButton.color = color;
+        
+        this._drawIndexLabel.text = drawIndex;
     }
 }

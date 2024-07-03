@@ -27,7 +27,7 @@ export default class HierarchyView extends UIView {
         this._active = valeu;
     }
 
-    constructor(scene, parent = null) {
+    constructor(scene, parent, drawOrderView) {
         super(scene, parent);
         const self = this;
 
@@ -45,7 +45,8 @@ export default class HierarchyView extends UIView {
         const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
             const hierarchyNode = self.AddNewNode();
             const transformNode = new XForm(hierarchyNode);
-            const spriteNode = new SpriteImg(hierarchyNode);
+            const spriteNode = new SpriteImg(hierarchyNode, drawOrderView);
+            hierarchyNode._userData.drawOrder = drawOrderView.Add(hierarchyNode.name);
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
             self.Delete();
@@ -63,6 +64,7 @@ export default class HierarchyView extends UIView {
             return;
         }
         const toRemove = this.active;
+        toRemove._userData.drawOrder.Destroy();
         this.Deselect();
         this._tree.Remove(toRemove);
     }

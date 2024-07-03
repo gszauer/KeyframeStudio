@@ -2,6 +2,7 @@ import UIGlobals from './UIGlobals.js'
 
 export default class UIListBoxItem {
     _scene = null;
+    _owner = null;
 
     visible = true;
 
@@ -13,18 +14,27 @@ export default class UIListBoxItem {
     _backgroundSprite = null;
     _labelText = null;
 
-    constructor(scene, text = "") {
-        this._scene = scene;
+    constructor(parentListBox, text = "") {
+        this._scene = parentListBox._scene;
+        this._owner = parentListBox;
 
-        this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._backgroundSprite = this._scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         this._backgroundSprite.setOrigin(0, 0);
 
-        this._labelText = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        this._labelText = this._scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
         this._labelText.setDepth(UIGlobals.WidgetLayer);
         this._labelText.setOrigin(0, 0);
         this._labelText.text = text;
         this._labelText.setTint(0);
+    }
+
+    Destroy() {
+        this._owner.Remove(this);
+        this._backgroundSprite.destroy();
+        this._backgroundSprite = null;
+        this._labelText.destroy();
+        this._labelText = null;
     }
 
     UpdateText(text = "") {

@@ -41,6 +41,10 @@ export default class UIColorPicker {
         return this._currentHsv.rgb;
     }
 
+    set rgb(value) {
+        this._currentHsv = value.hsv; 
+    }
+
     get color() {
         return this._currentHsv.color;
     }

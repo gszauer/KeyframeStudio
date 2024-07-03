@@ -33,7 +33,6 @@ export default class UIGlobals {
     static Layers = {
         // TODO: Move the below elements into this container
     };
-    static ContentLayer = 0;
     static WidgetLayer = 500;
     static OverlayLayer = 1000;
 

@@ -54,7 +54,7 @@ export default class UIPopup {
                     const bottom = top + sprite.scaleY;
 
                     if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                        console.log("Trigger callback for " + self._labels[i]);
+                        //console.log("Trigger callback for " + self._labels[i]);
                         if (self._uiOnPointerUp != null) {
                             self._uiOnPointerUp(self._labels[i]);
                         }
