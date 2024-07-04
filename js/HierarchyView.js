@@ -12,6 +12,10 @@ export default class HierarchyView extends UIView {
     _buttons = [];
     _active = null;
 
+    _drawOrderView = null;
+    _drawOrderToHiararchyNodeMap = null;
+
+
     onSelectionChanged = null; // (oldActive, newActive)
 
     get active() {
@@ -31,6 +35,10 @@ export default class HierarchyView extends UIView {
         super(scene, parent);
         const self = this;
 
+        drawOrderView._hierarchyView = this;
+        self._drawOrderView = drawOrderView;
+        this._drawOrderToHiararchyNodeMap = new Map();
+
         this._tree = new UITree(scene);
         this._tree.canReorder = false;
 
@@ -44,9 +52,7 @@ export default class HierarchyView extends UIView {
 
         const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
             const hierarchyNode = self.AddNewNode();
-            const transformNode = new XForm(hierarchyNode);
-            const spriteNode = new SpriteImg(hierarchyNode, drawOrderView);
-            hierarchyNode._userData.drawOrder = drawOrderView.Add(hierarchyNode.name);
+            
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
             self.Delete();
@@ -59,11 +65,17 @@ export default class HierarchyView extends UIView {
         this._buttons.push(deselectButton);
     }
 
+    UpdateSortingIndex(node, newDepth) {
+        this._drawOrderToHiararchyNodeMap.get(node)._userData.sprite.sprite.setDepth(newDepth);
+    }
+
     Delete() {
         if (this.active == null) {
             return;
         }
         const toRemove = this.active;
+
+        this._drawOrderToHiararchyNodeMap.delete(toRemove._userData.drawOrder);
         toRemove._userData.drawOrder.Destroy();
         this.Deselect();
         this._tree.Remove(toRemove);
@@ -88,6 +100,11 @@ export default class HierarchyView extends UIView {
         if (parent) {
             newNode.SetParent(parent);
         }
+
+        const transformNode = new XForm(newNode);
+        const spriteNode = new SpriteImg(newNode, this._drawOrderView);
+        newNode._userData.drawOrder = this._drawOrderView.Add(newNode.name);
+        this._drawOrderToHiararchyNodeMap.set(newNode._userData.drawOrder, newNode);
 
         this.Layout(this._x, this._y, this._width, this._height);
         return newNode;
