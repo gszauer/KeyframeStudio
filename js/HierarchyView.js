@@ -42,6 +42,12 @@ export default class HierarchyView extends UIView {
         this._tree = new UITree(scene);
         this._tree.canReorder = false;
 
+        this._tree.onRearranged = (targetNode) => {
+            self._tree.ForEach((node) => {
+                node._userData.transform.ApplyTransform(node._userData.sprite.sprite);
+            })
+        }
+
         this._tree.onSelected = (treeNode) => {
             self.active = treeNode;
         }
@@ -60,9 +66,9 @@ export default class HierarchyView extends UIView {
         const deselectButton = new UIImageButton(scene, "SmallIconDeselect.png", () => {
             self.Deselect();
         });
-        this._buttons.push(newNodeButton);
-        this._buttons.push(deleteNodeButton);
         this._buttons.push(deselectButton);
+        this._buttons.push(deleteNodeButton);
+        this._buttons.push(newNodeButton);
     }
 
     UpdateSortingIndex(node, newDepth) {
@@ -134,13 +140,13 @@ export default class HierarchyView extends UIView {
         this._footer.setPosition(x, y);
         this._footer.setScale(width, footerHeight);
 
-        let xPos = x + padding + (size / 2);
+        let xPos = x + width - padding - (size / 2);// x + padding + (size / 2);
         let yPos = y + margin + (size / 2);
 
         const length = this._buttons.length;
         for (let i = 0; i < length; ++i) {
             this._buttons[i].Layout(xPos, yPos, size, size);
-            xPos += (size + padding);
+            xPos -= (size + padding);
         }
     }
 

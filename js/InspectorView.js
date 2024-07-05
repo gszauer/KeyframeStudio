@@ -222,8 +222,9 @@ export default class InspectorView extends UIView {
         this._positionXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                self._focused._userData.transform.x = value;
+                self._focused._userData.transform.x = Number(value);
                 self._positionXTextField.text = "" + value;
+                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
             }
         }
         this._positionXTextField.Disable();
@@ -232,8 +233,9 @@ export default class InspectorView extends UIView {
         this._positionYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                self._focused._userData.transform.y = value;
+                self._focused._userData.transform.y = Number(value);
                 self._positionYTextField.text = "" + value;
+                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
             }
         }
         this._positionYTextField.Disable();
@@ -245,8 +247,9 @@ export default class InspectorView extends UIView {
                 while(value < 0) {  value += 360; }
                 while (value > 360) { value -= 360; }
                 if (value == 360) { value = 0; }
-                self._focused._userData.transform.degrees = value;
+                self._focused._userData.transform.degrees = Number(value);
                 this._rotationTextField.text = "" + value;
+                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
             }
         }
         this._rotationTextField.Disable();
@@ -259,23 +262,25 @@ export default class InspectorView extends UIView {
         this._scaleXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                self._focused._userData.transform.scaleX = value;
+                self._focused._userData.transform.scaleX = Number(value);
                 if (self._doUniformScale) {
-                    self._focused._userData.transform.scaleY = value;
+                    self._focused._userData.transform.scaleY = Number(value);
                     self._scaleYTextField.text = value;
                 }
                 self._scaleXTextField.text = "" + value;
+                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
             }
         }
         this._scaleYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                self._focused._userData.transform.scaleY = value;
+                self._focused._userData.transform.scaleY = Number(value);
                 if (self._doUniformScale) {
-                    self._focused._userData.transform.scaleX = value;
+                    self._focused._userData.transform.scaleX = Number(value);
                     self._scaleXTextField.text = "" + value;
                 }
                 self._scaleYTextField.text = "" + value;
+                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
             }
         }
         this._frameXTextField = new UITextBox(scene, "");
@@ -291,6 +296,8 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 self._focused._userData.sprite.color = rgb;
                 self._tintButton.color = rgb;
+                self._focused._userData.sprite.sprite.setTint(rgb.color);
+
             }
         };
 

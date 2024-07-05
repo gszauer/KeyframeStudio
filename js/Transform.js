@@ -106,6 +106,53 @@ export default class XForm {
     set degrees(valuue) {
         this.rotation = valuue * 0.0174533; 
     }
+
+    ApplyTransform(sprite) {
+        const worldTransform = {
+            x: 0, y: 0,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+
+        for (let iter = this; iter != null; iter = iter.parent) {
+            XForm.Mul(iter, worldTransform, worldTransform)
+        }
+
+        sprite.setPosition(worldTransform.x, worldTransform.y);
+        sprite.setRotation(worldTransform.rotation);
+        sprite.setScale(worldTransform.scaleX, worldTransform.scaleY);
+    }
+
+    static Mul(a /*parent*/, b /*transform*/, c /*out*/) {
+        const RotateClockwise = (_x, _y, radians) => {
+            const cs = Math.cos(radians);
+            const sn = Math.sin(radians);
+            
+            return {
+                x: _x * cs - _y * sn,
+                y: _x * sn + _y * cs
+            };
+        };
+
+        if (a == null) {
+            a = {
+                x: 0, y: 0,
+                rotation: 0,
+                scaleX: 1, scaleY: 1
+            };
+        }
+        c.scaleX = a.scaleX * b.scaleX;
+        c.scaleY = a.scaleY * b.scaleY;
+
+        c.rotation = a.rotation + b.rotation;
+
+        // parent scale times child position, rotated by parent rotation:
+        const rotated = RotateClockwise(a.scaleX * b.x, a.scaleY * b.y, a.rotation)
+        // combine positions
+        c.x = a.x + rotated.x;
+        c.y = a.y + rotated.y;
+
+    }
 }
 
 export class Mat3 {

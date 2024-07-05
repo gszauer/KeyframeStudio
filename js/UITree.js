@@ -670,4 +670,10 @@ export default class UITree {
         this._numButtons = total;
         return total;
     }
+
+    ForEach(callback) {
+        for(let i = 0; i < this._roots.length; ++i) {
+            this._roots[i].ForEach(callback);
+        }
+    }
 }
