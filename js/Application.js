@@ -10,6 +10,7 @@ import DrawOrderView from './DrawOrderView.js'
 import AnimationsView from './AnimationsView.js'
 import AssetsView from './AssetsView.js'
 import HierarchyView from './HierarchyView.js'
+import SceneView from './SceneView.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
 import XForm from './Transform.js'
 
@@ -62,7 +63,9 @@ export default class Application extends Phaser.Scene {
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font500, UIGlobals.Atlas, UIGlobals.Font500 + ".png", UIGlobals.Font500 + ".xml");
 
         self._toolBar = new UIToolBar(self);
-        self._toolBox = new UIToolBox(self);
+        self._toolBox = new UIToolBox(self, (btnName, btnObj) => {
+            self._toolBar.Activate(btnName);
+        });
 
         this._toolBox.AddTop(UIGlobals.IconMove, null);
         this._toolBox.AddTop(UIGlobals.IconRotate, null);
@@ -70,7 +73,7 @@ export default class Application extends Phaser.Scene {
         this._toolBox.AddTop("", null);
         this._toolBox.AddTop(UIGlobals.IconHand, null);
         this._toolBox.AddTop(UIGlobals.IconZoomIn, null);
-        this._toolBox.AddTop(UIGlobals.IconGrid, null);
+        //this._toolBox.AddTop(UIGlobals.IconGrid, null);
 
         this._toolBox.AddBottom("IconHelp.png", null);
         this._toolBox.AddBottom("IconDownload.png", null);
@@ -85,6 +88,12 @@ export default class Application extends Phaser.Scene {
         timelineSplitter.horizontal = false;
         timelineSplitter._distance = 280;
         timelineSplitter.pinTop = false;
+
+        const sceneView = timelineSplitter.a = new SceneView(this, timelineSplitter);
+        sceneView.CreateToolShelves(self._toolBar);
+
+        self._toolBar.Activate(UIGlobals.IconHand);
+        self._toolBox.SelectButton(UIGlobals.IconHand);
 
         const toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);
         toolSplitter.horizontal = false;

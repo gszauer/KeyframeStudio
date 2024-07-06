@@ -64,7 +64,7 @@ export default class UIToolBoxButton {
             let bottom = top + self._backgroundSprite.scaleY;
 
             if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
-                console.log("Toolbox Button:  " + self._iconName);
+                //console.log("Toolbox Button:  " + self._iconName);
                 if (self._callback != null) {
                     self._callback(self._iconName);
                 }
@@ -105,6 +105,9 @@ export default class UIToolBoxButton {
        const width = UIGlobals.Sizes.ToolboxButtonSize;
        const height = UIGlobals.Sizes.ToolboxButtonSize;
        const bordeer = UIGlobals.Sizes.ToolboxButtonDividerHeight;
+
+       x = Math.floor(x);
+       y = Math.floor(y);
 
        this._borderSprite.setPosition(x, y);
        this._borderSprite.setScale(width + bordeer, height + bordeer);

@@ -269,7 +269,7 @@ export default class UITextBox {
         this.UpdateColors();
     }
     
-    Layout(x, y, width = 0) {
+    Layout(x, y, width = 0, height_ /* doesn't matter*/ = 0) {
         const self = this;
         
         self._x = x;

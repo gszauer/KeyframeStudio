@@ -21,6 +21,16 @@ export default class UIToolBox {
     _selected = null;
     onToolChanged = null; // onToolChanged(buttonName, buttonObject)
 
+    SelectButton(name) {
+        this._selected = this._GetButtonByName(name);
+        const size = this._buttons.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._buttons[i] != null) {
+                this._buttons[i].UpdateColors();
+            }
+        }
+    }
+
     constructor(scene, _onToolChanged = null) {
         this._scene = scene;
         this.onToolChanged = _onToolChanged;
@@ -42,12 +52,11 @@ export default class UIToolBox {
                     if (self._buttons[i].HandlePointerUpEvent(pointer, currentlyOver)) {
                         const _iconName = self._buttons[i]._iconName;
                         self._selected = self._GetButtonByName(_iconName);
-                        console.log("Selected: " + _iconName);
                         if (self.onToolChanged != null) {
                             self.onToolChanged(_iconName, self._buttons[i]);
                         }
-                        // TODO: Trigger callback
                         reColor = true;
+                        break;
                     }
                 }
             }
@@ -60,9 +69,16 @@ export default class UIToolBox {
                 }
             }
             if (reColor) {
+                size = self._buttons.length;
                 for (let i = 0; i < size; ++i) {
                     if (self._buttons[i] != null) {
                         self._buttons[i].UpdateColors();
+                    }
+                }
+                size = self._actions.length;
+                for (let i = 0; i < size; ++i) {
+                    if (self._actions[i] != null) {
+                        self._actions[i].UpdateColors();
                     }
                 }
             }
@@ -121,7 +137,7 @@ export default class UIToolBox {
 
     Layout() {
         let x = this._x = 0;
-        let y = this._y = UIGlobals.Sizes.EditorBarHeight;
+        let y = this._y = 0;//UIGlobals.Sizes.EditorBarHeight;
         let width = this._width = UIGlobals.Sizes.ToolboxWidth;
         let height = this._height = this._scene.scale.height - y;
 

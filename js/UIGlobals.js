@@ -61,7 +61,7 @@ export default class UIGlobals {
         ToolboxButtonSize: 28,
         ToolboxButtonIconSize: 20,
         ToolboxButtonPadding: 8,
-        ToolboxButtonDividerHeight: 2,
+        ToolboxButtonDividerHeight: 4,
         SplitViewSplitterSize: 3,
         TabHeight: 30,
         TabBorderSize: 2,
@@ -88,6 +88,11 @@ export default class UIGlobals {
         TreeFooterMargin: 4,
         ImageButtonBorderSize: 2,
         ImageButtonMarginSize: 3,
+
+        ToolBarShelfIndent: 45,
+        ToolBarShelfTextTopOffset: 10,
+        ToolBarShelfItemsGap: 6,
+        ToolBarShelfTextBoxWidth: 75,
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette
