@@ -63,22 +63,8 @@ export default class Application extends Phaser.Scene {
         Phaser.GameObjects.BitmapText.ParseFromAtlas(self, UIGlobals.Font500, UIGlobals.Atlas, UIGlobals.Font500 + ".png", UIGlobals.Font500 + ".xml");
 
         self._toolBar = new UIToolBar(self);
-        self._toolBox = new UIToolBox(self, (btnName, btnObj) => {
-            self._toolBar.Activate(btnName);
-        });
-
-        this._toolBox.AddTop(UIGlobals.IconMove, null);
-        this._toolBox.AddTop(UIGlobals.IconRotate, null);
-        this._toolBox.AddTop(UIGlobals.IconScale, null);
-        this._toolBox.AddTop("", null);
-        this._toolBox.AddTop(UIGlobals.IconHand, null);
-        this._toolBox.AddTop(UIGlobals.IconZoomIn, null);
-        //this._toolBox.AddTop(UIGlobals.IconGrid, null);
-
-        this._toolBox.AddBottom("IconHelp.png", null);
-        this._toolBox.AddBottom("IconDownload.png", null);
-        this._toolBox.AddBottom("IconUpload.png", null);
-        this._toolBox.AddBottom("IconNew.png", null);
+        
+        
 
         this._mainSplitter = new UISplitView(this, null);
         this._mainSplitter._distance = 300;
@@ -92,7 +78,24 @@ export default class Application extends Phaser.Scene {
         const sceneView = timelineSplitter.a = new SceneView(this, timelineSplitter);
         sceneView.CreateToolShelves(self._toolBar);
 
-        self._toolBar.Activate(UIGlobals.IconHand);
+        self._toolBox = new UIToolBox(self, (btnName, btnObj) => {
+            sceneView.activeShelf = self._toolBar.Activate(btnName);
+            self._toolBar.Layout();
+            sceneView.Layout();
+        });
+
+        this._toolBox.AddTop(UIGlobals.IconMove, null);
+        this._toolBox.AddTop(UIGlobals.IconRotate, null);
+        this._toolBox.AddTop(UIGlobals.IconScale, null);
+        this._toolBox.AddTop("", null);
+        this._toolBox.AddTop(UIGlobals.IconHand, null);
+        this._toolBox.AddTop(UIGlobals.IconZoomIn, null);
+        this._toolBox.AddBottom("IconHelp.png", null);
+        this._toolBox.AddBottom("IconDownload.png", null);
+        this._toolBox.AddBottom("IconUpload.png", null);
+        this._toolBox.AddBottom("IconNew.png", null);
+
+        sceneView.activeShelf = self._toolBar.Activate(UIGlobals.IconHand);
         self._toolBox.SelectButton(UIGlobals.IconHand);
 
         const toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);

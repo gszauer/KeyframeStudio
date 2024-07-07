@@ -31,19 +31,20 @@ export default class UIToolBar {
     Layout() {
         const self = this;
        
-        self._width = self._scene.scale.width;
+        self._width = self._scene.scale.width - UIGlobals.Sizes.ToolboxWidth;
         self._height = UIGlobals.Sizes.EditorBarHeight;
         self._x = UIGlobals.Sizes.ToolboxWidth;
         self._y = 0;
 
-        self._seperatorSprite.setTint(UIGlobals.Colors.BorderDecorative);
-        self._seperatorSprite.setPosition(self._x, self._y);
-        self._seperatorSprite.setScale(self._width, self._height);
+        const seperatorHeight = UIGlobals.Sizes.EditorBarSeperatorHeight;
 
-        const half = UIGlobals.Sizes.EditorBarSeperatorHeight;
+        self._seperatorSprite.setTint(UIGlobals.Colors.BorderDecorative);
+        self._seperatorSprite.setPosition(self._x, self._y + self._height - seperatorHeight - 2);
+        self._seperatorSprite.setScale(self._width, seperatorHeight + 2);
+
         self._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
-        self._backgroundSprite.setPosition(self._x, self._y + half);
-        self._backgroundSprite.setScale(self._width, self._height - half * 2);
+        self._backgroundSprite.setPosition(self._x, self._y);
+        self._backgroundSprite.setScale(self._width, self._height - seperatorHeight);
 
         if (this._active != null) {
             this._active.Layout(self._x, 0, self._width, self._height);
@@ -69,5 +70,7 @@ export default class UIToolBar {
             this._active.Show();
             this._active.Layout(0, 0, this._width, this._height);
         }
+
+        return  this._active;
     }
 }

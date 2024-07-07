@@ -89,8 +89,8 @@ export default class UIGlobals {
         ImageButtonBorderSize: 2,
         ImageButtonMarginSize: 3,
 
-        ToolBarShelfIndent: 45,
-        ToolBarShelfTextTopOffset: 10,
+        ToolBarShelfIndent: 10,
+        ToolBarShelfTextTopOffset: 6,
         ToolBarShelfItemsGap: 6,
         ToolBarShelfTextBoxWidth: 75,
     };

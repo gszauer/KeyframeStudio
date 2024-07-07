@@ -7,6 +7,7 @@ import UIPopup from './UIPopup.js'
 
 export default class SceneView extends UIView {
     _cameraTransform = null;
+    _input = null;
     
     onViewChanged = null;
     mask = null;
@@ -15,12 +16,25 @@ export default class SceneView extends UIView {
     _lines = [];
     static _numLines = 20;
 
+    activeShelf = null;
+
     constructor(scene, parent) {
         super(scene, parent);
         const self = this;
 
         this._maskRect = scene.add.rectangle(0, 0, 100, 100, 0x000000).setVisible(false).setOrigin(0, 0);
         const mask = this.mask = this._maskRect.createGeometryMask();
+
+        this._input = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._input.setDepth(UIGlobals.WidgetLayer);
+        this._input.setOrigin(0, 0);
+        this._input.setTint(UIGlobals.Colors.BackgroundLayer0);
+
+        this._cameraTransform = {
+            x: 0, y: 0,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
 
         const numLines = SceneView._numLines;
         for (let i = 0; i < numLines; ++i) {
@@ -36,6 +50,28 @@ export default class SceneView extends UIView {
             line2.setMask(mask);
             this._lines.push(line2);
         }
+
+        this._input.setInteractive();
+        scene.input.setDraggable(this._input);
+
+        scene.input.on('dragstart', (pointer, gameObject) => {
+            if (gameObject != self._input) { return; }
+            if (self.activeShelf != null) {
+                self.activeShelf.DragStart(pointer);
+            }
+        });
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject != self._input) { return; }
+            if (self.activeShelf != null) {
+                self.activeShelf.Drag(pointer, dragX, dragY);
+            }
+        });
+        scene.input.on('dragend', (pointer, gameObject) => {
+            if (gameObject != self._input) { return; }
+            if (self.activeShelf != null) {
+                self.activeShelf.DragEnd(pointer);
+            }
+        });
 
         this.UpdateColors();
     }
@@ -54,9 +90,16 @@ export default class SceneView extends UIView {
     }
     
     Layout(x, y, width, height) {
+        if (x === undefined) { x = this._x; }
+        if (y === undefined) { y = this._y; }
+        if (width === undefined) { width = this._width; }
+        if (height === undefined) { height = this._height; }
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
+
+        this._input.setPosition(x, y);
+        this._input.setScale(width, height);
 
         this._maskRect.setPosition(x, y);
         this._maskRect.setSize(width, height)
@@ -69,9 +112,11 @@ export default class SceneView extends UIView {
         for (let i = 0; i < numLines; ++i) {
             let _x = i * spacing - ((numLines / 2) * spacing);
             _x += x + width / 2;
+            _x += this._cameraTransform.x;
 
             let _y = i * spacing - ((numLines / 2) * spacing);
             _y += y + height / 2;
+            _y += this._cameraTransform.y;
 
             this._lines[i * 2 + 0].setPosition(_x, 0);
             this._lines[i * 2 + 0].setScale(gridLineSize, numLines * spacing);
@@ -86,7 +131,11 @@ export default class SceneView extends UIView {
     }
 
     SetVisibility(value) {
-
+        const numLines = SceneView._numLines;
+        for (let i = 0; i < numLines; ++i) {
+            this._lines[i * 2 + 0].setActive(value).setVisible(value);
+            this._lines[i * 2 + 1].setActive(value).setVisible(value);
+        }
     }
 
     Hide() {
@@ -98,13 +147,14 @@ export default class SceneView extends UIView {
     }
 
     CreateToolShelves(toolbar) {
-        const pan = new PanShelf(this._scene, toolbar);
+        const pan = new PanShelf(this._scene, toolbar, this);
         toolbar.AddShelf(UIGlobals.IconHand, pan);
         toolbar.AddShelf(UIGlobals.IconZoomIn, pan);
     }
 }
 
 export class PanShelf extends UIToolBarShelf {
+    _sceneView = null;
     _viewportXLabel = null;
     _viewportXInput = null;
 
@@ -117,9 +167,13 @@ export class PanShelf extends UIToolBarShelf {
     _gridLabel = null;
     _gridInput = null;
 
-    constructor(scene, toolbar) {
+    _cameraStart = null;
+    _dragStart = null; // Pointer
+
+    constructor(scene, toolbar, sceneView) {
         super(scene);
         const self = this;
+        this._sceneView = sceneView;
 
         const NumerisizeString = (str) => {
             let result = "";
@@ -142,6 +196,9 @@ export class PanShelf extends UIToolBarShelf {
             return result;
         }
 
+        this._dragStart = {x: 0,  y: 0, scale: 1};
+        this._cameraStart = { x: 0, y: 0, scale: 1 };
+
         const viewportXLabel = this._viewportXLabel = 
             scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
         viewportXLabel.setDepth(UIGlobals.WidgetLayer);
@@ -149,7 +206,8 @@ export class PanShelf extends UIToolBarShelf {
 
         const viewPortXInput = this._viewportXInput = new UITextBox(scene, "0");
         viewPortXInput.onTextEdit = (value) => {
-            // TODO
+            self._sceneView._cameraTransform.x = Number(NumerisizeString(value));
+            self._sceneView.Layout();
         };
 
         const viewportYLabel = this._viewportYLabel = 
@@ -159,7 +217,8 @@ export class PanShelf extends UIToolBarShelf {
 
         const viewPortYInput = this._viewportYInput = new UITextBox(scene, "0");
         viewPortYInput.onTextEdit = (value) => {
-            // TODO
+            self._sceneView._cameraTransform.y = Number(NumerisizeString(value));
+            self._sceneView.Layout();
         };
 
         const zoomLabel = this._zoomLabel = 
@@ -178,8 +237,12 @@ export class PanShelf extends UIToolBarShelf {
         gridLabel.text = "     grid";
 
         let popup = new UIPopup(scene);
-        popup.Add("Show");
-        popup.Add("Hide");
+        popup.Add("Show", () => {
+            sceneView.Show();
+        });
+        popup.Add("Hide", () => {
+            sceneView.Hide();
+        });
 
         const gridInput = this._gridInput = new UIDropdown(scene, popup);
     }
@@ -234,5 +297,69 @@ export class PanShelf extends UIToolBarShelf {
 
         this._gridInput.Layout(x, y, textBoxWidth);
         x += textBoxWidth + itemGap;
+    }
+
+    DragStart(pointer) {
+        this._dragStart.x = pointer.worldX;
+        this._dragStart.y = pointer.worldY;
+
+        //const cameraTransform = _cameraTransform;
+        this._cameraStart.x = this._sceneView._cameraTransform.x;
+        this._cameraStart.y = this._sceneView._cameraTransform.y;
+    }
+
+    Drag(pointer, dragX, dragY) {
+        const deltaX = pointer.worldX - this._dragStart.x;
+        const deltaY = pointer.worldY - this._dragStart.y;
+
+        this._sceneView._cameraTransform.x = this._cameraStart.x + deltaX;
+        this._sceneView._cameraTransform.y = this._cameraStart.y + deltaY;
+
+        const truncateFloat = (str, digits) => {
+            let re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+                m = str.toString().match(re);
+            return m ? parseFloat(m[1]) : str.valueOf();
+        };
+
+        this._viewportXInput.text = "" + truncateFloat(this._sceneView._cameraTransform.x, 3);
+        this._viewportYInput.text = "" + truncateFloat(this._sceneView._cameraTransform.y, 3);
+
+        this._sceneView.Layout();
+    }
+
+    DragEnd(pointer) {
+
+    }
+}
+
+export class ZoomShelf extends PanShelf {
+    DragStart(pointer) {
+        this._dragStart.x = pointer.worldX;
+        this._dragStart.y = pointer.worldY;
+
+        this._cameraStart.scale = this._sceneView._cameraTransform.scaleX;
+    }
+
+    Drag(pointer, dragX, dragY) {
+        const deltaX = pointer.worldX - this._dragStart.x;
+        const deltaY = pointer.worldY - this._dragStart.y;
+
+        //this._sceneView._cameraTransform.x = this._cameraStart.x + deltaX;
+        //this._sceneView._cameraTransform.y = this._cameraStart.y + deltaY;
+
+        const truncateFloat = (str, digits) => {
+            let re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+                m = str.toString().match(re);
+            return m ? parseFloat(m[1]) : str.valueOf();
+        };
+
+        this._viewportXInput.text = "" + truncateFloat(this._sceneView._cameraTransform.x, 3);
+        this._viewportYInput.text = "" + truncateFloat(this._sceneView._cameraTransform.y, 3);
+
+        this._sceneView.Layout();
+    }
+
+    DragEnd(pointer) {
+
     }
 }
