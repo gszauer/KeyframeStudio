@@ -119,10 +119,7 @@ export default class XForm {
             XForm.Mul(iter, worldTransform, worldTransform)
         }
 
-        const uiOffsetX = UIGlobals.Sizes.ToolboxWidth;
-        const uiOffsetY = UIGlobals.Sizes.EditorBarHeight;
-
-        sprite.setPosition(worldTransform.x + uiOffsetX, worldTransform.y + uiOffsetY);
+        sprite.setPosition(worldTransform.x, worldTransform.y);
         sprite.setRotation(worldTransform.rotation);
         sprite.setScale(worldTransform.scaleX, worldTransform.scaleY);
     }

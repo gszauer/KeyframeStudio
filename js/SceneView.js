@@ -111,12 +111,18 @@ export default class SceneView extends UIView {
         const numLines = SceneView._numLines;
         for (let i = 0; i < numLines; ++i) {
             let _x = i * spacing - ((numLines / 2) * spacing);
-            _x += x + width / 2;
+            
+            _x *= this._cameraTransform.scaleX;
             _x += this._cameraTransform.x;
+            
+            _x += x + width / 2;
 
             let _y = i * spacing - ((numLines / 2) * spacing);
-            _y += y + height / 2;
+            
+            _y *= this._cameraTransform.scaleY;
             _y += this._cameraTransform.y;
+            
+            _y += y + height / 2;
 
             this._lines[i * 2 + 0].setPosition(_x, 0);
             this._lines[i * 2 + 0].setScale(gridLineSize, numLines * spacing);
@@ -149,7 +155,8 @@ export default class SceneView extends UIView {
     CreateToolShelves(toolbar) {
         const pan = new PanShelf(this._scene, toolbar, this);
         toolbar.AddShelf(UIGlobals.IconHand, pan);
-        toolbar.AddShelf(UIGlobals.IconZoomIn, pan);
+        const zoom = new ZoomShelf(this._scene, toolbar, this);
+        toolbar.AddShelf(UIGlobals.IconZoomIn, zoom);
     }
 }
 
@@ -196,8 +203,8 @@ export class PanShelf extends UIToolBarShelf {
             return result;
         }
 
-        this._dragStart = {x: 0,  y: 0, scale: 1};
-        this._cameraStart = { x: 0, y: 0, scale: 1 };
+        this._dragStart = {x: 0,  y: 0, scaleX: 1, scaleY: 1};
+        this._cameraStart = { x: 0, y: 0, scaleX: 1, scaleY: 1 };
 
         const viewportXLabel = this._viewportXLabel = 
             scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
@@ -228,7 +235,10 @@ export class PanShelf extends UIToolBarShelf {
 
         const zoomInput = this._zoomInput = new UITextBox(scene, "0");
         zoomInput.onTextEdit = (value) => {
-            // TODO
+            const scale = Number(NumerisizeString(value))
+            self._sceneView._cameraTransform.scaleX = scale;
+            self._sceneView._cameraTransform.scaleY = scale;
+            self._sceneView.Layout();
         };
 
         const gridLabel = this._gridLabel = 
@@ -260,6 +270,18 @@ export class PanShelf extends UIToolBarShelf {
         this._zoomInput.SetVisibility(value);
         this._gridLabel.setActive(value).setVisible(value);
         this._gridInput.SetVisibility(value);
+
+        const truncateFloat = (str, digits) => {
+            let re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+                m = str.toString().match(re);
+            return m ? parseFloat(m[1]) : str.valueOf();
+        };
+
+        if (value) {
+            this._viewportXInput.text = truncateFloat("" + this._sceneView._cameraTransform.x, 3);
+            this._viewportYInput.text = truncateFloat("" + this._sceneView._cameraTransform.y, 3);
+            this._zoomInput.text = truncateFloat("" + this._sceneView._cameraTransform.scaleY, 3);
+        }
     }
 
     Layout(x, y, width, height) {
@@ -303,9 +325,10 @@ export class PanShelf extends UIToolBarShelf {
         this._dragStart.x = pointer.worldX;
         this._dragStart.y = pointer.worldY;
 
-        //const cameraTransform = _cameraTransform;
         this._cameraStart.x = this._sceneView._cameraTransform.x;
         this._cameraStart.y = this._sceneView._cameraTransform.y;
+        this._cameraStart.scaleX = this._sceneView._cameraTransform.scaleX;
+        this._cameraStart.scaleY = this._sceneView._cameraTransform.scaleY;
     }
 
     Drag(pointer, dragX, dragY) {
@@ -321,8 +344,10 @@ export class PanShelf extends UIToolBarShelf {
             return m ? parseFloat(m[1]) : str.valueOf();
         };
 
-        this._viewportXInput.text = "" + truncateFloat(this._sceneView._cameraTransform.x, 3);
-        this._viewportYInput.text = "" + truncateFloat(this._sceneView._cameraTransform.y, 3);
+        const scaleY = this._cameraStart.scaleY + deltaY;
+        this._zoomInput.text = + truncateFloat("" + scaleY, 3);
+        this._viewportXInput.text = truncateFloat("" + this._sceneView._cameraTransform.x, 3);
+        this._viewportYInput.text = truncateFloat("" + this._sceneView._cameraTransform.y, 3);
 
         this._sceneView.Layout();
     }
@@ -337,24 +362,34 @@ export class ZoomShelf extends PanShelf {
         this._dragStart.x = pointer.worldX;
         this._dragStart.y = pointer.worldY;
 
-        this._cameraStart.scale = this._sceneView._cameraTransform.scaleX;
+        this._cameraStart.x = this._sceneView._cameraTransform.x;// * this._sceneView._cameraTransform.scaleX;
+        this._cameraStart.y = this._sceneView._cameraTransform.y;// * this._sceneView._cameraTransform.scaleY;
+        this._cameraStart.scaleX = this._sceneView._cameraTransform.scaleX;
+        this._cameraStart.scaleY = this._sceneView._cameraTransform.scaleY;
     }
 
     Drag(pointer, dragX, dragY) {
-        const deltaX = pointer.worldX - this._dragStart.x;
-        const deltaY = pointer.worldY - this._dragStart.y;
+        const deltaX = (pointer.worldX - this._dragStart.x) * 0.01;
+        const deltaY = (pointer.worldY - this._dragStart.y) * 0.01;
+        
+        const scaleX = Math.abs(this._cameraStart.scaleX + deltaX);
+        const scaleY = Math.abs(this._cameraStart.scaleY + deltaY);
 
-        //this._sceneView._cameraTransform.x = this._cameraStart.x + deltaX;
-        //this._sceneView._cameraTransform.y = this._cameraStart.y + deltaY;
+        this._sceneView._cameraTransform.scaleX = scaleY;
+        this._sceneView._cameraTransform.scaleY = scaleY;
 
+        //this._sceneView._cameraTransform.x = this._cameraStart.x + (this._cameraStart.x * scaleY - this._cameraStart.x);
+        //this._sceneView._cameraTransform.y = this._cameraStart.y + (this._cameraStart.y * scaleY - this._cameraStart.y);
+ 
         const truncateFloat = (str, digits) => {
             let re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
                 m = str.toString().match(re);
             return m ? parseFloat(m[1]) : str.valueOf();
         };
 
-        this._viewportXInput.text = "" + truncateFloat(this._sceneView._cameraTransform.x, 3);
-        this._viewportYInput.text = "" + truncateFloat(this._sceneView._cameraTransform.y, 3);
+        this._zoomInput.text = + truncateFloat("" + scaleY, 3);
+        this._viewportXInput.text = truncateFloat("" + this._sceneView._cameraTransform.x, 3);
+        this._viewportYInput.text = truncateFloat("" + this._sceneView._cameraTransform.y, 3);
 
         this._sceneView.Layout();
     }
