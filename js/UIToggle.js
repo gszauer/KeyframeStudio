@@ -12,6 +12,7 @@ export default class UIToggle {
     _check1 = null;
     _check2 = null;
     onToggle = null; // arguments: bool value, UIToggle this
+    _visible = true;
 
     constructor(scene, text="", _onToggle = null) {
         this._scene = scene;
@@ -105,8 +106,8 @@ export default class UIToggle {
         self._check1.setTint(borderTint);
         self._check2.setTint(borderTint); 
 
-        this._check1.setActive(self._state).setVisible(self._state);
-        this._check2.setActive(self._state).setVisible(self._state);
+        this._check1.setActive(this._visible && self._state).setVisible(this._visible && self._state);
+        this._check2.setActive(this._visible && self._state).setVisible(this._visible && self._state);
     }
 
     Layout(x, y) {
@@ -137,5 +138,28 @@ export default class UIToggle {
         self._width = width + UIGlobals.Sizes.CheckboxMargin + self._text.width;
 
         self.UpdateColors();
+    }
+
+    SetVisibility(value) {
+        this._visible = value;
+        this._background.setActive(value).setVisible(value);
+        this._border.setActive(value).setVisible(value);
+        this._check1.setActive(value).setVisible(value);
+        this._check2.setActive(value).setVisible(value);
+        this._text.setActive(value).setVisible(value);
+    }
+
+    Hide() {
+        if (this._visible) {
+            this.SetVisibility(false);
+            this._visible = false;
+        }
+    }
+
+    Show() {
+        if (!this._visible) {
+            this.SetVisibility(true);
+            this._visible = true;
+        }
     }
 }

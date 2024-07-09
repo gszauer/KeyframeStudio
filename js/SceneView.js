@@ -4,6 +4,7 @@ import UIToolBarShelf  from './UIToolBarShelf.js';
 import UITextBox from './UITextBox.js'
 import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
+import UIToggle from './UIToggle.js'
 
 export default class SceneView extends UIView {
     _cameraTransform = null;
@@ -30,7 +31,7 @@ export default class SceneView extends UIView {
         const mask = this.mask = this._maskRect.createGeometryMask();
 
         this._input = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this._input.setDepth(UIGlobals.WidgetLayer);
+        this._input.setDepth(-500);
         this._input.setOrigin(0, 0);
         this._input.setTint(UIGlobals.Colors.BackgroundLayer0);
 
@@ -166,6 +167,9 @@ export default class SceneView extends UIView {
     }
 
     CreateToolShelves(toolbar) {
+        const move = new MoveShelf(this._scene, this);
+        toolbar.AddShelf(UIGlobals.IconMove, move);
+
         const pan = new PanShelf(this._scene, toolbar, this);
         toolbar.AddShelf(UIGlobals.IconHand, pan);
         const zoom = new ZoomShelf(this._scene, toolbar, this);
@@ -244,7 +248,7 @@ export class PanShelf extends UIToolBarShelf {
         const zoomLabel = this._zoomLabel = 
             scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
         zoomLabel.setDepth(UIGlobals.WidgetLayer);
-        zoomLabel.text = "     zoom";
+        zoomLabel.text = "     Zoom";
 
         const zoomInput = this._zoomInput = new UITextBox(scene, "0");
         zoomInput.onTextEdit = (value) => {
@@ -256,7 +260,7 @@ export class PanShelf extends UIToolBarShelf {
 
         const gridLabel = this._gridLabel =  scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
         gridLabel.setDepth(UIGlobals.WidgetLayer);
-        gridLabel.text = "     grid";
+        gridLabel.text = "     Grid";
 
         let popup = new UIPopup(scene);
         popup.Add("Show", () => {
@@ -407,5 +411,146 @@ export class ZoomShelf extends PanShelf {
 
     DragEnd(pointer) {
 
+    }
+}
+
+export class MoveShelf extends UIToolBarShelf {
+    _sceneView = null;
+
+    _spaceLabel = null;
+    _spaceDropdown = null;
+
+    _snapLabel = null;
+    _snapCheckbox = null;
+    _snapTextField = null;
+
+    _selectLabel = null;
+    _selectCheckbox = null;
+
+    _useLocalSpace = true;
+    _selectOnClick = false;
+    _snapStepSize = 10;
+
+
+    constructor(scene, sceneView) {
+        super(scene);
+        const self = this;
+        this._sceneView = sceneView;
+
+        const NumerisizeString = (str) => {
+            let result = "";
+            if (str[0] == '-') {
+                result += '-';
+            }
+            let period = false;
+            for (let i = 0, length = str.length; i < length; ++i) {
+                if (str[i] >= '0' && str[i] <= '9') {
+                    result += str[i];
+                }
+                if (str[i] == '.' && !period) {
+                    result += '.';
+                    period = true;
+                }
+            }
+            if (result == "") {
+                result = '0';
+            }
+            return result;
+        }
+
+        this._spaceLabel = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        this._spaceLabel.setDepth(UIGlobals.WidgetLayer);
+        this._spaceLabel.text = "Space: ";
+
+        let popup = new UIPopup(scene);
+        popup.Add("Local", () => {
+            self._useLocalSpace = true;
+            // TODO
+        });
+        popup.Add("World", () => {
+            self._useLocalSpace = false;
+            // TODO
+        });
+        this._spaceDropdown = new UIDropdown(scene, popup);
+
+        this._snapLabel = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        this._snapLabel.setDepth(UIGlobals.WidgetLayer);
+        this._snapLabel.text = "     Snap:";
+
+        this._snapCheckbox = new UIToggle(scene, "", (valueBol, uiToggleObject) => {
+            // TODO
+        });
+
+        this._snapTextField = new UITextBox(scene, "" + this._snapStepSize);
+        this._snapTextField.onTextEdit = (value) => {
+            self._snapStepSize = Number(NumerisizeString(value));
+            // TODO
+        };
+
+        this._selectLabel = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        this._selectLabel.setDepth(UIGlobals.WidgetLayer);
+        this._selectLabel.text = "     Auto select:";
+
+        this._selectCheckbox = new UIToggle(scene, "", (valueBol, uiToggleObject) => {
+            // TODO
+        });
+    }
+
+    SetVisibility(value) {
+        super.SetVisibility(value);
+
+        this._spaceLabel.setActive(value).setVisible(value);
+        this._spaceDropdown.SetVisibility(value);
+        this._snapLabel.setActive(value).setVisible(value);
+        this._snapCheckbox.SetVisibility(value);
+        this._snapTextField.SetVisibility(value);
+        this._selectLabel.setActive(value).setVisible(value);
+        this._selectCheckbox.SetVisibility(value);
+    }
+
+    UpdateColors() {
+        super.UpdateColors();
+    }
+
+    Layout(x, y, width, height) {
+        super.Layout(x, y, width, height);
+
+        if (x === undefined) { x = this._x; }
+        if (y === undefined) { y = this._y; }
+        if (width === undefined) { width = this._width; }
+        if (height === undefined) { height = this._height; }
+
+        if (width < 0) { width = 0; }
+        if (height < 0) { height = 0; }
+
+        this._x = x;
+        this._y = y;
+        this._width = width;
+        this._height = height;
+
+        x += UIGlobals.Sizes.ToolBarShelfIndent;
+        y += UIGlobals.Sizes.ToolBarShelfTextTopOffset
+        const itemGap = UIGlobals.Sizes.ToolBarShelfItemsGap;
+
+
+        this._spaceLabel.setPosition(x, y);
+        x += this._spaceLabel.width + itemGap;
+
+        this._spaceDropdown.Layout(x, y, 90);
+        x += this._spaceDropdown._width + itemGap;
+
+        this._snapLabel.setPosition(x, y);
+        x += this._snapLabel.width + itemGap;
+
+        this._snapCheckbox.Layout(x, y + 2);
+        x += this._snapCheckbox._width + itemGap;
+
+        this._snapTextField.Layout(x, y, 75);
+        x += this._snapTextField._width + itemGap;
+
+        this._selectLabel.setPosition(x, y);
+        x += this._selectLabel.width + itemGap;
+
+        this._selectCheckbox.Layout(x, y + 2);
     }
 }
