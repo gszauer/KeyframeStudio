@@ -14,9 +14,13 @@ export default class SceneView extends UIView {
 
     _maskRect = null;
     _lines = [];
-    static _numLines = 20;
+    static _numLines = 40;    // was 20
+    static _lineSizing = 100; // was 200
 
     activeShelf = null;
+
+    _hierarchyView = null;
+    _recenter = true;
 
     constructor(scene, parent) {
         super(scene, parent);
@@ -88,7 +92,7 @@ export default class SceneView extends UIView {
         this._lines[centerIndex * 2 + 0].setTint(UIGlobals.Colors.Dark.Gray100);
         this._lines[centerIndex * 2 + 1].setTint(UIGlobals.Colors.Dark.Gray100);
     }
-    
+
     Layout(x, y, width, height) {
         if (x === undefined) { x = this._x; }
         if (y === undefined) { y = this._y; }
@@ -98,15 +102,24 @@ export default class SceneView extends UIView {
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
 
+        if (this._recenter) {
+            this._cameraTransform.x = width / 2;
+            this._cameraTransform.y = height / 2;
+            this._recenter = false;
+        }
+
         this._input.setPosition(x, y);
         this._input.setScale(width, height);
 
         this._maskRect.setPosition(x, y);
         this._maskRect.setSize(width, height)
 
-        const spacing = 200;
+        const spacing = SceneView._lineSizing;
         const gridLineSize = 2;
         const highlightedGridLineSize = 4;
+
+        const globalXOffset = UIGlobals.Sizes.ToolboxWidth;
+        const globalYOffset = UIGlobals.Sizes.EditorBarHeight;
 
         const numLines = SceneView._numLines;
         for (let i = 0; i < numLines; ++i) {
@@ -114,15 +127,13 @@ export default class SceneView extends UIView {
             
             _x *= this._cameraTransform.scaleX;
             _x += this._cameraTransform.x;
-            
-            _x += x + width / 2;
+            _x += globalXOffset;
 
             let _y = i * spacing - ((numLines / 2) * spacing);
             
             _y *= this._cameraTransform.scaleY;
             _y += this._cameraTransform.y;
-            
-            _y += y + height / 2;
+            _y += globalYOffset;
 
             this._lines[i * 2 + 0].setPosition(_x, 0);
             this._lines[i * 2 + 0].setScale(gridLineSize, numLines * spacing);
@@ -134,6 +145,8 @@ export default class SceneView extends UIView {
         const centerIndex = Math.floor(numLines / 2);
         this._lines[centerIndex * 2 + 0].setScale(highlightedGridLineSize, numLines * spacing);
         this._lines[centerIndex * 2 + 1].setScale(numLines * spacing, highlightedGridLineSize);
+
+        this._hierarchyView._UpdateTransforms();
     }
 
     SetVisibility(value) {
@@ -241,8 +254,7 @@ export class PanShelf extends UIToolBarShelf {
             self._sceneView.Layout();
         };
 
-        const gridLabel = this._gridLabel = 
-            scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        const gridLabel = this._gridLabel =  scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
         gridLabel.setDepth(UIGlobals.WidgetLayer);
         gridLabel.text = "     grid";
 
@@ -344,8 +356,7 @@ export class PanShelf extends UIToolBarShelf {
             return m ? parseFloat(m[1]) : str.valueOf();
         };
 
-        const scaleY = this._cameraStart.scaleY + deltaY;
-        this._zoomInput.text = + truncateFloat("" + scaleY, 3);
+        this._zoomInput.text = + truncateFloat("" + this._cameraStart.scaleY, 3);
         this._viewportXInput.text = truncateFloat("" + this._sceneView._cameraTransform.x, 3);
         this._viewportYInput.text = truncateFloat("" + this._sceneView._cameraTransform.y, 3);
 

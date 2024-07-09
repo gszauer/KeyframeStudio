@@ -14,26 +14,15 @@ export default class HierarchyView extends UIView {
 
     _drawOrderView = null;
     _drawOrderToHiararchyNodeMap = null;
+    _sceneView = null;
 
 
     onSelectionChanged = null; // (oldActive, newActive)
 
-    get active() {
-        return this._active;
-    }
-
-    set active(valeu) {
-        if (this._active != valeu) {
-            if (this.onSelectionChanged != null) {
-                this.onSelectionChanged(this._active, valeu);
-            }
-        }
-        this._active = valeu;
-    }
-
-    constructor(scene, parent, drawOrderView) {
+    constructor(scene, parent, drawOrderView, sceneView) {
         super(scene, parent);
         const self = this;
+        this._sceneView = sceneView;
 
         drawOrderView._hierarchyView = this;
         self._drawOrderView = drawOrderView;
@@ -43,9 +32,10 @@ export default class HierarchyView extends UIView {
         this._tree.canReorder = false;
 
         this._tree.onRearranged = (targetNode) => {
-            self._tree.ForEach((node) => {
+            /*self._tree.ForEach((node) => {
                 node._userData.transform.ApplyTransform(node._userData.sprite.sprite);
-            })
+            })*/
+           self._UpdateTransforms();
         }
 
         this._tree.onSelected = (treeNode) => {
@@ -71,6 +61,33 @@ export default class HierarchyView extends UIView {
         this._buttons.push(newNodeButton);
     }
 
+    _UpdateTransforms() {
+        const ui = {
+            x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+        const camera = this._sceneView._cameraTransform;
+        const view = XForm.Mul(ui, camera, null);
+
+        this._tree.ForEach((node) => {
+            node._userData.transform.ApplyTransform(node._userData.sprite.sprite, view);
+        });
+    }
+
+    get active() {
+        return this._active;
+    }
+
+    set active(valeu) {
+        if (this._active != valeu) {
+            if (this.onSelectionChanged != null) {
+                this.onSelectionChanged(this._active, valeu);
+            }
+        }
+        this._active = valeu;
+    }
+
     UpdateSortingIndex(node, newDepth) {
         this._drawOrderToHiararchyNodeMap.get(node)._userData.sprite.sprite.setDepth(newDepth);
     }
@@ -80,11 +97,15 @@ export default class HierarchyView extends UIView {
             return;
         }
         const toRemove = this.active;
+        
 
         this._drawOrderToHiararchyNodeMap.delete(toRemove._userData.drawOrder);
         toRemove._userData.drawOrder.Destroy();
+        toRemove._userData.sprite.Destroy();
         this.Deselect();
         this._tree.Remove(toRemove);
+        this._UpdateTransforms();
+        this.active = null;
     }
 
     Deselect() {
@@ -113,6 +134,7 @@ export default class HierarchyView extends UIView {
         this._drawOrderToHiararchyNodeMap.set(newNode._userData.drawOrder, newNode);
 
         this.Layout(this._x, this._y, this._width, this._height);
+        this._UpdateTransforms();
         return newNode;
     }
 

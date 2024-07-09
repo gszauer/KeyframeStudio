@@ -68,6 +68,8 @@ export default class InspectorView extends UIView {
 
     _drawIndexLabel = null;
 
+    _hierarchyView = null;
+
     constructor(scene, parent = null) {
         super(scene, parent);
 
@@ -224,7 +226,7 @@ export default class InspectorView extends UIView {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.x = Number(value);
                 self._positionXTextField.text = "" + value;
-                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
+                self._hierarchyView._UpdateTransforms();
             }
         }
         this._positionXTextField.Disable();
@@ -235,7 +237,7 @@ export default class InspectorView extends UIView {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.y = Number(value);
                 self._positionYTextField.text = "" + value;
-                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
+                self._hierarchyView._UpdateTransforms();
             }
         }
         this._positionYTextField.Disable();
@@ -249,7 +251,7 @@ export default class InspectorView extends UIView {
                 if (value == 360) { value = 0; }
                 self._focused._userData.transform.degrees = Number(value);
                 this._rotationTextField.text = "" + value;
-                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
+                self._hierarchyView._UpdateTransforms();
             }
         }
         this._rotationTextField.Disable();
@@ -268,7 +270,7 @@ export default class InspectorView extends UIView {
                     self._scaleYTextField.text = value;
                 }
                 self._scaleXTextField.text = "" + value;
-                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
+                self._hierarchyView._UpdateTransforms();
             }
         }
         this._scaleYTextField.onTextEdit = (value) => {
@@ -280,7 +282,7 @@ export default class InspectorView extends UIView {
                     self._scaleXTextField.text = "" + value;
                 }
                 self._scaleYTextField.text = "" + value;
-                self._focused._userData.transform.ApplyTransform(self._focused._userData.sprite.sprite);
+                self._hierarchyView._UpdateTransforms();
             }
         }
         this._frameXTextField = new UITextBox(scene, "");

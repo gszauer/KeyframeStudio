@@ -109,10 +109,13 @@ export default class Application extends Phaser.Scene {
         inspectorTabs.Add("Draw Order", drawOrderView);
 
         const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
-        const hierarchyView = new HierarchyView(this, sceneTabs, drawOrderView)
+        const hierarchyView = new HierarchyView(this, sceneTabs, drawOrderView, sceneView);
         sceneTabs.Add("Hierarchy", hierarchyView);
         sceneTabs.Add("Assets", new AssetsView(this, sceneTabs));
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
+
+        sceneView._hierarchyView = hierarchyView;
+        inspectorView._hierarchyView = hierarchyView;
 
         hierarchyView.onSelectionChanged = (oldNode, newNode) => {
             inspectorView.FocusOn(newNode);

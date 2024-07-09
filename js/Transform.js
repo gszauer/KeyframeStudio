@@ -108,16 +108,24 @@ export default class XForm {
         this.rotation = valuue * 0.0174533; 
     }
 
-    ApplyTransform(sprite) {
-        const worldTransform = {
-            x: 0, y: 0,
-            rotation: 0,
-            scaleX: 1, scaleY: 1
-        };
+    ApplyTransform(sprite, view = null) {
+        const identity = () => {
+            return {
+                x: 0, y: 0,
+                rotation: 0,
+                scaleX: 1, scaleY: 1
+            };
+        }
+        const worldTransform = identity();
+        if (view === null || view === undefined) {
+            view = identity();
+        }
 
         for (let iter = this; iter != null; iter = iter.parent) {
             XForm.Mul(iter, worldTransform, worldTransform)
         }
+
+        XForm.Mul(view, worldTransform, worldTransform)
 
         sprite.setPosition(worldTransform.x, worldTransform.y);
         sprite.setRotation(worldTransform.rotation);
@@ -135,13 +143,25 @@ export default class XForm {
             };
         };
 
-        if (a == null) {
-            a = {
+        const MakeIdentity = () => {
+            return {
                 x: 0, y: 0,
                 rotation: 0,
                 scaleX: 1, scaleY: 1
             };
+        };
+
+        if (a === null || a === undefined) {
+            a = MakeIdentity();
         }
+        if (c === null || c === undefined) {
+            c = MakeIdentity();
+        }
+        if (b === null || b === undefined) {
+            b = MakeIdentity();
+        }
+
+
         c.scaleX = a.scaleX * b.scaleX;
         c.scaleY = a.scaleY * b.scaleY;
 
@@ -153,6 +173,7 @@ export default class XForm {
         c.x = a.x + rotated.x;
         c.y = a.y + rotated.y;
 
+        return c;
     }
 }
 

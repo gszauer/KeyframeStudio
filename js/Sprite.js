@@ -17,10 +17,6 @@ export default class SpriteImg {
     color = null;
     sprite = null;
 
-    static Head = null;
-    _prev = null;
-    _next = null;
-
     constructor(treeNode, drawOrderView = null) {
         if (!treeNode) {
             throw new Error("Sprite must be attached to tree node");
@@ -42,18 +38,6 @@ export default class SpriteImg {
         else {
             treeNode._userData.sprite = this;
         }
-
-        if (SpriteImg.Head == null) {
-            SpriteImg.Head = this;
-        }
-        else {
-            let tail = SpriteImg.Head;
-            while (tail != null && tail._next != null) {
-                tail = tail._next;
-            }
-            tail._next = this;
-            this._prev = tail;
-        }
     }
 
     get transform() {
@@ -63,17 +47,7 @@ export default class SpriteImg {
         return this._uiTreeNode._userData.transform;
     }
 
-    Destroy() { // TODO: This needs to be hooked up to UITreeNode, maybe with a callback?!?
-        if (this._prev != null) {
-            this._prev._next = this._next;
-        }
-        if (this._next != null) {
-            this._next._prev = this._prev;
-        }
-        if (this == SpriteImg.Head) {
-            SpriteImg.Head = this._next;
-        }
-
+    Destroy() { // Hooked up in hierarchyview delete
         this.sprite.destroy();
         this.sprite = null;
     }
