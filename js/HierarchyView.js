@@ -36,10 +36,12 @@ export default class HierarchyView extends UIView {
                 node._userData.transform.ApplyTransform(node._userData.sprite.sprite);
             })*/
            self._UpdateTransforms();
+           self._sceneView.UpdateColors();
         }
 
         this._tree.onSelected = (treeNode) => {
             self.active = treeNode;
+            self._sceneView.UpdateColors();
         }
 
         this._footer =  scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
@@ -48,13 +50,15 @@ export default class HierarchyView extends UIView {
 
         const newNodeButton = new UIImageButton(scene, "SmallIconHierarchyNew.png", () => {
             const hierarchyNode = self.AddNewNode();
-            
+            self._sceneView.UpdateColors();
         });
         const deleteNodeButton = new UIImageButton(scene, "SmallIconTrash.png", () => {
             self.Delete();
+            self._sceneView.UpdateColors();
         });
         const deselectButton = new UIImageButton(scene, "SmallIconDeselect.png", () => {
             self.Deselect();
+            self._sceneView.UpdateColors();
         });
         this._buttons.push(deselectButton);
         this._buttons.push(deleteNodeButton);

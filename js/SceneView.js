@@ -5,6 +5,7 @@ import UITextBox from './UITextBox.js'
 import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
 import UIToggle from './UIToggle.js'
+import XForm from './Transform.js'
 
 export default class SceneView extends UIView {
     _cameraTransform = null;
@@ -92,6 +93,10 @@ export default class SceneView extends UIView {
 
         this._lines[centerIndex * 2 + 0].setTint(UIGlobals.Colors.Dark.Gray100);
         this._lines[centerIndex * 2 + 1].setTint(UIGlobals.Colors.Dark.Gray100);
+
+        if (this.activeShelf != null) {
+            this.activeShelf.UpdateColors();
+        }
     }
 
     Layout(x, y, width, height) {
@@ -424,13 +429,16 @@ export class MoveShelf extends UIToolBarShelf {
     _snapCheckbox = null;
     _snapTextField = null;
 
-    _selectLabel = null;
-    _selectCheckbox = null;
-
     _useLocalSpace = true;
     _selectOnClick = false;
     _snapStepSize = 10;
 
+    _dragging = false;
+
+    _xAxis = null;
+    _yAxis = null;
+
+    
 
     constructor(scene, sceneView) {
         super(scene);
@@ -487,29 +495,115 @@ export class MoveShelf extends UIToolBarShelf {
             // TODO
         };
 
-        this._selectLabel = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
-        this._selectLabel.setDepth(UIGlobals.WidgetLayer);
-        this._selectLabel.text = "     Auto select:";
+        const arrowSize = 4;
+        const arrowHeight = 16;
+        const arrowTopWidth = 3;
+        const arrowTopHeight = 7;
+        this._yAxis = scene.add.polygon(0, 0, [
+            -arrowSize, /*0*/arrowSize,
+            -arrowSize, -arrowSize * arrowHeight,
+            -arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
+            0, -arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
+            arrowSize, -arrowSize * arrowHeight,
+            arrowSize, /*0*/-arrowSize,
+        ], 0x00ff00);
+        this._yAxis.setDepth(UIGlobals.WidgetLayer);
+        this._yAxis.setOrigin(0, 0);
 
-        this._selectCheckbox = new UIToggle(scene, "", (valueBol, uiToggleObject) => {
-            // TODO
+        this._xAxis = scene.add.polygon(0, 0, [
+            /*0*/arrowSize, -arrowSize, 
+            arrowSize * arrowHeight, -arrowSize, 
+            arrowSize * arrowHeight, -arrowSize * arrowTopWidth, 
+            arrowSize * (arrowHeight + arrowTopHeight), 0, 
+            arrowSize * arrowHeight, arrowSize * arrowTopWidth, 
+            arrowSize * arrowHeight, arrowSize, 
+            /*0*/-arrowSize, arrowSize, 
+        ], 0xff0000);
+        this._xAxis.setDepth(UIGlobals.WidgetLayer);
+        this._xAxis.setOrigin(0, 0);
+
+        this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
+            0, 
+            -arrowSize * arrowTopWidth, 
+            arrowSize * (arrowHeight + arrowTopHeight), 
+            arrowSize * arrowTopWidth * 2
+        ), Phaser.Geom.Rectangle.Contains);
+        scene.input.setDraggable(this._xAxis);
+        this._yAxis.setInteractive(new Phaser.Geom.Rectangle(
+            -arrowSize * arrowTopWidth,
+            -arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth * 2,
+            arrowSize * (arrowHeight + arrowTopHeight)
+        ), Phaser.Geom.Rectangle.Contains);
+        scene.input.setDraggable(this._yAxis);
+
+        const xAxis = this._xAxis;
+        const yAxis = this._yAxis;
+        
+        //console.log('x axis position', this._xAxis.x, this._xAxis.y);
+        //console.log('x axis hitArea', this._xAxis.input.hitArea);
+        scene.input.on('dragstart', (pointer, gameObject) => {
+            if (gameObject === xAxis || gameObject === yAxis) {
+                self.DragStart(gameObject === xAxis, gameObject, pointer);
+                gameObject.fillColor = 0xffff00;
+            }
+        });
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject === gameObject === xAxis || gameObject === yAxis) {
+                self.Drag(true, gameObject, pointer, dragX, dragY);
+            }
+        });
+        scene.input.on('dragend', (pointer, gameObject) => {
+            if (gameObject == xAxis) {
+                self.DragEnd(true, gameObject, pointer);
+                gameObject.fillColor = 0xff0000;
+            }
+            else if (gameObject == yAxis) {
+                self.DragEnd(false, gameObject, pointer);
+                gameObject.fillColor = 0x00ff00;
+            }
         });
     }
 
     SetVisibility(value) {
         super.SetVisibility(value);
 
+        const moveIsVisible = this.transform != null;
+        this._xAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+        this._yAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+
         this._spaceLabel.setActive(value).setVisible(value);
         this._spaceDropdown.SetVisibility(value);
         this._snapLabel.setActive(value).setVisible(value);
         this._snapCheckbox.SetVisibility(value);
         this._snapTextField.SetVisibility(value);
-        this._selectLabel.setActive(value).setVisible(value);
-        this._selectCheckbox.SetVisibility(value);
+    }
+
+    _UpdateTransformPosition() {
+        const ui = {
+            x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+        const camera = this._sceneView._cameraTransform;
+        const view = XForm.Mul(ui, camera, null);
+
+        const xform = this.transform;
+        if (xform) {
+            xform.ApplyTransform(this._xAxis, view);
+            xform.ApplyTransform(this._yAxis, view);
+        }
     }
 
     UpdateColors() {
         super.UpdateColors();
+        const xform = this.transform;
+        const moveIsVisible = xform != null && this._visible;
+
+        this._xAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._yAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._UpdateTransformPosition();
     }
 
     Layout(x, y, width, height) {
@@ -548,9 +642,47 @@ export class MoveShelf extends UIToolBarShelf {
         this._snapTextField.Layout(x, y, 75);
         x += this._snapTextField._width + itemGap;
 
-        this._selectLabel.setPosition(x, y);
-        x += this._selectLabel.width + itemGap;
+        this.UpdateColors();
+    }
 
-        this._selectCheckbox.Layout(x, y + 2);
+    DragStart(isXAxis, gameObject, pointer) {
+        this._dragging = true;
+    }
+
+    Drag(isXAxis, gameObject, pointer, dragX, dragY) {
+        
+    }
+
+    DragEnd(isXAxis, gameObject, pointer) {
+        this._dragging = false;
+    }
+
+    get transform() {
+        const hierarchy = this._sceneView._hierarchyView;
+        if (hierarchy === null || hierarchy === undefined) {
+            return null;
+        }
+
+        /*const tree = hierarchy._tree;
+        if (tree === null || tree === undefined) {
+            return null;
+        }*/
+
+        const selected = hierarchy._tree.selected;
+        if (selected === null || selected === undefined) {
+            return null;
+        }
+
+        const userData = selected._userData;
+        if (userData === null || userData === undefined) {
+            return null;
+        }
+
+        const xForm = userData.transform;
+        if (xForm === null || xForm === undefined) {
+            return null;
+        }
+
+        return xForm;
     }
 }

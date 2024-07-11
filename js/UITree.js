@@ -23,6 +23,7 @@ export default class UITree {
     _orderIndicator = null; // Drag graphics
     _numButtons = 0;
 
+    selected = null;
     onSelected = null; //onSelected(UITreeNode node);
     onRearranged = null; // onRearranged(UITreeNode target);
 
@@ -191,8 +192,9 @@ export default class UITree {
                     
                     if (index == self._pressedIndex && index >= 0) {
                         self._selectedIndex = index;
+                        self.selected = GetNodeByIndex(index);
                         if (self.onSelected != null) {
-                            self.onSelected(GetNodeByIndex(index));
+                            self.onSelected(self.selected);
                         }
                     }
                 }
@@ -247,9 +249,9 @@ export default class UITree {
                 UIGlobals.Active = self._inputItem;
                 self._pressedIndex = self._selectedIndex =  GetNodeIndexUnderMouse(pointer);
                 
+                self.selected = GetNodeByIndex(self._pressedIndex);
                 if (self.onSelected != null) {
-                    const node = GetNodeByIndex(self._pressedIndex);
-                    self.onSelected(node);
+                    self.onSelected(self.selected);
                 }
     
                 self.UpdateColors();
@@ -267,9 +269,9 @@ export default class UITree {
                     self._orderIndicator.setActive(true).setVisible(true);
                     self._orderIndicator.setTint(UIGlobals.Colors.Dark.Blue300);
 
+                    self.selected = GetNodeByIndex(self._dragStartIndex);
                     if (self.onSelected != null) {
-                        const node = GetNodeByIndex(self._dragStartIndex);
-                        self.onSelected(node);
+                        self.onSelected(self.selected);
                     }
 
                     self.UpdateColors();
@@ -293,6 +295,7 @@ export default class UITree {
                 if (MouseUp(pointer) < 0 && !wasDragging) {
                     // MouseUp sets pressed index and active
                     self._selectedIndex = -1;
+                    self.selected = null;
                     if (self.onSelected != null) {
                         self.onSelected(null);
                     }
@@ -429,8 +432,9 @@ export default class UITree {
                         }
 
                         if (dragDelta != 0) {
+                            self.selected = GetNodeByIndex(self._selectedIndex);
                             if (self.onSelected != null) {
-                                self.onSelected(GetNodeByIndex(self._selectedIndex));
+                                self.onSelected(self.selected);
                             }
                             self.UpdateColors();
                         }
@@ -458,6 +462,7 @@ export default class UITree {
         }
 
         this._selectedIndex = -1;
+        this.selected = null;
         if (this.onSelected != null) {
             this.onSelected(null);
         }

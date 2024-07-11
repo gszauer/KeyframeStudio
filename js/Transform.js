@@ -50,6 +50,23 @@ export default class XForm {
         return result;
     }
 
+    get worldTransform() {
+        const identity = () => {
+            return {
+                x: 0, y: 0,
+                rotation: 0,
+                scaleX: 1, scaleY: 1
+            };
+        }
+        const worldXform = identity();
+
+        for (let iter = this; iter != null; iter = iter.parent) {
+            XForm.Mul(iter, worldXform, worldXform);
+        }
+
+        return worldXform;
+    }
+
     get name() {
         if (this._uiTreeNode == null) {
             return null;
@@ -109,27 +126,12 @@ export default class XForm {
     }
 
     ApplyTransform(sprite, view = null) {
-        const identity = () => {
-            return {
-                x: 0, y: 0,
-                rotation: 0,
-                scaleX: 1, scaleY: 1
-            };
-        }
-        const worldTransform = identity();
-        if (view === null || view === undefined) {
-            view = identity();
-        }
+        const worldXform = this.worldTransform;
+        XForm.Mul(view, worldXform, worldXform);
 
-        for (let iter = this; iter != null; iter = iter.parent) {
-            XForm.Mul(iter, worldTransform, worldTransform)
-        }
-
-        XForm.Mul(view, worldTransform, worldTransform)
-
-        sprite.setPosition(worldTransform.x, worldTransform.y);
-        sprite.setRotation(worldTransform.rotation);
-        sprite.setScale(worldTransform.scaleX, worldTransform.scaleY);
+        sprite.setPosition(worldXform.x, worldXform.y);
+        sprite.setRotation(worldXform.rotation);
+        sprite.setScale(worldXform.scaleX, worldXform.scaleY);
     }
 
     static Mul(a /*parent*/, b /*transform*/, c /*out*/) {
