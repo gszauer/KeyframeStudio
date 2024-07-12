@@ -125,6 +125,68 @@ export default class XForm {
         this.rotation = valuue * 0.0174533; 
     }
 
+    static Right(xform) {
+        const RotateClockwise = (_x, _y, radians) => {
+            const cs = Math.cos(radians);
+            const sn = Math.sin(radians);
+            
+            return {
+                x: _x * cs - _y * sn,
+                y: _x * sn + _y * cs
+            };
+        };
+        return RotateClockwise(1, 0, xform.rotation);
+    }
+
+    static Up(xform) {
+        const RotateClockwise = (_x, _y, radians) => {
+            const cs = Math.cos(radians);
+            const sn = Math.sin(radians);
+            
+            return {
+                x: _x * cs - _y * sn,
+                y: _x * sn + _y * cs
+            };
+        };
+        return RotateClockwise(0, 1, xform.rotation);
+    }
+
+    static Inverse(xfrm) {
+        const RotateClockwise = (_x, _y, radians) => {
+            const cs = Math.cos(radians);
+            const sn = Math.sin(radians);
+            
+            return {
+                x: _x * cs - _y * sn,
+                y: _x * sn + _y * cs
+            };
+        };
+
+        const result = {
+            x: 0, y: 0,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+
+        result.rotation = -xfrm.rotation;
+        
+        if (Math.abs(xfrm.scaleX) > 0.00001) {
+            result.scaleX = 1.0 / xfrm.scaleX;
+        }
+        if (Math.abs(xfrm.scaleY) > 0.00001) {
+            result.scaleY = 1.0 / xfrm.scaleY;
+        }
+
+        result.x = (-xfrm.x) * result.scaleX;
+        result.y = (-xfrm.y) * result.scaleY;
+
+        const rotated = RotateClockwise(result.x, result.y, result.rotation);
+        result.x = rotated.x;
+        result.y = rotated.y;
+        
+        return result;
+    }
+
     ApplyTransform(sprite, view = null) {
         const worldXform = this.worldTransform;
         XForm.Mul(view, worldXform, worldXform);

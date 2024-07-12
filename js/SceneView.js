@@ -434,10 +434,11 @@ export class MoveShelf extends UIToolBarShelf {
     _snapStepSize = 10;
 
     _dragging = false;
+    _dragOffset = { x: 0, y: 0 };
 
     _xAxis = null;
     _yAxis = null;
-
+    _omniAxis = null;
     
 
     constructor(scene, sceneView) {
@@ -499,34 +500,37 @@ export class MoveShelf extends UIToolBarShelf {
         const arrowHeight = 16;
         const arrowTopWidth = 3;
         const arrowTopHeight = 7;
+        const omniSize = 7;
+        const omniSpace = 3;
+
         this._yAxis = scene.add.polygon(0, 0, [
-            -arrowSize, /*0*/arrowSize,
+            -arrowSize, /*0*//*arrowSize*/-(omniSize + omniSpace),
             -arrowSize, -arrowSize * arrowHeight,
             -arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
             0, -arrowSize * (arrowHeight + arrowTopHeight),
             arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
             arrowSize, -arrowSize * arrowHeight,
-            arrowSize, /*0*/-arrowSize,
+            arrowSize, /*0*//*-arrowSize*/-(omniSize + omniSpace),
         ], 0x00ff00);
         this._yAxis.setDepth(UIGlobals.WidgetLayer);
         this._yAxis.setOrigin(0, 0);
 
         this._xAxis = scene.add.polygon(0, 0, [
-            /*0*/arrowSize, -arrowSize, 
+            /*0*//*arrowSize*/omniSize + omniSpace, -arrowSize, 
             arrowSize * arrowHeight, -arrowSize, 
             arrowSize * arrowHeight, -arrowSize * arrowTopWidth, 
             arrowSize * (arrowHeight + arrowTopHeight), 0, 
             arrowSize * arrowHeight, arrowSize * arrowTopWidth, 
             arrowSize * arrowHeight, arrowSize, 
-            /*0*/-arrowSize, arrowSize, 
+            /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
         ], 0xff0000);
         this._xAxis.setDepth(UIGlobals.WidgetLayer);
         this._xAxis.setOrigin(0, 0);
 
         this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
-            0, 
+            omniSize + omniSpace, 
             -arrowSize * arrowTopWidth, 
-            arrowSize * (arrowHeight + arrowTopHeight), 
+            arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace), 
             arrowSize * arrowTopWidth * 2
         ), Phaser.Geom.Rectangle.Contains);
         scene.input.setDraggable(this._xAxis);
@@ -534,34 +538,45 @@ export class MoveShelf extends UIToolBarShelf {
             -arrowSize * arrowTopWidth,
             -arrowSize * (arrowHeight + arrowTopHeight),
             arrowSize * arrowTopWidth * 2,
-            arrowSize * (arrowHeight + arrowTopHeight)
+            arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace)
         ), Phaser.Geom.Rectangle.Contains);
         scene.input.setDraggable(this._yAxis);
 
+        this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
+        this._omniAxis.setDepth(UIGlobals.WidgetLayer);
+        this._omniAxis.setOrigin(0.5, 0.5);
+        this._omniAxis.setInteractive();
+        scene.input.setDraggable(this._omniAxis);
+
         const xAxis = this._xAxis;
         const yAxis = this._yAxis;
+        const omni = this._omniAxis;
         
         //console.log('x axis position', this._xAxis.x, this._xAxis.y);
         //console.log('x axis hitArea', this._xAxis.input.hitArea);
         scene.input.on('dragstart', (pointer, gameObject) => {
-            if (gameObject === xAxis || gameObject === yAxis) {
-                self.DragStart(gameObject === xAxis, gameObject, pointer);
+            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+                self.DragStart(gameObject, pointer);
                 gameObject.fillColor = 0xffff00;
             }
         });
         scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            if (gameObject === gameObject === xAxis || gameObject === yAxis) {
-                self.Drag(true, gameObject, pointer, dragX, dragY);
+            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+                self.Drag(gameObject, pointer, dragX, dragY);
             }
         });
         scene.input.on('dragend', (pointer, gameObject) => {
             if (gameObject == xAxis) {
-                self.DragEnd(true, gameObject, pointer);
+                self.DragEnd(gameObject, pointer);
                 gameObject.fillColor = 0xff0000;
             }
             else if (gameObject == yAxis) {
-                self.DragEnd(false, gameObject, pointer);
+                self.DragEnd(gameObject, pointer);
                 gameObject.fillColor = 0x00ff00;
+            }
+            else if (gameObject == omni) {
+                self.DragEnd(gameObject, pointer);
+                gameObject.fillColor = 0xffffff;
             }
         });
     }
@@ -580,6 +595,16 @@ export class MoveShelf extends UIToolBarShelf {
         this._snapTextField.SetVisibility(value);
     }
 
+    GetViewTransform() {
+        const ui = {
+            x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+        const camera = this._sceneView._cameraTransform;
+        const view = XForm.Mul(ui, camera, null);
+        return view;
+    }
     _UpdateTransformPosition() {
         const ui = {
             x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
@@ -593,6 +618,7 @@ export class MoveShelf extends UIToolBarShelf {
         if (xform) {
             xform.ApplyTransform(this._xAxis, view);
             xform.ApplyTransform(this._yAxis, view);
+            xform.ApplyTransform(this._omniAxis, view);
         }
     }
 
@@ -626,7 +652,6 @@ export class MoveShelf extends UIToolBarShelf {
         y += UIGlobals.Sizes.ToolBarShelfTextTopOffset
         const itemGap = UIGlobals.Sizes.ToolBarShelfItemsGap;
 
-
         this._spaceLabel.setPosition(x, y);
         x += this._spaceLabel.width + itemGap;
 
@@ -642,19 +667,77 @@ export class MoveShelf extends UIToolBarShelf {
         this._snapTextField.Layout(x, y, 75);
         x += this._snapTextField._width + itemGap;
 
-        this.UpdateColors();
+        this._UpdateTransformPosition();
     }
 
-    DragStart(isXAxis, gameObject, pointer) {
+    DragStart(gameObject, pointer) {
         this._dragging = true;
+
+        if (gameObject === this._xAxis) {
+            this._dragOffset.x = this._xAxis.x - pointer.x;
+            this._dragOffset.y = this._xAxis.y - pointer.y;
+        }
+        else if (gameObject === this._yAxis) {
+            this._dragOffset.x = this._yAxis.x - pointer.x;
+            this._dragOffset.y = this._yAxis.y - pointer.y;
+        }
+        if (gameObject === this._omniAxis) {
+            this._dragOffset.x = this._omniAxis.x - pointer.x;
+            this._dragOffset.y = this._omniAxis.y - pointer.y;
+        }
     }
 
-    Drag(isXAxis, gameObject, pointer, dragX, dragY) {
-        
+    _project(a, /*onto*/ b) {
+        const magBSq = b.x * b.x + b.y * b.y;
+        const scale = (a.x * b.x + a.y * b.y) / magBSq;
+        return {
+            x: b.x * scale,
+            y: b.y * scale
+        }
     }
 
-    DragEnd(isXAxis, gameObject, pointer) {
+    Drag(gameObject, pointer, dragX, dragY) {
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            const xform = this.transform;
+            if (xform != null) {
+                if (gameObject === this._xAxis) {
+
+                    const deltaMotion = {
+                        x: (pointer.x + this._dragOffset.x) - this._xAxis.x,
+                        y: (pointer.y + this._dragOffset.y) - this._xAxis.y
+                    };
+
+                    const world = xform.worldTransform;
+                    
+                    // constrained is in world space. We need to bring it back to local space
+                    if (xform.parent != null) {
+                        const parentWorld = xform.parent.worldTransform;
+                        const invParentWorld = XForm.Inverse(parentWorld);
+                        XForm.Mul(invParentWorld, world, world);
+                    }
+
+                    XForm.Mul(this.GetViewTransform(), world, world);
+                    const constrained = this._project(deltaMotion, XForm.Right(world));
+                    
+                    xform.x += constrained.x;
+                    xform.y += constrained.y;
+                }
+                if (gameObject === this._yAxis) {
+                    xform.x += (pointer.x + this._dragOffset.x) - this._yAxis.x;
+                    xform.y += (pointer.y + this._dragOffset.y) - this._yAxis.y;
+                }
+                if (gameObject === this._omniAxis) {
+                    xform.x += (pointer.x + this._dragOffset.x) - this._omniAxis.x;
+                    xform.y += (pointer.y + this._dragOffset.y) - this._omniAxis.y;
+                }
+                this._UpdateTransformPosition();
+            }
+        }
+    }
+
+    DragEnd(gameObject, pointer) {
         this._dragging = false;
+        this._UpdateTransformPosition();
     }
 
     get transform() {
