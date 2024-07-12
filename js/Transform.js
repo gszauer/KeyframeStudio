@@ -196,6 +196,23 @@ export default class XForm {
         sprite.setScale(worldXform.scaleX, worldXform.scaleY);
     }
 
+    static ApplyToPoint(xfrm, pnt) {
+        const RotateClockwise = (_x, _y, radians) => {
+            const cs = Math.cos(radians);
+            const sn = Math.sin(radians);
+            
+            return {
+                x: _x * cs - _y * sn,
+                y: _x * sn + _y * cs
+            };
+        };
+
+        const result = RotateClockwise(xfrm.scaleX * pnt.x, xfrm.scaleY * pnt.y, xfrm.rotation);
+        result.x += xfrm.x;
+        result.y += xfrm.y;
+        return result;
+    }
+
     static Mul(a /*parent*/, b /*transform*/, c /*out*/) {
         const RotateClockwise = (_x, _y, radians) => {
             const cs = Math.cos(radians);

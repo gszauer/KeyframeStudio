@@ -701,7 +701,6 @@ export class MoveShelf extends UIToolBarShelf {
             const xform = this.transform;
             if (xform != null) {
                 if (gameObject === this._xAxis) {
-
                     const deltaMotion = {
                         x: (pointer.x + this._dragOffset.x) - this._xAxis.x,
                         y: (pointer.y + this._dragOffset.y) - this._xAxis.y
@@ -709,7 +708,6 @@ export class MoveShelf extends UIToolBarShelf {
 
                     const world = xform.worldTransform;
                     
-                    // constrained is in world space. We need to bring it back to local space
                     if (xform.parent != null) {
                         const parentWorld = xform.parent.worldTransform;
                         const invParentWorld = XForm.Inverse(parentWorld);
@@ -717,14 +715,28 @@ export class MoveShelf extends UIToolBarShelf {
                     }
 
                     XForm.Mul(this.GetViewTransform(), world, world);
-                    const constrained = this._project(deltaMotion, XForm.Right(world));
-                    
+                    let constrained = this._project(deltaMotion, XForm.Right(world));
+
                     xform.x += constrained.x;
                     xform.y += constrained.y;
                 }
                 if (gameObject === this._yAxis) {
-                    xform.x += (pointer.x + this._dragOffset.x) - this._yAxis.x;
-                    xform.y += (pointer.y + this._dragOffset.y) - this._yAxis.y;
+                    const deltaMotion = {
+                        x: (pointer.x + this._dragOffset.x) - this._yAxis.x,
+                        y: (pointer.y + this._dragOffset.y) - this._yAxis.y
+                    };
+
+                    const world = xform.worldTransform;
+                    if (xform.parent != null) {
+                        const parentWorld = xform.parent.worldTransform;
+                        const invParentWorld = XForm.Inverse(parentWorld);
+                        XForm.Mul(invParentWorld, world, world);
+                    }
+                    XForm.Mul(this.GetViewTransform(), world, world);
+                    let constrained = this._project(deltaMotion, XForm.Up(world));
+
+                    xform.x += constrained.x;
+                    xform.y += constrained.y;
                 }
                 if (gameObject === this._omniAxis) {
                     xform.x += (pointer.x + this._dragOffset.x) - this._omniAxis.x;
