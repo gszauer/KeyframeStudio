@@ -8,6 +8,7 @@ import ColorRGB from './ColorRGB.js'
 
 export default class InspectorView extends UIView {
     _focused = null;
+    _sceneView = null;
 
     _backgroundSprite = null;
 

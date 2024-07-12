@@ -77,6 +77,8 @@ export default class HierarchyView extends UIView {
         this._tree.ForEach((node) => {
             node._userData.transform.ApplyTransform(node._userData.sprite.sprite, view);
         });
+
+        this._sceneView.UpdateActiveShelf();
     }
 
     get active() {

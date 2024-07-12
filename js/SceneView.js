@@ -22,6 +22,7 @@ export default class SceneView extends UIView {
     activeShelf = null;
 
     _hierarchyView = null;
+    _inspectorView = null;
     _recenter = true;
 
     constructor(scene, parent) {
@@ -175,10 +176,20 @@ export default class SceneView extends UIView {
         const move = new MoveShelf(this._scene, this);
         toolbar.AddShelf(UIGlobals.IconMove, move);
 
+        const scale = new ScaleShelf(this._scene, this);
+        toolbar.AddShelf(UIGlobals.IconScale, scale);
+
         const pan = new PanShelf(this._scene, toolbar, this);
         toolbar.AddShelf(UIGlobals.IconHand, pan);
+
         const zoom = new ZoomShelf(this._scene, toolbar, this);
         toolbar.AddShelf(UIGlobals.IconZoomIn, zoom);
+    }
+
+    UpdateActiveShelf() {
+        if (this.activeShelf) {
+            this.activeShelf._UpdateTransformPosition();
+        }
     }
 }
 
@@ -280,6 +291,8 @@ export class PanShelf extends UIToolBarShelf {
 
     UpdateColors() {
     }
+
+    _UpdateTransformPosition() {}
 
     SetVisibility(value) {
         super.SetVisibility(value);
@@ -587,6 +600,7 @@ export class MoveShelf extends UIToolBarShelf {
         const moveIsVisible = this.transform != null;
         this._xAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
         this._yAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+        this._omniAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
 
         this._spaceLabel.setActive(value).setVisible(value);
         this._spaceDropdown.SetVisibility(value);
@@ -629,6 +643,7 @@ export class MoveShelf extends UIToolBarShelf {
 
         this._xAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
         this._yAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._omniAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
         this._UpdateTransformPosition();
     }
 
@@ -750,6 +765,371 @@ export class MoveShelf extends UIToolBarShelf {
     DragEnd(gameObject, pointer) {
         this._dragging = false;
         this._UpdateTransformPosition();
+        
+        const hierarchy = this._sceneView._hierarchyView;
+        if (hierarchy === null || hierarchy === undefined) {
+            return;
+        }
+        const selected = hierarchy._tree.selected;
+        if (selected === null || selected === undefined) {
+            return null;
+        }
+
+        const inspector = this._sceneView._inspectorView;
+        inspector.FocusOn(selected);
+    }
+
+    get transform() {
+        const hierarchy = this._sceneView._hierarchyView;
+        if (hierarchy === null || hierarchy === undefined) {
+            return null;
+        }
+
+        /*const tree = hierarchy._tree;
+        if (tree === null || tree === undefined) {
+            return null;
+        }*/
+
+        const selected = hierarchy._tree.selected;
+        if (selected === null || selected === undefined) {
+            return null;
+        }
+
+        const userData = selected._userData;
+        if (userData === null || userData === undefined) {
+            return null;
+        }
+
+        const xForm = userData.transform;
+        if (xForm === null || xForm === undefined) {
+            return null;
+        }
+
+        return xForm;
+    }
+}
+
+export class ScaleShelf extends UIToolBarShelf {
+    _sceneView = null;
+
+    _snapLabel = null;
+    _snapCheckbox = null;
+    _snapTextField = null;
+
+    _useLocalSpace = true;
+    _selectOnClick = false;
+    _snapStepSize = 10;
+
+    _dragging = false;
+    _dragOffset = { x: 0, y: 0 };
+
+    _xAxis = null;
+    _yAxis = null;
+    _omniAxis = null;
+    
+
+    constructor(scene, sceneView) {
+        super(scene);
+        const self = this;
+        this._sceneView = sceneView;
+
+        const NumerisizeString = (str) => {
+            let result = "";
+            if (str[0] == '-') {
+                result += '-';
+            }
+            let period = false;
+            for (let i = 0, length = str.length; i < length; ++i) {
+                if (str[i] >= '0' && str[i] <= '9') {
+                    result += str[i];
+                }
+                if (str[i] == '.' && !period) {
+                    result += '.';
+                    period = true;
+                }
+            }
+            if (result == "") {
+                result = '0';
+            }
+            return result;
+        }
+
+        this._snapLabel = scene.add.bitmapText(0, 0, UIGlobals.Font200, name);
+        this._snapLabel.setDepth(UIGlobals.WidgetLayer);
+        this._snapLabel.text = "Snap:";
+
+        this._snapCheckbox = new UIToggle(scene, "", (valueBol, uiToggleObject) => {
+            // TODO
+        });
+
+        this._snapTextField = new UITextBox(scene, "" + this._snapStepSize);
+        this._snapTextField.onTextEdit = (value) => {
+            self._snapStepSize = Number(NumerisizeString(value));
+            // TODO
+        };
+
+        const arrowSize = 4;
+        const arrowHeight = 16;
+        const arrowTopWidth = 3;
+        const arrowTopHeight = 6;
+        const omniSize = 7;
+        const omniSpace = 3;
+
+        this._yAxis = scene.add.polygon(0, 0, [
+            -arrowSize, /*0*//*arrowSize*/-(omniSize + omniSpace),
+            -arrowSize, -arrowSize * arrowHeight,
+            -arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
+            -arrowSize * arrowTopWidth, -arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth, -arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
+            arrowSize, -arrowSize * arrowHeight,
+            arrowSize, /*0*//*-arrowSize*/-(omniSize + omniSpace),
+        ], 0x00ff00);
+        this._yAxis.setDepth(UIGlobals.WidgetLayer);
+        this._yAxis.setOrigin(0, 0);
+
+        this._xAxis = scene.add.polygon(0, 0, [
+            /*0*//*arrowSize*/omniSize + omniSpace, -arrowSize, 
+            arrowSize * arrowHeight, -arrowSize, 
+            arrowSize * arrowHeight, -arrowSize * arrowTopWidth, 
+            arrowSize * (arrowHeight + arrowTopHeight), -arrowSize * arrowTopWidth, 
+            arrowSize * (arrowHeight + arrowTopHeight), arrowSize * arrowTopWidth, 
+            arrowSize * arrowHeight, arrowSize * arrowTopWidth, 
+            arrowSize * arrowHeight, arrowSize, 
+            /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
+        ], 0xff0000);
+        this._xAxis.setDepth(UIGlobals.WidgetLayer);
+        this._xAxis.setOrigin(0, 0);
+
+        this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
+            omniSize + omniSpace, 
+            -arrowSize * arrowTopWidth, 
+            arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace), 
+            arrowSize * arrowTopWidth * 2
+        ), Phaser.Geom.Rectangle.Contains);
+        scene.input.setDraggable(this._xAxis);
+        this._yAxis.setInteractive(new Phaser.Geom.Rectangle(
+            -arrowSize * arrowTopWidth,
+            -arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth * 2,
+            arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace)
+        ), Phaser.Geom.Rectangle.Contains);
+        scene.input.setDraggable(this._yAxis);
+
+        this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
+        this._omniAxis.setDepth(UIGlobals.WidgetLayer);
+        this._omniAxis.setOrigin(0.5, 0.5);
+        this._omniAxis.setInteractive();
+        scene.input.setDraggable(this._omniAxis);
+
+        const xAxis = this._xAxis;
+        const yAxis = this._yAxis;
+        const omni = this._omniAxis;
+        
+        //console.log('x axis position', this._xAxis.x, this._xAxis.y);
+        //console.log('x axis hitArea', this._xAxis.input.hitArea);
+        scene.input.on('dragstart', (pointer, gameObject) => {
+            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+                self.DragStart(gameObject, pointer);
+                gameObject.fillColor = 0xffff00;
+            }
+        });
+        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
+            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+                self.Drag(gameObject, pointer, dragX, dragY);
+            }
+        });
+        scene.input.on('dragend', (pointer, gameObject) => {
+            if (gameObject == xAxis) {
+                self.DragEnd(gameObject, pointer);
+                gameObject.fillColor = 0xff0000;
+            }
+            else if (gameObject == yAxis) {
+                self.DragEnd(gameObject, pointer);
+                gameObject.fillColor = 0x00ff00;
+            }
+            else if (gameObject == omni) {
+                self.DragEnd(gameObject, pointer);
+                gameObject.fillColor = 0xffffff;
+            }
+        });
+    }
+
+    SetVisibility(value) {
+        super.SetVisibility(value);
+
+        const moveIsVisible = this.transform != null;
+        this._xAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+        this._yAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+        this._omniAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
+
+        this._snapLabel.setActive(value).setVisible(value);
+        this._snapCheckbox.SetVisibility(value);
+        this._snapTextField.SetVisibility(value);
+    }
+
+    GetViewTransform() {
+        const ui = {
+            x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+        const camera = this._sceneView._cameraTransform;
+        const view = XForm.Mul(ui, camera, null);
+        return view;
+    }
+    _UpdateTransformPosition() {
+        const ui = {
+            x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
+            rotation: 0,
+            scaleX: 1, scaleY: 1
+        };
+        const camera = this._sceneView._cameraTransform;
+        const view = XForm.Mul(ui, camera, null);
+
+        const xform = this.transform;
+        if (xform) {
+            xform.ApplyTransform(this._xAxis, view);
+            xform.ApplyTransform(this._yAxis, view);
+            xform.ApplyTransform(this._omniAxis, view);
+        }
+    }
+
+    UpdateColors() {
+        super.UpdateColors();
+        const xform = this.transform;
+        const moveIsVisible = xform != null && this._visible;
+
+        this._xAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._yAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._omniAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
+        this._UpdateTransformPosition();
+    }
+
+    Layout(x, y, width, height) {
+        super.Layout(x, y, width, height);
+
+        if (x === undefined) { x = this._x; }
+        if (y === undefined) { y = this._y; }
+        if (width === undefined) { width = this._width; }
+        if (height === undefined) { height = this._height; }
+
+        if (width < 0) { width = 0; }
+        if (height < 0) { height = 0; }
+
+        this._x = x;
+        this._y = y;
+        this._width = width;
+        this._height = height;
+
+        x += UIGlobals.Sizes.ToolBarShelfIndent;
+        y += UIGlobals.Sizes.ToolBarShelfTextTopOffset
+        const itemGap = UIGlobals.Sizes.ToolBarShelfItemsGap;
+
+        this._snapLabel.setPosition(x, y);
+        x += this._snapLabel.width + itemGap;
+
+        this._snapCheckbox.Layout(x, y + 2);
+        x += this._snapCheckbox._width + itemGap;
+
+        this._snapTextField.Layout(x, y, 75);
+        x += this._snapTextField._width + itemGap;
+
+        this._UpdateTransformPosition();
+    }
+
+    DragStart(gameObject, pointer) {
+        this._dragging = true;
+
+        if (gameObject === this._xAxis) {
+            this._dragOffset.x = this._xAxis.x - pointer.x;
+            this._dragOffset.y = this._xAxis.y - pointer.y;
+        }
+        else if (gameObject === this._yAxis) {
+            this._dragOffset.x = this._yAxis.x - pointer.x;
+            this._dragOffset.y = this._yAxis.y - pointer.y;
+        }
+        if (gameObject === this._omniAxis) {
+            this._dragOffset.x = this._omniAxis.x - pointer.x;
+            this._dragOffset.y = this._omniAxis.y - pointer.y;
+        }
+    }
+
+    _project(a, /*onto*/ b) {
+        const magBSq = b.x * b.x + b.y * b.y;
+        const scale = (a.x * b.x + a.y * b.y) / magBSq;
+        return {
+            x: b.x * scale,
+            y: b.y * scale
+        }
+    }
+
+    Drag(gameObject, pointer, dragX, dragY) {
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            const xform = this.transform;
+            if (xform != null) {
+                if (gameObject === this._xAxis) {
+                    const deltaMotion = {
+                        x: (pointer.x + this._dragOffset.x) - this._xAxis.x,
+                        y: (pointer.y + this._dragOffset.y) - this._xAxis.y
+                    };
+
+                    const world = xform.worldTransform;
+                    
+                    if (xform.parent != null) {
+                        const parentWorld = xform.parent.worldTransform;
+                        const invParentWorld = XForm.Inverse(parentWorld);
+                        XForm.Mul(invParentWorld, world, world);
+                    }
+
+                    XForm.Mul(this.GetViewTransform(), world, world);
+                    let constrained = this._project(deltaMotion, XForm.Right(world));
+
+                    xform.x += constrained.x;
+                    xform.y += constrained.y;
+                }
+                if (gameObject === this._yAxis) {
+                    const deltaMotion = {
+                        x: (pointer.x + this._dragOffset.x) - this._yAxis.x,
+                        y: (pointer.y + this._dragOffset.y) - this._yAxis.y
+                    };
+
+                    const world = xform.worldTransform;
+                    if (xform.parent != null) {
+                        const parentWorld = xform.parent.worldTransform;
+                        const invParentWorld = XForm.Inverse(parentWorld);
+                        XForm.Mul(invParentWorld, world, world);
+                    }
+                    XForm.Mul(this.GetViewTransform(), world, world);
+                    let constrained = this._project(deltaMotion, XForm.Up(world));
+
+                    xform.x += constrained.x;
+                    xform.y += constrained.y;
+                }
+                if (gameObject === this._omniAxis) {
+                    xform.x += (pointer.x + this._dragOffset.x) - this._omniAxis.x;
+                    xform.y += (pointer.y + this._dragOffset.y) - this._omniAxis.y;
+                }
+                this._UpdateTransformPosition();
+            }
+        }
+    }
+
+    DragEnd(gameObject, pointer) {
+        this._dragging = false;
+        this._UpdateTransformPosition();
+        
+        const hierarchy = this._sceneView._hierarchyView;
+        if (hierarchy === null || hierarchy === undefined) {
+            return;
+        }
+        const selected = hierarchy._tree.selected;
+        if (selected === null || selected === undefined) {
+            return null;
+        }
+
+        const inspector = this._sceneView._inspectorView;
+        inspector.FocusOn(selected);
     }
 
     get transform() {

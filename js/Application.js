@@ -115,7 +115,10 @@ export default class Application extends Phaser.Scene {
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
 
         sceneView._hierarchyView = hierarchyView;
+        sceneView._inspectorView = inspectorView;
+        inspectorView._sceneView = sceneView;
         inspectorView._hierarchyView = hierarchyView;
+
 
         hierarchyView.onSelectionChanged = (oldNode, newNode) => {
             inspectorView.FocusOn(newNode);
