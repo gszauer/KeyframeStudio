@@ -33,8 +33,8 @@ export default class InspectorView extends UIView {
     _scaleYLabel = null;
     _scaleYTextField = null;
 
-    _scaleModeLabel = null;
-    _scaleModeDropdown = null;
+    //_scaleModeLabel = null;
+    //_scaleModeDropdown = null;
     _doUniformScale = false;
 
     _spriteSheetLabel = null;
@@ -114,9 +114,9 @@ export default class InspectorView extends UIView {
         this._scaleYLabel.setDepth(UIGlobals.WidgetLayer);
         this._scaleYLabel.text = "Y Scale";
 
-        this._scaleModeLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
+        /*this._scaleModeLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._scaleModeLabel.setDepth(UIGlobals.WidgetLayer);
-        this._scaleModeLabel.text = "Uniform";
+        this._scaleModeLabel.text = "Uniform";*/
 
         this._spriteSheetLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._spriteSheetLabel.setDepth(UIGlobals.WidgetLayer);
@@ -160,16 +160,16 @@ export default class InspectorView extends UIView {
 
         const self = this;
 
-        let popup = new UIPopup(scene);
+        /*let popup = new UIPopup(scene);
         popup.Add("False");
         popup.Add("True");
         this._scaleModeDropdown = new UIDropdown(scene, popup);
         popup.onSelect = (name, obj) => {
             self._doUniformScale = name == "True";
         };
-        this._scaleModeDropdown.Disable();
+        this._scaleModeDropdown.Disable();*/
 
-        popup = new UIPopup(scene);
+        let popup = new UIPopup(scene);
         popup.Add("True", () => {
             if (self._focused != null) {
                 self._focused._userData.sprite.visible = true;
@@ -403,24 +403,24 @@ export default class InspectorView extends UIView {
 
         const rowWidth = (width - margin * 8) / 3 ;
 
-        this._positionXLabel.setPosition(x, y);
-        this._positionYLabel.setPosition(x + rowWidth + margin * 2, y);
-        this._rotationLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
+        this._rotationLabel.setPosition(x, y);
+        this._positionXLabel.setPosition(x + rowWidth + margin * 2, y);
+        this._positionYLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
 
         y = y + this._rotationLabel.height + skip;
-        this._positionXTextField.Layout(x, y, rowWidth);
-        this._positionYTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
-        this._rotationTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
+        this._rotationTextField.Layout(x, y, rowWidth);
+        this._positionXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
+        this._positionYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y += this._rotationTextField._height +skip;
-        this._scaleXLabel.setPosition(x, y);
-        this._scaleYLabel.setPosition(x + rowWidth + margin * 2, y);
-        this._scaleModeLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
+        this._scaleXLabel.setPosition(x + rowWidth + margin * 2, y);
+        this._scaleYLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
+        //this._scaleModeLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
 
-        y = y + this._scaleModeLabel.height + skip;
-        this._scaleXTextField.Layout(x, y, rowWidth);
-        this._scaleYTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
-        this._scaleModeDropdown.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
+        y = y + this._scaleYLabel.height + skip;
+        this._scaleXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
+        this._scaleYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
+        //this._scaleModeDropdown.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._scaleYTextField._height + skip;
         y += margin * 0.5;
@@ -480,7 +480,6 @@ export default class InspectorView extends UIView {
         this._alphaTextField.SetVisibility(visible);
         this._pivotXTextField.SetVisibility(visible);
         this._pivotYTextField.SetVisibility(visible);
-        this._scaleModeDropdown.SetVisibility(visible);
         this._spriteSheetDropdown.SetVisibility(visible);
         this._tintButton.SetVisibility(visible);
         this._visibleDropdown.SetVisibility(visible);
@@ -494,7 +493,8 @@ export default class InspectorView extends UIView {
         this._rotationLabel.setActive(visible).setVisible(visible);
         this._scaleXLabel.setActive(visible).setVisible(visible);
         this._scaleYLabel.setActive(visible).setVisible(visible);
-        this._scaleModeLabel.setActive(visible).setVisible(visible);
+        //this._scaleModeDropdown.SetVisibility(visible);
+        //this._scaleModeLabel.setActive(visible).setVisible(visible);
         this._spriteSheetLabel.setActive(visible).setVisible(visible);
         this._tintLabel.setActive(visible).setVisible(visible);
         this._frameXLabel.setActive(visible).setVisible(visible);
@@ -569,7 +569,7 @@ export default class InspectorView extends UIView {
             this._rotationTextField.Enable();
             this._scaleXTextField.Enable();
             this._scaleYTextField.Enable();
-            this._scaleModeDropdown.Enable();
+            //this._scaleModeDropdown.Enable();
 
             this._frameXTextField.Enable();
             this._frameYTextField.Enable();
@@ -589,7 +589,7 @@ export default class InspectorView extends UIView {
             this._rotationTextField.Disable();
             this._scaleXTextField.Disable();
             this._scaleYTextField.Disable();
-            this._scaleModeDropdown.Disable();
+            //this._scaleModeDropdown.Disable();
 
             this._frameXTextField.Disable();
             this._frameYTextField.Disable();

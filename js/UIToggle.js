@@ -71,7 +71,7 @@ export default class UIToggle {
 
                 if (pointer.x >= left && pointer.x <= right && pointer.y >= top && pointer.y <= bottom) {
                     self._state = !self._state;
-                    console.log("Toggle " + self._text.text + " to " + self._state);
+                    //console.log("Toggle " + self._text.text + " to " + self._state);
                     if (self.onToggle != null) {
                         self.onToggle(self._state, self);
                     }

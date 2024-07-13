@@ -525,7 +525,7 @@ export class MoveShelf extends UIToolBarShelf {
             arrowSize, -arrowSize * arrowHeight,
             arrowSize, /*0*//*-arrowSize*/-(omniSize + omniSpace),
         ], 0x00ff00);
-        this._yAxis.setDepth(UIGlobals.WidgetLayer);
+        this._yAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._yAxis.setOrigin(0, 0);
 
         this._xAxis = scene.add.polygon(0, 0, [
@@ -537,7 +537,7 @@ export class MoveShelf extends UIToolBarShelf {
             arrowSize * arrowHeight, arrowSize, 
             /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
         ], 0xff0000);
-        this._xAxis.setDepth(UIGlobals.WidgetLayer);
+        this._xAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._xAxis.setOrigin(0, 0);
 
         this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
@@ -556,7 +556,7 @@ export class MoveShelf extends UIToolBarShelf {
         scene.input.setDraggable(this._yAxis);
 
         this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
-        this._omniAxis.setDepth(UIGlobals.WidgetLayer);
+        this._omniAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._omniAxis.setOrigin(0.5, 0.5);
         this._omniAxis.setInteractive();
         scene.input.setDraggable(this._omniAxis);
@@ -633,7 +633,11 @@ export class MoveShelf extends UIToolBarShelf {
             xform.ApplyTransform(this._xAxis, view);
             xform.ApplyTransform(this._yAxis, view);
             xform.ApplyTransform(this._omniAxis, view);
+            this._xAxis.scaleX = this._yAxis.scaleX = this._omniAxis.scaleX = 1.0;
+            this._xAxis.scaleY = this._yAxis.scaleY = this._omniAxis.scaleY = 1.0;
+            return true;
         }
+        return false;
     }
 
     UpdateColors() {
@@ -685,8 +689,19 @@ export class MoveShelf extends UIToolBarShelf {
         this._UpdateTransformPosition();
     }
 
+    _project(a, /*onto*/ b) {
+        const magBSq = b.x * b.x + b.y * b.y;
+        const scale = (a.x * b.x + a.y * b.y) / magBSq;
+        return {
+            x: b.x * scale,
+            y: b.y * scale
+        }
+    }
+
     DragStart(gameObject, pointer) {
-        this._dragging = true;
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            this._dragging = true;
+        }
 
         if (gameObject === this._xAxis) {
             this._dragOffset.x = this._xAxis.x - pointer.x;
@@ -699,15 +714,6 @@ export class MoveShelf extends UIToolBarShelf {
         if (gameObject === this._omniAxis) {
             this._dragOffset.x = this._omniAxis.x - pointer.x;
             this._dragOffset.y = this._omniAxis.y - pointer.y;
-        }
-    }
-
-    _project(a, /*onto*/ b) {
-        const magBSq = b.x * b.x + b.y * b.y;
-        const scale = (a.x * b.x + a.y * b.y) / magBSq;
-        return {
-            x: b.x * scale,
-            y: b.y * scale
         }
     }
 
@@ -757,26 +763,32 @@ export class MoveShelf extends UIToolBarShelf {
                     xform.x += (pointer.x + this._dragOffset.x) - this._omniAxis.x;
                     xform.y += (pointer.y + this._dragOffset.y) - this._omniAxis.y;
                 }
-                this._UpdateTransformPosition();
+                if (this._UpdateTransformPosition()) {
+                    this._sceneView._hierarchyView._UpdateTransforms();
+                }
             }
         }
     }
 
     DragEnd(gameObject, pointer) {
-        this._dragging = false;
-        this._UpdateTransformPosition();
-        
-        const hierarchy = this._sceneView._hierarchyView;
-        if (hierarchy === null || hierarchy === undefined) {
-            return;
-        }
-        const selected = hierarchy._tree.selected;
-        if (selected === null || selected === undefined) {
-            return null;
-        }
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            this._dragging = false;
+            if (this._UpdateTransformPosition()) {
+                this._sceneView._hierarchyView._UpdateTransforms();
+            }
+            
+            const hierarchy = this._sceneView._hierarchyView;
+            if (hierarchy === null || hierarchy === undefined) {
+                return;
+            }
+            const selected = hierarchy._tree.selected;
+            if (selected === null || selected === undefined) {
+                return null;
+            }
 
-        const inspector = this._sceneView._inspectorView;
-        inspector.FocusOn(selected);
+            const inspector = this._sceneView._inspectorView;
+            inspector.FocusOn(selected);
+        }
     }
 
     get transform() {
@@ -821,7 +833,7 @@ export class ScaleShelf extends UIToolBarShelf {
     _snapStepSize = 10;
 
     _dragging = false;
-    _dragOffset = { x: 0, y: 0 };
+    _dragStart = { x: 0, y: 0 };
 
     _xAxis = null;
     _yAxis = null;
@@ -885,7 +897,7 @@ export class ScaleShelf extends UIToolBarShelf {
             arrowSize, -arrowSize * arrowHeight,
             arrowSize, /*0*//*-arrowSize*/-(omniSize + omniSpace),
         ], 0x00ff00);
-        this._yAxis.setDepth(UIGlobals.WidgetLayer);
+        this._yAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._yAxis.setOrigin(0, 0);
 
         this._xAxis = scene.add.polygon(0, 0, [
@@ -898,7 +910,7 @@ export class ScaleShelf extends UIToolBarShelf {
             arrowSize * arrowHeight, arrowSize, 
             /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
         ], 0xff0000);
-        this._xAxis.setDepth(UIGlobals.WidgetLayer);
+        this._xAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._xAxis.setOrigin(0, 0);
 
         this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
@@ -917,7 +929,7 @@ export class ScaleShelf extends UIToolBarShelf {
         scene.input.setDraggable(this._yAxis);
 
         this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
-        this._omniAxis.setDepth(UIGlobals.WidgetLayer);
+        this._omniAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._omniAxis.setOrigin(0.5, 0.5);
         this._omniAxis.setInteractive();
         scene.input.setDraggable(this._omniAxis);
@@ -992,7 +1004,11 @@ export class ScaleShelf extends UIToolBarShelf {
             xform.ApplyTransform(this._xAxis, view);
             xform.ApplyTransform(this._yAxis, view);
             xform.ApplyTransform(this._omniAxis, view);
+            this._xAxis.scaleX = this._yAxis.scaleX = this._omniAxis.scaleX = 1.0;
+            this._xAxis.scaleY = this._yAxis.scaleY = this._omniAxis.scaleY = 1.0;
+            return true;
         }
+        return false;
     }
 
     UpdateColors() {
@@ -1038,23 +1054,6 @@ export class ScaleShelf extends UIToolBarShelf {
         this._UpdateTransformPosition();
     }
 
-    DragStart(gameObject, pointer) {
-        this._dragging = true;
-
-        if (gameObject === this._xAxis) {
-            this._dragOffset.x = this._xAxis.x - pointer.x;
-            this._dragOffset.y = this._xAxis.y - pointer.y;
-        }
-        else if (gameObject === this._yAxis) {
-            this._dragOffset.x = this._yAxis.x - pointer.x;
-            this._dragOffset.y = this._yAxis.y - pointer.y;
-        }
-        if (gameObject === this._omniAxis) {
-            this._dragOffset.x = this._omniAxis.x - pointer.x;
-            this._dragOffset.y = this._omniAxis.y - pointer.y;
-        }
-    }
-
     _project(a, /*onto*/ b) {
         const magBSq = b.x * b.x + b.y * b.y;
         const scale = (a.x * b.x + a.y * b.y) / magBSq;
@@ -1064,11 +1063,41 @@ export class ScaleShelf extends UIToolBarShelf {
         }
     }
 
+    DragStart(gameObject, pointer) {
+        this._dragging = true;
+        
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            let xform = this.transform;
+            if (xform != null) {
+                xform = xform.worldTransform;
+                XForm.Mul(this.GetViewTransform(), xform, xform);
+                this._dragStart.x = xform.x;
+                this._dragStart.y = xform.y;
+            }
+        }
+    }
+
     Drag(gameObject, pointer, dragX, dragY) {
         if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
             const xform = this.transform;
             if (xform != null) {
-                if (gameObject === this._xAxis) {
+                const delta = {
+                    x: pointer.x - this._dragStart.x,
+                    y: pointer.y - this._dragStart.y
+                };
+
+                const scaleScale = 250;
+                const lenSq = delta.x * delta.x + delta.y * delta.y;
+                if (gameObject === this._xAxis || gameObject === this._omniAxis) {
+                    xform.scaleX = lenSq / scaleScale;
+                }
+                if (gameObject === this._yAxis || gameObject === this._omniAxis) {
+                    xform.scaleY = lenSq / scaleScale;
+                }
+
+                
+
+                /*if (gameObject === this._xAxis) {
                     const deltaMotion = {
                         x: (pointer.x + this._dragOffset.x) - this._xAxis.x,
                         y: (pointer.y + this._dragOffset.y) - this._xAxis.y
@@ -1109,27 +1138,33 @@ export class ScaleShelf extends UIToolBarShelf {
                 if (gameObject === this._omniAxis) {
                     xform.x += (pointer.x + this._dragOffset.x) - this._omniAxis.x;
                     xform.y += (pointer.y + this._dragOffset.y) - this._omniAxis.y;
+                }*/
+                if (this._UpdateTransformPosition()) {
+                    this._sceneView._hierarchyView._UpdateTransforms();
                 }
-                this._UpdateTransformPosition();
             }
         }
     }
 
     DragEnd(gameObject, pointer) {
-        this._dragging = false;
-        this._UpdateTransformPosition();
-        
-        const hierarchy = this._sceneView._hierarchyView;
-        if (hierarchy === null || hierarchy === undefined) {
-            return;
-        }
-        const selected = hierarchy._tree.selected;
-        if (selected === null || selected === undefined) {
-            return null;
-        }
+        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
+            this._dragging = false;
+            if (this._UpdateTransformPosition()) {
+                this._sceneView._hierarchyView._UpdateTransforms();
+            }
+            
+            const hierarchy = this._sceneView._hierarchyView;
+            if (hierarchy === null || hierarchy === undefined) {
+                return;
+            }
+            const selected = hierarchy._tree.selected;
+            if (selected === null || selected === undefined) {
+                return null;
+            }
 
-        const inspector = this._sceneView._inspectorView;
-        inspector.FocusOn(selected);
+            const inspector = this._sceneView._inspectorView;
+            inspector.FocusOn(selected);
+        }
     }
 
     get transform() {

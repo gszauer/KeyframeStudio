@@ -55,7 +55,7 @@ export default class UITreeNode {
         for (let i = 0; i < toDestroy.length; ++i) {
             const target = toDestroy[i];
 
-            target._userData = null;
+            //target._userData = null;
             target._tree = null;
             target._name = null;
         
@@ -261,6 +261,22 @@ export default class UITreeNode {
         }
 
         //this._parent = oldParent;
+    }
+
+    Recursive(callback) {
+        const toProcess = [];
+        toProcess.push(this);
+
+        while(toProcess.length > 0) {
+            const top = toProcess.pop();
+            if (top._firstChild !== null) {
+                toProcess.push(top._firstChild);
+            }
+            if (top !== this && top._nextSibling !== null) {
+                toProcess.push(top._nextSibling);
+            }
+            callback(top);
+        }
     }
 
     get name() {

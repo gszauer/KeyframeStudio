@@ -98,19 +98,28 @@ export default class HierarchyView extends UIView {
         this._drawOrderToHiararchyNodeMap.get(node)._userData.sprite.sprite.setDepth(newDepth);
     }
 
-    Delete() {
-        if (this.active == null) {
+    Delete(toRemove) {
+        const self = this;
+        if (toRemove === undefined) {
+            if (this.active != null) {
+                this.active.Recursive((node) => {
+                    self.Delete(node);
+                });
+            }
             return;
         }
-        const toRemove = this.active;
-        
 
-        this._drawOrderToHiararchyNodeMap.delete(toRemove._userData.drawOrder);
-        toRemove._userData.drawOrder.Destroy();
-        toRemove._userData.sprite.Destroy();
+        //if (toRemove._userData !== null) {
+            this._drawOrderToHiararchyNodeMap.delete(toRemove._userData.drawOrder);
+            toRemove._userData.drawOrder.Destroy();
+            toRemove._userData.sprite.Destroy();
+        //}
+        toRemove._userData = null;
+
         this.Deselect();
         this._tree.Remove(toRemove);
         this._UpdateTransforms();
+        
         this.active = null;
     }
 
