@@ -7,6 +7,8 @@ import UIPopup from './UIPopup.js'
 import UIToggle from './UIToggle.js'
 import XForm from './Transform.js'
 
+import ScaleShelf from './ShelfScale.js'
+
 export default class SceneView extends UIView {
     _cameraTransform = null;
     _input = null;
@@ -175,6 +177,9 @@ export default class SceneView extends UIView {
     CreateToolShelves(toolbar) {
         const move = new MoveShelf(this._scene, this);
         toolbar.AddShelf(UIGlobals.IconMove, move);
+
+        const rotate = new RotateShelf(this._scene, this);
+        toolbar.AddShelf(UIGlobals.IconRotate, rotate);
 
         const scale = new ScaleShelf(this._scene, this);
         toolbar.AddShelf(UIGlobals.IconScale, scale);
@@ -821,25 +826,22 @@ export class MoveShelf extends UIToolBarShelf {
     }
 }
 
-export class ScaleShelf extends UIToolBarShelf {
+export class RotateShelf extends UIToolBarShelf {
     _sceneView = null;
 
     _snapLabel = null;
     _snapCheckbox = null;
     _snapTextField = null;
-
-    _useLocalSpace = true;
-    _selectOnClick = false;
     _snapStepSize = 10;
     _snapEnabled = false;
 
-    _dragging = false;
-    _dragStart = { x: 0, y: 0 };
+    _circle = null;
+    _start = null;
+    _current = null;
 
-    _xAxis = null;
-    _yAxis = null;
-    _omniAxis = null;
-    
+    _radius = 100;
+    _mouseDownPos = {x: 0, y: 0};
+    _normalizedMouseDownPos = {x: 0, y: 0};
 
     constructor(scene, sceneView) {
         super(scene);
@@ -875,7 +877,7 @@ export class ScaleShelf extends UIToolBarShelf {
             self._snapEnabled = valueBol;
             const val = self._snapTextField.text;
             self._snapStepSize = Number(NumerisizeString(val));
-            self.UpdateColors();
+            self.UpdateColors(); 
         });
 
         this._snapTextField = new UITextBox(scene, "" + this._snapStepSize);
@@ -885,105 +887,71 @@ export class ScaleShelf extends UIToolBarShelf {
         };
         this._snapTextField._disabled = !this._snapEnabled;
 
+        const circleLineWidth = 8;
+        this._circle = scene.add.graphics();
+        this._circle.lineStyle(circleLineWidth, 0x0000ff, 1);
+        this._circle.beginPath();
+        this._circle.arc(0, 0, this._radius , 0, Phaser.Math.PI2, true);
+        this._circle.strokePath();
+        this._circle.setDepth(UIGlobals.OverlayLayer - 5);
 
-        const arrowSize = 4;
-        const arrowHeight = 16;
-        const arrowTopWidth = 3;
-        const arrowTopHeight = 6;
-        const omniSize = 7;
-        const omniSpace = 3;
+        this._circle.setInteractive({ 
+            draggable: true,
+            hitArea: new Phaser.Geom.Circle(0, 0, this._radius + circleLineWidth), 
+            hitAreaCallback: Phaser.Geom.Circle.Contains });
+        scene.input.setDraggable(this._circle);
 
-        this._yAxis = scene.add.polygon(0, 0, [
-            -arrowSize, /*0*//*arrowSize*/(omniSize + omniSpace),
-            -arrowSize, arrowSize * arrowHeight,
-            -arrowSize * arrowTopWidth, arrowSize * arrowHeight,
-            -arrowSize * arrowTopWidth, arrowSize * (arrowHeight + arrowTopHeight),
-            arrowSize * arrowTopWidth, arrowSize * (arrowHeight + arrowTopHeight),
-            arrowSize * arrowTopWidth, arrowSize * arrowHeight,
-            arrowSize, arrowSize * arrowHeight,
-            arrowSize, /*0*//*-arrowSize*/(omniSize + omniSpace),
-        ], 0x00ff00);
-        this._yAxis.setDepth(UIGlobals.OverlayLayer - 5);
-        this._yAxis.setOrigin(0, 0);
-
-        this._xAxis = scene.add.polygon(0, 0, [
-            /*0*//*arrowSize*/omniSize + omniSpace, -arrowSize, 
-            arrowSize * arrowHeight, -arrowSize, 
-            arrowSize * arrowHeight, -arrowSize * arrowTopWidth, 
-            arrowSize * (arrowHeight + arrowTopHeight), -arrowSize * arrowTopWidth, 
-            arrowSize * (arrowHeight + arrowTopHeight), arrowSize * arrowTopWidth, 
-            arrowSize * arrowHeight, arrowSize * arrowTopWidth, 
-            arrowSize * arrowHeight, arrowSize, 
-            /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
-        ], 0xff0000);
-        this._xAxis.setDepth(UIGlobals.OverlayLayer - 5);
-        this._xAxis.setOrigin(0, 0);
-
-        this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
-            omniSize + omniSpace, 
-            -arrowSize * arrowTopWidth, 
-            arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace), 
-            arrowSize * arrowTopWidth * 2
-        ), Phaser.Geom.Rectangle.Contains);
-        scene.input.setDraggable(this._xAxis);
-        this._yAxis.setInteractive(new Phaser.Geom.Rectangle(
-            -arrowSize * arrowTopWidth,
-            (omniSize + omniSpace),
-            arrowSize * arrowTopWidth * 2,
-            arrowSize * (arrowHeight + arrowTopHeight)  - (omniSize + omniSpace)
-        ), Phaser.Geom.Rectangle.Contains);
-        scene.input.setDraggable(this._yAxis);
-
-        this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
-        this._omniAxis.setDepth(UIGlobals.OverlayLayer - 5);
-        this._omniAxis.setOrigin(0.5, 0.5);
-        this._omniAxis.setInteractive();
-        scene.input.setDraggable(this._omniAxis);
-
-        const xAxis = this._xAxis;
-        const yAxis = this._yAxis;
-        const omni = this._omniAxis;
-        
-        //console.log('x axis position', this._xAxis.x, this._xAxis.y);
-        //console.log('x axis hitArea', this._xAxis.input.hitArea);
         scene.input.on('dragstart', (pointer, gameObject) => {
-            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+            if (gameObject === this._circle) {
                 self.DragStart(gameObject, pointer);
                 gameObject.fillColor = 0xffff00;
             }
         });
         scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            if (gameObject === xAxis || gameObject === yAxis || gameObject == omni) {
+            if (gameObject === this._circle) {
                 self.Drag(gameObject, pointer, dragX, dragY);
             }
         });
         scene.input.on('dragend', (pointer, gameObject) => {
-            if (gameObject == xAxis) {
+            if (gameObject == this._circle) {
                 self.DragEnd(gameObject, pointer);
-                gameObject.fillColor = 0xff0000;
-            }
-            else if (gameObject == yAxis) {
-                self.DragEnd(gameObject, pointer);
-                gameObject.fillColor = 0x00ff00;
-            }
-            else if (gameObject == omni) {
-                self.DragEnd(gameObject, pointer);
-                gameObject.fillColor = 0xffffff;
+                gameObject.fillColor = 0x0000ff;
             }
         });
+    }
+
+    get transform() {
+        const hierarchy = this._sceneView._hierarchyView;
+        if (hierarchy === null || hierarchy === undefined) {
+            return null;
+        }
+
+        const selected = hierarchy._tree.selected;
+        if (selected === null || selected === undefined) {
+            return null;
+        }
+
+        const userData = selected._userData;
+        if (userData === null || userData === undefined) {
+            return null;
+        }
+
+        const xForm = userData.transform;
+        if (xForm === null || xForm === undefined) {
+            return null;
+        }
+
+        return xForm;
     }
 
     SetVisibility(value) {
         super.SetVisibility(value);
 
-        const moveIsVisible = this.transform != null;
-        this._xAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
-        this._yAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
-        this._omniAxis.setActive(moveIsVisible && value).setVisible(moveIsVisible && value);
-
         this._snapLabel.setActive(value).setVisible(value);
         this._snapCheckbox.SetVisibility(value);
         this._snapTextField.SetVisibility(value);
+
+        this._circle.setActive(value).setVisible(value);
     }
 
     GetViewTransform() {
@@ -996,6 +964,7 @@ export class ScaleShelf extends UIToolBarShelf {
         const view = XForm.Mul(ui, camera, null);
         return view;
     }
+
     _UpdateTransformPosition() {
         const ui = {
             x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
@@ -1007,11 +976,8 @@ export class ScaleShelf extends UIToolBarShelf {
 
         const xform = this.transform;
         if (xform) {
-            xform.ApplyTransform(this._xAxis, view);
-            xform.ApplyTransform(this._yAxis, view);
-            xform.ApplyTransform(this._omniAxis, view);
-            this._xAxis.scaleX = this._yAxis.scaleX = this._omniAxis.scaleX = 1.0;
-            this._xAxis.scaleY = this._yAxis.scaleY = this._omniAxis.scaleY = 1.0;
+            xform.ApplyTransform(this._circle, view);
+            this._circle.scaleX = this._circle.scaleY = 1.0;
             return true;
         }
         return false;
@@ -1024,11 +990,6 @@ export class ScaleShelf extends UIToolBarShelf {
         this._snapTextField._disabled = !(this._snapEnabled);// && xform != null);
         this._snapTextField.UpdateColors();
 
-        const moveIsVisible = xform != null && this._visible;
-
-        this._xAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
-        this._yAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
-        this._omniAxis.setActive(moveIsVisible).setVisible(moveIsVisible);
         this._UpdateTransformPosition();
     }
 
@@ -1064,107 +1025,53 @@ export class ScaleShelf extends UIToolBarShelf {
         this._UpdateTransformPosition();
     }
 
-    _project(a, /*onto*/ b) {
-        const magBSq = b.x * b.x + b.y * b.y;
-        const scale = (a.x * b.x + a.y * b.y) / magBSq;
-        return {
-            x: b.x * scale,
-            y: b.y * scale
-        }
-    }
-
     DragStart(gameObject, pointer) {
-        this._dragging = true;
-        
-        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
-            let xform = this.transform;
-            if (xform != null) {
-                xform = xform.worldTransform;
-                XForm.Mul(this.GetViewTransform(), xform, xform);
-                this._dragStart.x = xform.x;
-                this._dragStart.y = xform.y;
+        if (gameObject == this._circle) {
+            UIGlobals.Active = gameObject;
+            this._mouseDownPos.x = pointer.x;
+            this._mouseDownPos.y = pointer.y;
+
+            this._normalizedMouseDownPos.x = pointer.x - gameObject.x;
+            this._normalizedMouseDownPos.y = pointer.y - gameObject.y;
+            const lenSq = this._normalizedMouseDownPos.x * this._normalizedMouseDownPos.x + this._normalizedMouseDownPos.y * this._normalizedMouseDownPos.y;
+            if (lenSq > 0.00001) {
+                const len = Math.sqrt(lenSq);
+                this._normalizedMouseDownPos.x /= len;
+                this._normalizedMouseDownPos.y /= len;
+            }
+            else {
+                this._normalizedMouseDownPos.x = 0;
+                this._normalizedMouseDownPos.y = 0;
             }
         }
     }
 
     Drag(gameObject, pointer, dragX, dragY) {
-        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
-            const xform = this.transform;
-            if (xform != null) {
-                const delta = {
-                    x: pointer.x - this._dragStart.x,
-                    y: pointer.y - this._dragStart.y
-                };
-
-                const scaleScale = 250;
-                const lenSq = delta.x * delta.x + delta.y * delta.y;
-                if (gameObject === this._xAxis || gameObject === this._omniAxis) {
-                    xform.scaleX = lenSq / scaleScale;
-                }
-                if (gameObject === this._yAxis || gameObject === this._omniAxis) {
-                    xform.scaleY = lenSq / scaleScale;
-                }
-
-                if (this._snapEnabled) {
-                    xform.scaleX = Math.floor(xform.scaleX / this._snapStepSize) * this._snapStepSize;
-                    xform.scaleY =  Math.floor(xform.scaleY / this._snapStepSize) * this._snapStepSize;
-                }
-
-                
-                if (this._UpdateTransformPosition()) {
-                    this._sceneView._hierarchyView._UpdateTransforms();
-                }
+        if (gameObject == this._circle) {
+            const normalizedMousePos = {x: 0, y: 0};
+            normalizedMousePos.x = pointer.x - gameObject.x;
+            normalizedMousePos.y = pointer.y - gameObject.y;
+            const lenSq = normalizedMousePos.x * normalizedMousePos.x + normalizedMousePos.y * normalizedMousePos.y;
+            if (lenSq > 0.00001) {
+                const len = Math.sqrt(lenSq);
+                normalizedMousePos.x /= len;
+                normalizedMousePos.y /= len;
             }
+            else {
+                normalizedMousePos.x = 0;
+                normalizedMousePos.y = 0;
+            }
+
+            const dot = normalizedMousePos.x * this._normalizedMouseDownPos.x + 
+                        normalizedMousePos.y * this._normalizedMouseDownPos.y;
+            const angle = Math.acos(dot);
+            console.log("Angle: " + Phaser.Math.RadToDeg(angle));
         }
     }
 
     DragEnd(gameObject, pointer) {
-        if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
-            this._dragging = false;
-            if (this._UpdateTransformPosition()) {
-                this._sceneView._hierarchyView._UpdateTransforms();
-            }
-            
-            const hierarchy = this._sceneView._hierarchyView;
-            if (hierarchy === null || hierarchy === undefined) {
-                return;
-            }
-            const selected = hierarchy._tree.selected;
-            if (selected === null || selected === undefined) {
-                return null;
-            }
-
-            const inspector = this._sceneView._inspectorView;
-            inspector.FocusOn(selected);
+        if (gameObject == this._circle) {
+            UIGlobals.Active = null;
         }
-    }
-
-    get transform() {
-        const hierarchy = this._sceneView._hierarchyView;
-        if (hierarchy === null || hierarchy === undefined) {
-            return null;
-        }
-
-        /*const tree = hierarchy._tree;
-        if (tree === null || tree === undefined) {
-            return null;
-        }*/
-
-        const selected = hierarchy._tree.selected;
-        if (selected === null || selected === undefined) {
-            return null;
-        }
-
-        const userData = selected._userData;
-        if (userData === null || userData === undefined) {
-            return null;
-        }
-
-        const xForm = userData.transform;
-        if (xForm === null || xForm === undefined) {
-            return null;
-        }
-
-        return xForm;
     }
 }
