@@ -10,6 +10,7 @@ import XForm from './Transform.js'
 import ScaleShelf from './ShelfScale.js'
 import RotateShelf from './ShelfRotate.js'
 import PanShelf from './ShelfPan.js'
+import ZoomShelf from './ShelfZoom.js'
 
 export default class SceneView extends UIView {
     _cameraTransform = null;
@@ -200,48 +201,6 @@ export default class SceneView extends UIView {
     }
 }
 
-export class ZoomShelf extends PanShelf {
-    DragStart(pointer) {
-        this._dragStart.x = pointer.worldX;
-        this._dragStart.y = pointer.worldY;
-
-        this._cameraStart.x = this._sceneView._cameraTransform.x;// * this._sceneView._cameraTransform.scaleX;
-        this._cameraStart.y = this._sceneView._cameraTransform.y;// * this._sceneView._cameraTransform.scaleY;
-        this._cameraStart.scaleX = this._sceneView._cameraTransform.scaleX;
-        this._cameraStart.scaleY = this._sceneView._cameraTransform.scaleY;
-    }
-
-    Drag(pointer, dragX, dragY) {
-        const deltaX = (pointer.worldX - this._dragStart.x) * 0.01;
-        const deltaY = (pointer.worldY - this._dragStart.y) * 0.01;
-        
-        const scaleX = Math.abs(this._cameraStart.scaleX + deltaX);
-        const scaleY = Math.abs(this._cameraStart.scaleY + deltaY);
-
-        this._sceneView._cameraTransform.scaleX = scaleY;
-        this._sceneView._cameraTransform.scaleY = scaleY;
-
-        //this._sceneView._cameraTransform.x = this._cameraStart.x + (this._cameraStart.x * scaleY - this._cameraStart.x);
-        //this._sceneView._cameraTransform.y = this._cameraStart.y + (this._cameraStart.y * scaleY - this._cameraStart.y);
- 
-        const truncateFloat = (str, digits) => {
-            let re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
-                m = str.toString().match(re);
-            return m ? parseFloat(m[1]) : str.valueOf();
-        };
-
-        this._zoomInput.text = + truncateFloat("" + scaleY, 3);
-        this._viewportXInput.text = truncateFloat("" + this._sceneView._cameraTransform.x, 3);
-        this._viewportYInput.text = truncateFloat("" + this._sceneView._cameraTransform.y, 3);
-
-        this._sceneView.Layout();
-    }
-
-    DragEnd(pointer) {
-
-    }
-}
-
 export class MoveShelf extends UIToolBarShelf {
     _sceneView = null;
 
@@ -263,7 +222,6 @@ export class MoveShelf extends UIToolBarShelf {
     _yAxis = null;
     _omniAxis = null;
     
-
     constructor(scene, sceneView) {
         super(scene);
         const self = this;
@@ -297,11 +255,11 @@ export class MoveShelf extends UIToolBarShelf {
         let popup = new UIPopup(scene);
         popup.Add("Local", () => {
             self._useLocalSpace = true;
-            // TODO
+            self._UpdateTransformPosition();
         });
         popup.Add("World", () => {
             self._useLocalSpace = false;
-            // TODO
+            self._UpdateTransformPosition();
         });
         this._spaceDropdown = new UIDropdown(scene, popup);
 
@@ -327,24 +285,24 @@ export class MoveShelf extends UIToolBarShelf {
         const omniSpace = 3;
 
         this._yAxis = scene.add.polygon(0, 0, [
-            -arrowSize, /*0*//*arrowSize*/-(omniSize + omniSpace),
-            -arrowSize, -arrowSize * arrowHeight,
-            -arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
-            0, -arrowSize * (arrowHeight + arrowTopHeight),
-            arrowSize * arrowTopWidth, -arrowSize * arrowHeight,
-            arrowSize, -arrowSize * arrowHeight,
-            arrowSize, /*0*//*-arrowSize*/-(omniSize + omniSpace),
+            -arrowSize, /*0*//*arrowSize*/      (omniSize + omniSpace),
+            -arrowSize,                         arrowSize * arrowHeight,
+            -arrowSize * arrowTopWidth,         arrowSize * arrowHeight,
+            0,                                  arrowSize * (arrowHeight + arrowTopHeight),
+            arrowSize * arrowTopWidth,          arrowSize * arrowHeight,
+            arrowSize,                          arrowSize * arrowHeight,
+            arrowSize, /*0*//*-arrowSize*/      (omniSize + omniSpace),
         ], 0x00ff00);
         this._yAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._yAxis.setOrigin(0, 0);
 
         this._xAxis = scene.add.polygon(0, 0, [
             /*0*//*arrowSize*/omniSize + omniSpace, -arrowSize, 
-            arrowSize * arrowHeight, -arrowSize, 
-            arrowSize * arrowHeight, -arrowSize * arrowTopWidth, 
+            arrowSize * arrowHeight,                -arrowSize, 
+            arrowSize * arrowHeight,                -arrowSize * arrowTopWidth, 
             arrowSize * (arrowHeight + arrowTopHeight), 0, 
-            arrowSize * arrowHeight, arrowSize * arrowTopWidth, 
-            arrowSize * arrowHeight, arrowSize, 
+            arrowSize * arrowHeight,                arrowSize * arrowTopWidth, 
+            arrowSize * arrowHeight,                arrowSize, 
             /*0*//*-arrowSize*/omniSize + omniSpace, arrowSize, 
         ], 0xff0000);
         this._xAxis.setDepth(UIGlobals.OverlayLayer - 5);
@@ -359,7 +317,7 @@ export class MoveShelf extends UIToolBarShelf {
         scene.input.setDraggable(this._xAxis);
         this._yAxis.setInteractive(new Phaser.Geom.Rectangle(
             -arrowSize * arrowTopWidth,
-            -arrowSize * (arrowHeight + arrowTopHeight),
+            (omniSize + omniSpace),//arrowSize * (arrowHeight + arrowTopHeight),
             arrowSize * arrowTopWidth * 2,
             arrowSize * (arrowHeight + arrowTopHeight) - (omniSize + omniSpace)
         ), Phaser.Geom.Rectangle.Contains);
@@ -429,6 +387,7 @@ export class MoveShelf extends UIToolBarShelf {
         const view = XForm.Mul(ui, camera, null);
         return view;
     }
+
     _UpdateTransformPosition() {
         const ui = {
             x: UIGlobals.Sizes.ToolboxWidth, y: UIGlobals.Sizes.EditorBarHeight,
@@ -438,13 +397,24 @@ export class MoveShelf extends UIToolBarShelf {
         const camera = this._sceneView._cameraTransform;
         const view = XForm.Mul(ui, camera, null);
 
-        const xform = this.transform;
+        let xform = this.transform;
         if (xform) {
+            /*if (!this._useLocalSpace) {
+                xform = xform.Copy();
+                xform.rotation = 0;
+            }*/
+
             xform.ApplyTransform(this._xAxis, view);
             xform.ApplyTransform(this._yAxis, view);
             xform.ApplyTransform(this._omniAxis, view);
             this._xAxis.scaleX = this._yAxis.scaleX = this._omniAxis.scaleX = 1.0;
             this._xAxis.scaleY = this._yAxis.scaleY = this._omniAxis.scaleY = 1.0;
+
+            if (!this._useLocalSpace) {
+                this._xAxis.rotation = 0;
+                this._yAxis.rotation = 0;
+                this._omniAxis.rotation = 0;
+            }
             return true;
         }
         return false;

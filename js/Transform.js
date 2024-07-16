@@ -28,6 +28,18 @@ export default class XForm {
         }
     }
 
+    Copy() {
+        const result = new XForm(null);
+        result._uiTreeNode = this._uiTreeNode;
+        result.x = this.x;
+        result.y = this.y;
+        result.rotation = this.rotation;
+        result.scaleX = this.scaleX;
+        result.scaleY = this.scaleY;
+        result.uniform = this.uniform;
+        return result;
+    }
+
     get localMatrix() {
         let result = new Mat3();
         result.setTRS(this.x, this.y, this.rotation, this.scaleX, this.scaleY);
