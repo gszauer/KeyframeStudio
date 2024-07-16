@@ -331,6 +331,9 @@ export default class RotateShelf extends UIToolBarShelf {
             }
 
             this._dragDeltaAngle = angle;
+            if (this._snapEnabled) {
+                this._dragDeltaAngle = Math.floor(this._dragDeltaAngle / Phaser.Math.DegToRad(this._snapStepSize)) * Phaser.Math.DegToRad(this._snapStepSize);
+            }
             //console.log("Angle: " + Phaser.Math.RadToDeg(angle));
 
             this._arc.clear();
@@ -339,7 +342,10 @@ export default class RotateShelf extends UIToolBarShelf {
             this._arc.arc(0, 0, Math.round(this._radius / 4), 0, this._dragDeltaAngle, false);
             this._arc.strokePath();
 
-            this.transform.rotation = this._dragStartAngle + this._dragDeltaAngle;
+            const xfrm = this.transform;
+            xfrm.rotation = this._dragStartAngle + this._dragDeltaAngle;
+            
+
             if (this._UpdateTransformPosition()) {
                 this._sceneView._hierarchyView._UpdateTransforms();
 
