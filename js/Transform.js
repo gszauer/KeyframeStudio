@@ -174,13 +174,17 @@ export default class XForm {
             };
         };
 
+        const InvertAngle = (angle) => {
+            return (angle + Math.PI) % (2 * Math.PI);
+        }
+
         const result = {
             x: 0, y: 0,
             rotation: 0,
             scaleX: 1, scaleY: 1
         };
 
-        result.rotation = -xfrm.rotation;
+        result.rotation = InvertAngle(xfrm.rotation);
         
         if (Math.abs(xfrm.scaleX) > 0.00001) {
             result.scaleX = 1.0 / xfrm.scaleX;
@@ -208,7 +212,7 @@ export default class XForm {
         sprite.setScale(worldXform.scaleX, worldXform.scaleY);
     }
 
-    static ApplyToPoint(xfrm, pnt) {
+    static ApplyToPoint(xfrm, pnt, view = null) {
         const RotateClockwise = (_x, _y, radians) => {
             const cs = Math.cos(radians);
             const sn = Math.sin(radians);
