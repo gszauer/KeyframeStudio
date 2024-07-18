@@ -17,6 +17,7 @@ export default class UISplitView extends UIView {
     _bSize = 0;
 
     _dividerSprite = null;
+    pinnedMinSize = 0;
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -134,6 +135,7 @@ export default class UISplitView extends UIView {
 
         // Calculate aSize and bSize
         const splitterSize = UIGlobals.Sizes.SplitViewSplitterSize;
+        const pinnedMinSize = this.pinnedMinSize;
         this._aSize = this._bSize = this._distance;
 
         let aX, aY, aWidth, aHeight = 0;
@@ -145,11 +147,21 @@ export default class UISplitView extends UIView {
             aHeight = bHeight = height;
             if (this.pinLeft) {
                 aWidth = this._distance;
-                bWidth = this._bSize = width - splitterSize - this._distance;
+                if (pinnedMinSize > 0) {
+                    if (aWidth < pinnedMinSize) {
+                        aWidth = pinnedMinSize;
+                    }
+                }
+                bWidth = this._bSize = width - splitterSize - aWidth;
             }
             else {
-                aWidth = this._aSize = width - splitterSize - this._distance;
                 bWidth = this._distance;
+                if (pinnedMinSize > 0) {
+                    if (bWidth < pinnedMinSize) {
+                        bWidth = pinnedMinSize;
+                    }
+                }
+                aWidth = this._aSize = width - splitterSize - bWidth;
             }
             bX = aX + aWidth + splitterSize;
 
@@ -163,11 +175,21 @@ export default class UISplitView extends UIView {
             aWidth = bWidth = width;
             if (this.pinTop) {
                 aHeight = this._distance;
-                bHeight = this._bSize = height - splitterSize - this._distance;
+                if (pinnedMinSize > 0) {
+                    if (aHeight < pinnedMinSize) {
+                        aHeight = pinnedMinSize;
+                    }
+                }
+                bHeight = this._bSize = height - splitterSize - aHeight;
             }
             else {
-                aHeight = this._aSize = height - splitterSize - this._distance;
                 bHeight = this._distance;
+                if (pinnedMinSize > 0) {
+                    if (bHeight < pinnedMinSize) {
+                        bHeight = pinnedMinSize;
+                    }
+                }
+                aHeight = this._aSize = height - splitterSize - bHeight;
             }
             bY = aY + aHeight + splitterSize;
 

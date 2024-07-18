@@ -81,6 +81,7 @@ export default class RotateShelf extends UIToolBarShelf {
         self._start.setPosition(0, 0);
         self._start.setDepth(UIGlobals.WidgetLayer);
         self._start.setTint(0x0000ff);
+        this._start.setMask(sceneView.mask);
 
         this._current = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._current.setOrigin(0, 0.5);
@@ -88,13 +89,16 @@ export default class RotateShelf extends UIToolBarShelf {
         self._current.setScale(this._radius, 4);
         self._current.setDepth(UIGlobals.WidgetLayer);
         self._current.setTint(0x0000ff);
+        this._current.setMask(sceneView.mask);
 
         this._circle = scene.add.graphics();
         this.UpdateGizmoColor();
         this._circle.setDepth(UIGlobals.OverlayLayer - 5);
+        this._circle.setMask(sceneView.mask);
 
         this._arc = scene.add.graphics();
         this._arc.setDepth(UIGlobals.OverlayLayer - 5);
+        this._arc.setMask(sceneView.mask);
 
         this._circle.setInteractive({ 
             draggable: true,

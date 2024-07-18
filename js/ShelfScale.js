@@ -91,6 +91,7 @@ export default class ScaleShelf extends UIToolBarShelf {
         ], 0x00ff00);
         this._yAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._yAxis.setOrigin(0, 0);
+        this._yAxis.setMask(sceneView.mask);
 
         this._xAxis = scene.add.polygon(0, 0, [
             /*0*//*arrowSize*/omniSize + omniSpace, -arrowSize, 
@@ -104,6 +105,7 @@ export default class ScaleShelf extends UIToolBarShelf {
         ], 0xff0000);
         this._xAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._xAxis.setOrigin(0, 0);
+        this._xAxis.setMask(sceneView.mask);
 
         this._xAxis.setInteractive(new Phaser.Geom.Rectangle(
             omniSize + omniSpace, 
@@ -123,6 +125,7 @@ export default class ScaleShelf extends UIToolBarShelf {
         this._omniAxis = scene.add.rectangle(0, 0, omniSize * 2, omniSize * 2, 0xffffff);
         this._omniAxis.setDepth(UIGlobals.OverlayLayer - 5);
         this._omniAxis.setOrigin(0.5, 0.5);
+        this._omniAxis.setMask(sceneView.mask);
         this._omniAxis.setInteractive();
         scene.input.setDraggable(this._omniAxis);
 
