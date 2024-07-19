@@ -20,9 +20,51 @@ export default class AssetsView extends UIView {
     _previewBackground = null;
     _previewImage = null;
 
+    fileInput = null;
+    onImageChanged = null; // (imgName, imgWidth, imgHeight, imgObject);
+    _visible = false;
+
+    static AtlasIndex = 0;
+
     constructor(scene, parent = null) {
         super(scene, parent);
         const self = this;
+
+        this.fileInput = document.getElementById("file-upload");
+        this.fileInput.onchange = (event) => {
+            event.preventDefault();
+            
+            // Check if any files are selected
+            const selectedFiles = self.fileInput.files;
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const reader = new FileReader();
+        
+                reader.onload = () => {
+                    const base64 =  reader.result;
+
+                    // https://stackoverflow.com/questions/37780496/phaser-loading-images-dynamically-after-preload
+
+                    //scene.game.textures.addBase64('Atlas' + (AssetsView.AtlasIndex++), base64); 
+                    scene.load.image('Atlas' + (++AssetsView.AtlasIndex), base64);
+
+                    scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+                        if (self._previewImage !== null) {
+                            self._previewImage.destroy();
+                        }
+                        self._previewImage = scene.add.sprite(0, 0, 'Atlas' + (++AssetsView.AtlasIndex));
+                        self._previewImage.setDepth(UIGlobals.WidgetLayer);
+                        self._previewImage.setOrigin(0, 0);
+                        self._previewImage.setActive(this._visible).setVisible(this._visible);
+                        self.Layout();
+                    })
+                    scene.load.start()
+                }
+        
+                reader.readAsDataURL(selectedFiles[i]);
+
+                return;
+            }
+        }
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
@@ -33,7 +75,9 @@ export default class AssetsView extends UIView {
 
         this._spriteSheetTextField = new UIStringBox(scene, "");
 
-        this._browseSpriteSheet = new UITextButton(scene, "Browse", null);
+        this._browseSpriteSheet = new UITextButton(scene, "Browse", (btn) => {
+            self.fileInput.click();
+        });
 
         this._altasLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, "Sprite Atlas (json)");
         this._altasLabel.setDepth(UIGlobals.WidgetLayer);
@@ -73,6 +117,11 @@ export default class AssetsView extends UIView {
     }
 
     Layout(x, y, width, height) {
+        if (x === undefined) {  x = this._x; }
+        if (y === undefined) {  y = this._y; }
+        if (width === undefined) {  width = this._width; }
+        if (height === undefined) {  height = this._height; }
+
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
@@ -90,7 +139,6 @@ export default class AssetsView extends UIView {
 
         x += margin;
         y += margin;
-
 
         width = width - margin * 2;
 
@@ -146,10 +194,22 @@ export default class AssetsView extends UIView {
 
             this._previewBackground.setPosition(x, y);
             this._previewBackground.setScale(width, height);
+
+            x += 2; y += 2;
+            width -= 4; height -= 4;
+            if (this._previewImage !== null) {
+                this._previewImage.setPosition(x, y);
+                console.log("Position at: " + x + ", " + y);
+
+                const needsResize = this._previewImage.width > width || this._previewImage.height > height;
+                console.log("Needs resize: " + needsResize);
+
+            }
         }
     }
 
     SetVisibility(value) {
+        this._visible = value;
         this._previewBorder.setActive(value).setVisible(value);
         this._previewBackground.setActive(value).setVisible(value);
         this._backgroundSprite.setActive(value).setVisible(value);
