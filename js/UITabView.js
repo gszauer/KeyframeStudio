@@ -58,7 +58,7 @@ export default class UITabView extends UIView {
                         self._activeKey = self._tags[activeIndex];
 
                         if (self._activeKey != oldActiveKey) {
-                            console.log("Switch to tag " + self._tags[activeIndex]);
+                            //console.log("Switch to tag " + self._tags[activeIndex]);
                             self._ActiveViewChanged(oldActive, oldActiveKey);
                         }
                     }

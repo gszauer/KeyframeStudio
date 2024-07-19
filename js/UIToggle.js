@@ -37,7 +37,7 @@ export default class UIToggle {
         self._check2.setOrigin(0.5, 0.5);
         self._check2.setDepth(UIGlobals.WidgetLayer);
 
-        self._text = scene.add.bitmapText(0, 0, UIGlobals.Font100, name);
+        self._text = scene.add.bitmapText(0, 0, UIGlobals.Font100, "");
         self._text.setDepth(UIGlobals.WidgetLayer);
         self._text.text = text;
 

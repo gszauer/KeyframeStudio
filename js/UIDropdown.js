@@ -43,7 +43,7 @@ export default class UIDropdown {
         self._chevronSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Icons.ChevronDown);
         self._chevronSprite.setDepth(UIGlobals.WidgetLayer);
 
-        self._displayText = scene.add.bitmapText(0, 0, UIGlobals.Font100, name);
+        self._displayText = scene.add.bitmapText(0, 0, UIGlobals.Font100, "");
         self._displayText.setDepth(UIGlobals.WidgetLayer);
         self._displayText.text = "";
 

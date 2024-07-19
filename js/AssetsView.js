@@ -1,35 +1,26 @@
 import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
 import UITextBox from './UITextBox.js'
-
+import UITextButton from './UITextButton.js'
+import UIStringBox from './UIStringBox.js'
 
 export default class AssetsView extends UIView {
-    _filePathLabel = null;
-    _filePathTextField = null;
     _backgroundSprite = null;
 
-    constructor(scene, parent = null) {
-        const NumerisizeString = (str) => {
-            let result = "";
-            if (str[0] == '-') {
-                result += '-';
-            }
-            let period = false;
-            for (let i = 0, length = str.length; i < length; ++i) {
-                if (str[i] >= '0' && str[i] <= '9') {
-                    result += str[i];
-                }
-                if (str[i] == '.' && !period) {
-                    result += '.';
-                    period = true;
-                }
-            }
-            if (result == "") {
-                result = '0';
-            }
-            return result;
-        }
+    _spriteSheetLabel = null;
+    _spriteSheetTextField = null;
+    _spriteSheetButton = null;
 
+    _altasLabel = null;
+    _atlasTextField = null;
+    _atlasButton = null;
+
+    _previewLabel = null;
+    _previewBorder = null;
+    _previewBackground = null;
+    _previewImage = null;
+
+    constructor(scene, parent = null) {
         super(scene, parent);
         const self = this;
 
@@ -37,21 +28,48 @@ export default class AssetsView extends UIView {
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         this._backgroundSprite.setOrigin(0, 0);
 
-        this._filePathLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
-        this._filePathLabel.setDepth(UIGlobals.WidgetLayer);
-        this._filePathLabel.text = "Sprite Sheet File";
+        this._spriteSheetLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, "Sprite Sheet (png)");
+        this._spriteSheetLabel.setDepth(UIGlobals.WidgetLayer);
 
-        this._filePathTextField = new UITextBox(scene, "");
-        this._filePathTextField.onTextEdit = (value) => {
-            /*if (self._focused != null) {
-                self._focused.name = value;
-                self._focused._userData.drawOrder._labelText.text = value;
-            }*/
-        };
+        this._spriteSheetTextField = new UIStringBox(scene, "");
+
+        this._browseSpriteSheet = new UITextButton(scene, "Browse", null);
+
+        this._altasLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, "Sprite Atlas (json)");
+        this._altasLabel.setDepth(UIGlobals.WidgetLayer);
+
+        this._atlasTextField = new UIStringBox(scene, "");
+
+        this._atlasButton = new UITextButton(scene, "Browse", null);
+
+        this._previewLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, "Sprite Sheet Preview");
+        this._previewLabel.setDepth(UIGlobals.WidgetLayer);
+
+        this._previewBorder = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._previewBorder.setDepth(UIGlobals.WidgetLayer);
+        this._previewBorder.setOrigin(0, 0);
+
+        this._previewBackground = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+        this._previewBackground.setDepth(UIGlobals.WidgetLayer);
+        this._previewBackground.setOrigin(0, 0);
     }
 
     UpdateColors() {
         this._backgroundSprite.setTint(UIGlobals.Colors.BackgroundLayer1);
+        this._browseSpriteSheet.UpdateColors();
+        this._atlasButton.UpdateColors();
+        this._spriteSheetTextField.UpdateColors();
+        this._atlasTextField.UpdateColors();
+
+        const borderTint = UIGlobals.Colors.ElementBorderTintIdle;
+        const bgTint = UIGlobals.Colors.BackgroundLayer0;
+
+        this._spriteSheetLabel.setTint(borderTint);
+        this._altasLabel.setTint(borderTint);
+        this._previewLabel.setTint(borderTint);
+
+        this._previewBorder.setTint(borderTint);
+        this._previewBackground.setTint(bgTint);
     }
 
     Layout(x, y, width, height) {
@@ -73,18 +91,79 @@ export default class AssetsView extends UIView {
         x += margin;
         y += margin;
 
-        this._filePathLabel.setPosition(x, y);
-        y = y + this._filePathLabel.height + skip;
 
-        this._filePathTextField.Layout(x, y, width - margin * 2);
-        y += this._filePathTextField._height + skip;
+        width = width - margin * 2;
 
+        const xReset = x;
+        const wReset = width;
+
+        const browseButtonWidth = 100;
+        {
+            width -= browseButtonWidth - 4;
+
+            this._spriteSheetLabel.setPosition(x, y);
+            y = y + this._spriteSheetLabel.height + skip;
+
+            this._spriteSheetTextField.Layout(x, y, width);
+
+            x += width + 4;
+            width = browseButtonWidth - margin;
+
+            this._browseSpriteSheet.Layout(x, y, width, this._spriteSheetTextField._height);
+            y += this._spriteSheetTextField._height + skip;
+        }
+
+        x = xReset;
+        width = wReset;
+        {
+            width -= browseButtonWidth - 4;
+
+            this._altasLabel.setPosition(x, y);
+            y = y + this._altasLabel.height + skip;
+
+            this._atlasTextField.Layout(x, y, width);
+
+            x += width + 4;
+            width = browseButtonWidth - margin;
+
+            this._atlasButton.Layout(x, y, width, this._atlasTextField._height);
+            y += this._atlasTextField._height + skip;
+        }
+
+        x = xReset;
+        width = wReset;
+        {
+            this._previewLabel.setPosition(x, y);
+            y = y + this._previewLabel.height + skip;
+
+            height = width;
+
+            this._previewBorder.setPosition(x, y);
+            this._previewBorder.setScale(width, height);
+
+            x += 2; y += 2;
+            width -= 4; height -= 4;
+
+            this._previewBackground.setPosition(x, y);
+            this._previewBackground.setScale(width, height);
+        }
     }
 
     SetVisibility(value) {
+        this._previewBorder.setActive(value).setVisible(value);
+        this._previewBackground.setActive(value).setVisible(value);
         this._backgroundSprite.setActive(value).setVisible(value);
-        this._filePathTextField.SetVisibility(value);
-        this._filePathLabel.setActive(value).setVisible(value);
+        this._spriteSheetTextField.SetVisibility(value);
+        this._atlasTextField.SetVisibility(value);
+        this._spriteSheetLabel.setActive(value).setVisible(value);
+        this._altasLabel.setActive(value).setVisible(value);
+        this._previewLabel.setActive(value).setVisible(value);
+        this._browseSpriteSheet.SetVisibility(value);
+        this._atlasButton.SetVisibility(value);
+
+        if (this._previewImage != null) {
+            this._previewImage.setActive(value).setVisible(value);
+        }
     }
 
     Hide() {
