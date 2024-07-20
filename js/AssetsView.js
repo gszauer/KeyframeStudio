@@ -5,6 +5,7 @@ import UITextButton from './UITextButton.js'
 import UIStringBox from './UIStringBox.js'
 
 export default class AssetsView extends UIView {
+    _hierarchyView = null;
     _backgroundSprite = null;
 
     _spriteSheetLabel = null;
@@ -40,25 +41,26 @@ export default class AssetsView extends UIView {
                 const reader = new FileReader();
         
                 reader.onload = () => {
-                    const base64 =  reader.result;
+                    const base64 = reader.result;
+                    const name = 'Atlas' + (++AssetsView.AtlasIndex);
 
-                    // https://stackoverflow.com/questions/37780496/phaser-loading-images-dynamically-after-preload
-
-                    //scene.game.textures.addBase64('Atlas' + (AssetsView.AtlasIndex++), base64); 
-                    scene.load.image('Atlas' + (++AssetsView.AtlasIndex), base64);
-
-                    scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+                    scene.textures.addBase64(name, base64).once(Phaser.Textures.Events.LOAD, () => {
                         if (self._previewImage !== null) {
                             self._previewImage.destroy();
                         }
-                        self._previewImage = scene.add.sprite(0, 0, 'Atlas' + (++AssetsView.AtlasIndex));
+                        self._previewImage = scene.add.sprite(0, 0, name);
                         self._previewImage.setDepth(UIGlobals.WidgetLayer);
                         self._previewImage.setOrigin(0, 0);
                         self._previewImage.setActive(this._visible).setVisible(this._visible);
                         self.Layout();
-                    })
-                    scene.load.start()
-                }
+
+                        // TODO: UPDATE HIERARCHY!
+                        self._hierarchyView.ForEach((node, depth) => {
+                            const sprite = node._userData.sprite.sprite;
+                            sprite.setTexture(name);
+                        });
+                    });
+                };
         
                 reader.readAsDataURL(selectedFiles[i]);
 
@@ -197,13 +199,23 @@ export default class AssetsView extends UIView {
 
             x += 2; y += 2;
             width -= 4; height -= 4;
+
             if (this._previewImage !== null) {
                 this._previewImage.setPosition(x, y);
-                console.log("Position at: " + x + ", " + y);
 
                 const needsResize = this._previewImage.width > width || this._previewImage.height > height;
                 console.log("Needs resize: " + needsResize);
+                if (needsResize) {
+                    let aspect = 1;
+                    if (this._previewImage.width >= this._previewImage.height) {
+                        aspect = width / this._previewImage.width;
+                    }
+                    else if (this._previewImage.height > this._previewImage.width) {
+                        aspect = height / this._previewImage.height;
+                    }
 
+                    this._previewImage.setScale(aspect, aspect);
+                }
             }
         }
     }

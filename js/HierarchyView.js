@@ -163,6 +163,11 @@ export default class HierarchyView extends UIView {
     }
 
     Layout(x, y, width, height) {
+        if (x === undefined) {  x = this._x; }
+        if (y === undefined) {  y = this._y; }
+        if (width === undefined) {  width = this._width; }
+        if (height === undefined) {  height = this._height; }
+        
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }
         super.Layout(x, y, width, height);
@@ -203,5 +208,9 @@ export default class HierarchyView extends UIView {
 
     Show() {
         this.SetVisibility(true);
+    }
+
+    ForEach(callback) { // callback(node: UITreeNode, depth: number): void
+        this._tree.ForEach(callback);
     }
 }

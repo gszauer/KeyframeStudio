@@ -336,28 +336,6 @@ export default class MoveShelf extends UIToolBarShelf {
     }
 
     Drag(gameObject, pointer, dragX, dragY) {
-        const RotateClockwise = (_x, _y, radians) => {
-            const cs = Math.cos(radians);
-            const sn = Math.sin(radians);
-            
-            return {
-                x: _x * cs - _y * sn,
-                y: _x * sn + _y * cs
-            };
-        };
-        const RotateCounterClockwise = (_x, _y, radians) => {
-            const cs = Math.cos(radians);
-            const sn = Math.sin(radians);
-            
-            return {
-                x: _x * cs + _y * sn,
-                y: -_x * sn + _y * cs
-            };
-        };
-        const InvertAngle = (angle) => {
-            return (angle + Math.PI) % (2 * Math.PI);
-        };
-
         if (gameObject === this._xAxis || gameObject === this._yAxis || gameObject === this._omniAxis) {
             this._dragging = true;
         }
@@ -386,21 +364,44 @@ export default class MoveShelf extends UIToolBarShelf {
             dragVector.y = 0;
         }
 
-        let localDragVector = { x: dragVector.x, y: dragVector.y  };
+        const scale = {
+            x: this._sceneView._cameraTransform.scaleX,
+            y: this._sceneView._cameraTransform.scaleY
+        };
+
+        if (scale.x > 0.00001 && scale.x < 0.00001) {
+            scale.x = 0; // OH OH!
+        }
+        else {
+            scale.x = 1.0 / scale.x;
+        }
+
+        if (scale.y > 0.00001 && scale.y < 0.00001) {
+            scale.y = 0; // OH OH!
+        }
+        else {
+            scale.y = 1.0 / scale.y;
+        }
+
+        let localDragVector = { 
+            x: dragVector.x * scale.x,
+            y: dragVector.y * scale.y
+        };
+
         if (dragLenSq > 0.00001) { // Bring into parent space
             const parentXForm = xform.parent;
             if (parentXForm != null) {
                 const parentWorld = parentXForm.worldTransform;
 
-                localDragVector = RotateCounterClockwise(
+                localDragVector = UIGlobals.RotateCounterClockwise(
                     localDragVector.x, localDragVector.y, parentWorld.rotation);
                 
                 if (!this._useLocalSpace) {
                     if (gameObject === this._xAxis) {
-                        localDragVector = this._project(localDragVector, RotateCounterClockwise(1, 0, xform.worldTransform.rotation));
+                        localDragVector = this._project(localDragVector, UIGlobals.RotateCounterClockwise(1, 0, xform.worldTransform.rotation));
                     }
                     else if (gameObject === this._yAxis) {
-                        localDragVector = this._project(localDragVector,  RotateCounterClockwise(0, 1, xform.worldTransform.rotation));
+                        localDragVector = this._project(localDragVector,  UIGlobals.RotateCounterClockwise(0, 1, xform.worldTransform.rotation));
                     }
                 }
                 else {
@@ -423,10 +424,10 @@ export default class MoveShelf extends UIToolBarShelf {
                 }
                 else {
                     if (gameObject === this._xAxis) {
-                        localDragVector = this._project(localDragVector, RotateClockwise(1, 0, xform.rotation));// XForm.Right(xform.worldTransform));
+                        localDragVector = this._project(localDragVector, UIGlobals.RotateClockwise(1, 0, xform.rotation));// XForm.Right(xform.worldTransform));
                     }
                     else if (gameObject === this._yAxis) {
-                        localDragVector = this._project(localDragVector, RotateClockwise(0, 1, xform.rotation));// XForm.Right(xform.worldTransform));
+                        localDragVector = this._project(localDragVector, UIGlobals.RotateClockwise(0, 1, xform.rotation));// XForm.Right(xform.worldTransform));
                     }
                 }
             }

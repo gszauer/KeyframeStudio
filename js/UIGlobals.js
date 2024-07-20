@@ -161,4 +161,28 @@ export default class UIGlobals {
             Green1300: 0xdffaea
         }
     };
+
+    static RotateClockwise = (_x, _y, radians) => {
+        const cs = Math.cos(radians);
+        const sn = Math.sin(radians);
+        
+        return {
+            x: _x * cs - _y * sn,
+            y: _x * sn + _y * cs
+        };
+    };
+
+    static RotateCounterClockwise = (_x, _y, radians) => {
+        const cs = Math.cos(radians);
+        const sn = Math.sin(radians);
+        
+        return {
+            x: _x * cs + _y * sn,
+            y: -_x * sn + _y * cs
+        };
+    };
+    
+    static InvertAngle = (angle) => {
+        return (angle + Math.PI) % (2 * Math.PI);
+    };
 }

@@ -676,7 +676,7 @@ export default class UITree {
         return total;
     }
 
-    ForEach(callback) {
+    ForEach(callback) { // callback(node: UITreeNode, depth: number): void
         for(let i = 0; i < this._roots.length; ++i) {
             this._roots[i].ForEach(callback);
         }
