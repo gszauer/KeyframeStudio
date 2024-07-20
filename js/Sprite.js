@@ -17,7 +17,9 @@ export default class SpriteImg {
     color = null;
     sprite = null;
 
-    constructor(treeNode, drawOrderView = null) {
+    enabled = true;
+
+    constructor(treeNode, sceneView, drawOrderView = null) {
         if (!treeNode) {
             throw new Error("Sprite must be attached to tree node");
         }
@@ -27,8 +29,13 @@ export default class SpriteImg {
 
         this.color = new ColorRGB(1, 1, 1);
         this.sprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
-        this.sprite.setDepth(UIGlobals.WidgetLayer - drawOrderView.count);
+        let layerCount = 0;
+        if (drawOrderView !== null) {
+            layerCount = drawOrderView.count;
+        }
+        this.sprite.setDepth(UIGlobals.WidgetLayer - layerCount);
         this.sprite.setOrigin(0, 0);
+        this.sprite.setMask(sceneView.mask);
 
         if (!treeNode._userData) {
             treeNode._userData = {
@@ -52,4 +59,13 @@ export default class SpriteImg {
         this.sprite = null;
     }
 
+    Disable() {
+        this.enabled = false;
+        this.sprite.setActive(this.enabled).setVisible(this.enabled);
+    }
+
+    Enable() {
+        this.enabled = true;
+        this.sprite.setActive(this.enabled).setVisible(this.enabled);
+    }
 }

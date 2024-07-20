@@ -149,7 +149,7 @@ export default class SceneView extends UIView {
             _y += globalYOffset;
 
             this._lines[i * 2 + 0].setPosition(_x, 0);
-            this._lines[i * 2 + 0].setScale(gridLineSize, numLines * spacing);
+            this._lines[i * 2 + 0].setScale(gridLineSize, numLines * spacing * 0.5);
 
             this._lines[i * 2 + 1].setPosition(0, _y);
             this._lines[i * 2 + 1].setScale(numLines * spacing, gridLineSize);

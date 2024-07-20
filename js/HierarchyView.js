@@ -144,7 +144,7 @@ export default class HierarchyView extends UIView {
         }
 
         const transformNode = new XForm(newNode);
-        const spriteNode = new SpriteImg(newNode, this._drawOrderView);
+        const spriteNode = new SpriteImg(newNode, this._sceneView, this._drawOrderView);
         newNode._userData.drawOrder = this._drawOrderView.Add(newNode.name);
         this._drawOrderToHiararchyNodeMap.set(newNode._userData.drawOrder, newNode);
 

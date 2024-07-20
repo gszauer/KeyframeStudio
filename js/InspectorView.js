@@ -5,6 +5,7 @@ import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
 import UIColorButton from './UIColorButton.js'
 import ColorRGB from './ColorRGB.js'
+import UIToggle from './UIToggle.js'
 
 export default class InspectorView extends UIView {
     _focused = null;
@@ -67,7 +68,7 @@ export default class InspectorView extends UIView {
     _pivotYLabel = null;
     _pivotYTextField = null;
 
-    _drawIndexLabel = null;
+    _spriteIsEnabledCheckBox = null;
 
     _hierarchyView = null;
 
@@ -78,6 +79,8 @@ export default class InspectorView extends UIView {
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
         this._backgroundSprite.setOrigin(0, 0);
 
+        this._spriteIsEnabledCheckBox = new UIToggle(scene, "", null);
+
         this._transformLabel = scene.add.bitmapText(0, 0, UIGlobals.Font400, name);
         this._transformLabel.setDepth(UIGlobals.WidgetLayer);
         this._transformLabel.text = "Transform";
@@ -85,10 +88,6 @@ export default class InspectorView extends UIView {
         this._spriteLabel = scene.add.bitmapText(0, 0, UIGlobals.Font400, name);
         this._spriteLabel.setDepth(UIGlobals.WidgetLayer);
         this._spriteLabel.text = "Sprite";
-
-        this._drawIndexLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
-        this._drawIndexLabel.setDepth(UIGlobals.WidgetLayer);
-        this._drawIndexLabel.text = "Nothing selected";
 
         this._nameLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._nameLabel.setDepth(UIGlobals.WidgetLayer);
@@ -120,7 +119,7 @@ export default class InspectorView extends UIView {
 
         this._spriteSheetLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._spriteSheetLabel.setDepth(UIGlobals.WidgetLayer);
-        this._spriteSheetLabel.text = "Texture Atlas";
+        this._spriteSheetLabel.text = "Frame from atlas (json)";
 
         this._tintLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._tintLabel.setDepth(UIGlobals.WidgetLayer);
@@ -357,6 +356,7 @@ export default class InspectorView extends UIView {
         this._frameXTextField.Disable();
         this._frameYTextField.Disable();
         this._frameWTextField.Disable();
+        this._spriteIsEnabledCheckBox.Disable();
         this._frameHTextField.Disable();
         this._alphaTextField.Disable();
         this._pivotXTextField.Disable();
@@ -425,9 +425,8 @@ export default class InspectorView extends UIView {
         y = y + this._scaleYTextField._height + skip;
         y += margin * 0.5;
 
-        this._spriteLabel.setPosition(x - margin, y);
-        this._drawIndexLabel.setPosition(x - margin + this._spriteLabel.width + skip, 
-                                         y + this._spriteLabel.height - this._drawIndexLabel.height);
+        this._spriteIsEnabledCheckBox.Layout(x - margin, y + 7);
+        this._spriteLabel.setPosition(x - (margin / 2) + UIGlobals.Sizes.CheckboxSize, y);
         y = y + this._spriteLabel.height + skip;
 
         this._spriteSheetLabel.setPosition(x, y);
@@ -436,22 +435,22 @@ export default class InspectorView extends UIView {
         this._spriteSheetDropdown.Layout(x, y, width - margin * 4);
         y = y + this._spriteSheetDropdown._height + skip;
 
-        this._tintLabel.setPosition(x, y);
+        this._visibleLabel.setPosition(x, y);
         this._frameXLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
-
         y = y + this._frameYLabel.height + skip;
-        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
+        
+        this._visibleDropdown.Layout(x, y, rowWidth);
         this._frameXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameYTextField._height + skip;
-        this._visibleLabel.setPosition(x, y, rowWidth);
+        this._tintLabel.setPosition(x, y);
         this._frameWLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameHLabel.height + skip;
-        this._visibleDropdown.Layout(x, y, rowWidth);
+        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
         this._frameWTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
@@ -485,8 +484,8 @@ export default class InspectorView extends UIView {
         this._visibleDropdown.SetVisibility(visible);
         this._backgroundSprite.setActive(visible).setVisible(visible);
         this._transformLabel.setActive(visible).setVisible(visible);
+        this._spriteIsEnabledCheckBox.SetVisibility(visible);
         this._spriteLabel.setActive(visible).setVisible(visible);
-        this._drawIndexLabel.setActive(visible).setVisible(visible);
         this._nameLabel.setActive(visible).setVisible(visible);
         this._positionXLabel.setActive(visible).setVisible(visible);
         this._positionYLabel.setActive(visible).setVisible(visible);
@@ -535,6 +534,7 @@ export default class InspectorView extends UIView {
         let visible = "True";
         let drawIndex = "";
         let color = new ColorRGB(1, 1, 1);
+        let spriteEnabled = false;
 
         if (node != null) {
             if (node._userData == null) {
@@ -559,49 +559,11 @@ export default class InspectorView extends UIView {
             alpha = "" + sprite.alpha;
             visible = sprite.visible? "True" : "False";
             color = sprite.color;
-
+            spriteEnabled = sprite.enabled;
 
             drawIndex = "Draw index: " + sprite.sprite.depth;
-
-            this._nameTextField.Enable();
-            this._positionXTextField.Enable();
-            this._positionYTextField.Enable();
-            this._rotationTextField.Enable();
-            this._scaleXTextField.Enable();
-            this._scaleYTextField.Enable();
-            //this._scaleModeDropdown.Enable();
-
-            this._frameXTextField.Enable();
-            this._frameYTextField.Enable();
-            this._frameWTextField.Enable();
-            this._frameHTextField.Enable();
-            this._alphaTextField.Enable();
-            this._pivotXTextField.Enable();
-            this._pivotYTextField.Enable();
-            this._spriteSheetDropdown.Enable();
-            this._visibleDropdown.Enable();
-            this._tintButton.Enable();
         }
-        else {
-            this._nameTextField.Disable();
-            this._positionXTextField.Disable();
-            this._positionYTextField.Disable();
-            this._rotationTextField.Disable();
-            this._scaleXTextField.Disable();
-            this._scaleYTextField.Disable();
-            //this._scaleModeDropdown.Disable();
-
-            this._frameXTextField.Disable();
-            this._frameYTextField.Disable();
-            this._frameWTextField.Disable();
-            this._frameHTextField.Disable();
-            this._alphaTextField.Disable();
-            this._pivotXTextField.Disable();
-            this._pivotYTextField.Disable();
-            this._spriteSheetDropdown.Disable();
-            this._visibleDropdown.Disable();
-            this._tintButton.Disable();
-        }
+       
 
         this._nameTextField.text = name;
         this._positionXTextField.text = xPos;
@@ -619,7 +581,45 @@ export default class InspectorView extends UIView {
         this._frameHTextField.text = frameH;
         this._visibleDropdown.selected = visible;
         this._tintButton.color = color;
-        
-        this._drawIndexLabel.text = drawIndex;
+        this._spriteIsEnabledCheckBox._state = spriteEnabled;
+
+        if (node != null) {
+            this._nameTextField.Enable();
+            this._positionXTextField.Enable();
+            this._positionYTextField.Enable();
+            this._rotationTextField.Enable();
+            this._scaleXTextField.Enable();
+            this._scaleYTextField.Enable();
+            this._frameXTextField.Enable();
+            this._frameYTextField.Enable();
+            this._frameWTextField.Enable();
+            this._spriteIsEnabledCheckBox.Enable();
+            this._frameHTextField.Enable();
+            this._alphaTextField.Enable();
+            this._pivotXTextField.Enable();
+            this._pivotYTextField.Enable();
+            this._spriteSheetDropdown.Enable();
+            this._visibleDropdown.Enable();
+            this._tintButton.Enable();
+        }
+        else {
+            this._nameTextField.Disable();
+            this._positionXTextField.Disable();
+            this._positionYTextField.Disable();
+            this._rotationTextField.Disable();
+            this._scaleXTextField.Disable();
+            this._scaleYTextField.Disable();
+            this._frameXTextField.Disable();
+            this._frameYTextField.Disable();
+            this._frameWTextField.Disable();
+            this._spriteIsEnabledCheckBox.Disable();
+            this._frameHTextField.Disable();
+            this._alphaTextField.Disable();
+            this._pivotXTextField.Disable();
+            this._pivotYTextField.Disable();
+            this._spriteSheetDropdown.Disable();
+            this._visibleDropdown.Disable();
+            this._tintButton.Disable();
+        }
     }
 }

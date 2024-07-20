@@ -32,41 +32,6 @@ export default class AssetsView extends UIView {
         const self = this;
 
         this.fileInput = document.getElementById("file-upload");
-        this.fileInput.onchange = (event) => {
-            event.preventDefault();
-            
-            // Check if any files are selected
-            const selectedFiles = self.fileInput.files;
-            for (let i = 0; i < selectedFiles.length; i++) {
-                const reader = new FileReader();
-        
-                reader.onload = () => {
-                    const base64 = reader.result;
-                    const name = 'Atlas' + (++AssetsView.AtlasIndex);
-
-                    scene.textures.addBase64(name, base64).once(Phaser.Textures.Events.LOAD, () => {
-                        if (self._previewImage !== null) {
-                            self._previewImage.destroy();
-                        }
-                        self._previewImage = scene.add.sprite(0, 0, name);
-                        self._previewImage.setDepth(UIGlobals.WidgetLayer);
-                        self._previewImage.setOrigin(0, 0);
-                        self._previewImage.setActive(this._visible).setVisible(this._visible);
-                        self.Layout();
-
-                        // TODO: UPDATE HIERARCHY!
-                        self._hierarchyView.ForEach((node, depth) => {
-                            const sprite = node._userData.sprite.sprite;
-                            sprite.setTexture(name);
-                        });
-                    });
-                };
-        
-                reader.readAsDataURL(selectedFiles[i]);
-
-                return;
-            }
-        }
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
@@ -98,6 +63,44 @@ export default class AssetsView extends UIView {
         this._previewBackground = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._previewBackground.setDepth(UIGlobals.WidgetLayer);
         this._previewBackground.setOrigin(0, 0);
+
+        this.fileInput.onchange = (event) => {
+            event.preventDefault();
+            
+            // Check if any files are selected
+            const selectedFiles = self.fileInput.files;
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const reader = new FileReader();
+                const fileName = selectedFiles[i].name;
+        
+                reader.onload = () => {
+                    const base64 = reader.result;
+                    const name = 'Atlas' + (++AssetsView.AtlasIndex);
+
+                    scene.textures.addBase64(name, base64).once(Phaser.Textures.Events.LOAD, () => {
+                        if (self._previewImage !== null) {
+                            self._previewImage.destroy();
+                        }
+                        self._previewImage = scene.add.sprite(0, 0, name);
+                        self._previewImage.setDepth(UIGlobals.WidgetLayer);
+                        self._previewImage.setOrigin(0, 0);
+                        self._previewImage.setActive(this._visible).setVisible(this._visible);
+                        self.Layout();
+
+                        this._spriteSheetTextField.text = fileName;
+
+                        self._hierarchyView.ForEach((node, depth) => {
+                            const sprite = node._userData.sprite.sprite;
+                            sprite.setTexture(name);
+                        });
+                    });
+                };
+        
+                reader.readAsDataURL(selectedFiles[i]);
+
+                return;
+            }
+        }
     }
 
     UpdateColors() {
