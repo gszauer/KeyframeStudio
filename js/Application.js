@@ -102,7 +102,7 @@ export default class Application extends Phaser.Scene {
 
         const toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);
         toolSplitter.horizontal = false;
-        toolSplitter._distance = 430;
+        toolSplitter._distance = 386;
         toolSplitter.pinnedMinSize = 33;
 
         const inspectorTabs = toolSplitter.a = new UITabView(this, toolSplitter.a);

@@ -118,13 +118,9 @@ export default class InspectorView extends UIView {
         this._scaleYLabel.setDepth(UIGlobals.WidgetLayer);
         this._scaleYLabel.text = "Y Scale";
 
-        /*this._scaleModeLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
-        this._scaleModeLabel.setDepth(UIGlobals.WidgetLayer);
-        this._scaleModeLabel.text = "Uniform";*/
-
         this._spriteSheetLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._spriteSheetLabel.setDepth(UIGlobals.WidgetLayer);
-        this._spriteSheetLabel.text = "Frame preset from atlas (json)";
+        this._spriteSheetLabel.text = "JSON preset";
 
         this._tintLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._tintLabel.setDepth(UIGlobals.WidgetLayer);
@@ -150,10 +146,6 @@ export default class InspectorView extends UIView {
         this._frameHLabel.setDepth(UIGlobals.WidgetLayer);
         this._frameHLabel.text = "Height";
 
-        /*this._alphaLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
-        this._alphaLabel.setDepth(UIGlobals.WidgetLayer);
-        this._alphaLabel.text = "Alpha";*/
-
         this._pivotXLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._pivotXLabel.setDepth(UIGlobals.WidgetLayer);
         this._pivotXLabel.text = "Pivot X";
@@ -163,15 +155,6 @@ export default class InspectorView extends UIView {
         this._pivotYLabel.text = "Pivot Y";
 
         const self = this;
-
-        /*let popup = new UIPopup(scene);
-        popup.Add("False");
-        popup.Add("True");
-        this._scaleModeDropdown = new UIDropdown(scene, popup);
-        popup.onSelect = (name, obj) => {
-            self._doUniformScale = name == "True";
-        };
-        this._scaleModeDropdown.Disable();*/
 
         let popup = new UIPopup(scene);
         popup.Add("True", () => {
@@ -300,21 +283,6 @@ export default class InspectorView extends UIView {
         this._tintButton = new UIColorButton(scene);
 
         const UpdateFrame = () => {
-            /*if (self._focused == null) {
-                return;
-            }
-
-            const uid = self._focused._userData.sprite.uid;
-            const texture = self.texture;
-
-            texture.frame.cutWidth = texture.frame.width = self._frameWTextField.number;
-            texture.frame.cutHeight = texture.frame.height = self._frameHTextField.number;
-            texture.frame.halfWidth = texture.frame.width * 0.5;
-            texture.frame.halfHeiht = texture.frame.height * 0.5;
-
-            self.Layout();*/
-
-            // TODO: Generate frames!
             this._assetsView.UpdateFrames();
         };
 
@@ -464,54 +432,46 @@ export default class InspectorView extends UIView {
         y += this._rotationTextField._height +skip;
         this._scaleXLabel.setPosition(x + rowWidth + margin * 2, y);
         this._scaleYLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
-        //this._scaleModeLabel.setPosition(x + rowWidth * 2 + margin * 4, y);
 
         y = y + this._scaleYLabel.height + skip;
         this._scaleXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._scaleYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
-        //this._scaleModeDropdown.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._scaleYTextField._height + skip;
         y += Math.floor(margin * 0.5);
 
         this._spriteIsEnabledCheckBox.Layout(x - margin, y + 7);
         this._spriteLabel.setPosition(x - (margin / 2) + UIGlobals.Sizes.CheckboxSize, y);
-        y = y + this._spriteLabel.height + Math.floor(skip * 1.5);
+        y = y + this._spriteLabel.height + Math.floor(skip * 2);
 
-        this._spriteSheetLabel.setPosition(x + rowWidth + margin * 2, y);
-        this._visibleLabel.setPosition(x, y);
-        y = y + this._spriteSheetLabel.height + skip;
-
-        this._spriteSheetDropdown.Layout(x + rowWidth + margin * 2, y, width - rowWidth - margin * 6);
-        this._visibleDropdown.Layout(x, y, rowWidth);
-        y = y + this._spriteSheetDropdown._height + skip;
-
-        this._tintLabel.setPosition(x, y);
+        // label
+        this._spriteSheetLabel.setPosition(x, y);
         this._frameXLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
         y = y + this._frameYLabel.height + skip;
         
-        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
+        // element
+        this._spriteSheetDropdown.Layout(x, y, rowWidth);//(x + rowWidth + margin * 2, y, width - rowWidth - margin * 6);
         this._frameXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameYTextField._height + skip;
-        //this._alphaLabel.setPosition(x, y, rowWidth);
+        this._visibleLabel.setPosition(x, y);
         this._frameWLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameHLabel.height + skip;
-        //this._alphaTextField.Layout(x, y, rowWidth);
+        this._visibleDropdown.Layout(x, y, rowWidth);
         this._frameWTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._frameHTextField._height + skip;
-        // blank label
+        this._tintLabel.setPosition(x, y);
         this._pivotXLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._pivotYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
 
         y = y + this._pivotYLabel.height + skip;
-        // blank field
+        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
         this._pivotXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._pivotYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
     }
