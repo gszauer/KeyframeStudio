@@ -65,6 +65,9 @@ export default class AssetsView extends UIView {
             const sprite = node._userData.sprite;
             sprite.sprite.setFrame(sprite.uid);
             sprite.sprite.setOrigin(sprite.pivotX, sprite.pivotY);
+
+            sprite.sprite.setTint(sprite.color.color);
+            //sprite.sprite.setAlpha(sprite.alpha, sprite.alpha, sprite.alpha, sprite.alpha);
         });
     }
 
