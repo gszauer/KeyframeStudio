@@ -13,7 +13,6 @@ export default class UIToggle {
     _check2 = null;
     onToggle = null; // arguments: bool value, UIToggle this
     _visible = true;
-
     _enabled = true;
 
     constructor(scene, text="", _onToggle = null) {

@@ -81,6 +81,7 @@ export default class HierarchyView extends UIView {
         this._sceneView.UpdateActiveShelf();
     }
 
+    
     get active() {
         return this._active;
     }
@@ -150,6 +151,10 @@ export default class HierarchyView extends UIView {
 
         this.Layout(this._x, this._y, this._width, this._height);
         this._UpdateTransforms();
+
+        const assetsView = this._sceneView._assetsView;
+        assetsView.UpdateFrames();
+
         return newNode;
     }
 

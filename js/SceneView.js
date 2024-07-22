@@ -29,6 +29,7 @@ export default class SceneView extends UIView {
 
     _hierarchyView = null;
     _inspectorView = null;
+    _assetsView = null;
     _recenter = true;
 
     constructor(scene, parent) {

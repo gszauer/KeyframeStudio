@@ -9,7 +9,6 @@ import UIToggle from './UIToggle.js'
 
 export default class InspectorView extends UIView {
     _focused = null;
-    _sceneView = null;
 
     _backgroundSprite = null;
 
@@ -36,7 +35,7 @@ export default class InspectorView extends UIView {
 
     //_scaleModeLabel = null;
     //_scaleModeDropdown = null;
-    _doUniformScale = false;
+    //_doUniformScale = false;
 
     _spriteSheetLabel = null;
     _spriteSheetDropdown = null;
@@ -71,6 +70,12 @@ export default class InspectorView extends UIView {
     _spriteIsEnabledCheckBox = null;
 
     _hierarchyView = null;
+    _sceneView = null;
+    _assetsView = null;
+
+    get texture() {
+        return this._assetsView.atlasTexture;
+    }
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -171,13 +176,13 @@ export default class InspectorView extends UIView {
         let popup = new UIPopup(scene);
         popup.Add("True", () => {
             if (self._focused != null) {
-                self._focused._userData.sprite.visible = true;
+                self._focused._userData.sprite.SetVisibility(true);
                 self._visibleDropdown.selected = "True";
             }
         });
         popup.Add("False", () => {
             if (self._focused != null) {
-                self._focused._userData.sprite.visible = false;
+                self._focused._userData.sprite.SetVisibility(false);
                 self._visibleDropdown.selected = "False";
             }
         });
@@ -265,10 +270,10 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.scaleX = Number(value);
-                if (self._doUniformScale) {
+                /*if (self._doUniformScale) {
                     self._focused._userData.transform.scaleY = Number(value);
                     self._scaleYTextField.text = value;
-                }
+                }*/
                 self._scaleXTextField.text = "" + value;
                 self._hierarchyView._UpdateTransforms();
             }
@@ -277,10 +282,10 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.scaleY = Number(value);
-                if (self._doUniformScale) {
+                /*if (self._doUniformScale) {
                     self._focused._userData.transform.scaleX = Number(value);
                     self._scaleXTextField.text = "" + value;
-                }
+                }*/
                 self._scaleYTextField.text = "" + value;
                 self._hierarchyView._UpdateTransforms();
             }
@@ -294,62 +299,98 @@ export default class InspectorView extends UIView {
         this._pivotYTextField = new UITextBox(scene, "");
         this._tintButton = new UIColorButton(scene);
 
+        const UpdateFrame = () => {
+            /*if (self._focused == null) {
+                return;
+            }
+
+            const uid = self._focused._userData.sprite.uid;
+            const texture = self.texture;
+
+            texture.frame.cutWidth = texture.frame.width = self._frameWTextField.number;
+            texture.frame.cutHeight = texture.frame.height = self._frameHTextField.number;
+            texture.frame.halfWidth = texture.frame.width * 0.5;
+            texture.frame.halfHeiht = texture.frame.height * 0.5;
+
+            self.Layout();*/
+
+            // TODO: Generate frames!
+            this._assetsView.UpdateFrames();
+        };
+
         this._tintButton.onColorChanged = (rgb) => {
             if (self._focused != null) {
                 self._focused._userData.sprite.color = rgb;
                 self._tintButton.color = rgb;
                 self._focused._userData.sprite.sprite.setTint(rgb.color);
-
             }
         };
 
         this._frameXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.x = value;
                 self._frameXTextField.text = "" + value;
+                UpdateFrame();
             }
         };
+
+
         this._frameYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.y = value;
                 self._frameYTextField.text = "" + value;
+                UpdateFrame();
             }
         };
         this._frameWTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.width = value;
                 self._frameWTextField.text = "" + value;
+                UpdateFrame();
             }
         };
         this._frameHTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.height = value;
                 self._frameHTextField.text = "" + value;
+                UpdateFrame();
             }
         };
         this._alphaTextField.onTextEdit  = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.alpha = value;
                 self._alphaTextField.text = "" + value;
             }
         };
         this._pivotXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.pivotX = value;
                 self._pivotXTextField.text = "" + value;
+                UpdateFrame();
             }
         };
         this._pivotYTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                value = NumerisizeString(value);
+                value = Number(NumerisizeString(value));
                 self._focused._userData.sprite.pivotY = value;
                 self._pivotYTextField.text = "" + value;
+                UpdateFrame();
+            }
+        };
+        this._spriteIsEnabledCheckBox.onToggle = (val, toggle) => {
+            if (self._focused != null) {
+                if (val) {
+                    self._focused._userData.sprite.Enable();
+                }
+                else {
+                    self._focused._userData.sprite.Disable();
+                }
             }
         };
 
@@ -371,6 +412,11 @@ export default class InspectorView extends UIView {
     }
 
     Layout(x, y, width, height) {
+        if (x === undefined) { x = this._x; }
+        if (y === undefined) { y = this._y; }
+        if (width === undefined) { width = this._width; }
+        if (height === undefined) { height = this._height; }
+
         super.Layout(x, y, width, height);
         if (width < 0) { width = 0; }
         if (height < 0) { height = 0; }

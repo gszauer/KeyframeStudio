@@ -24,12 +24,55 @@ export default class AssetsView extends UIView {
     fileInput = null;
     onImageChanged = null; // (imgName, imgWidth, imgHeight, imgObject);
     _visible = false;
+    _scene = null;
 
     static AtlasIndex = 0;
+
+    _dummyImage = null;
+    atlasTextureName = null;
+    get atlasTexture() {
+        if (this._previewImage !== null) {
+            return this._previewImage;
+        }
+        if (this._dummyImage == null) {
+            this._dummyImage = this._scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
+            this._dummyImage.setActive(false).setVisible(false);
+        }
+
+        return this._dummyImage;
+    }
+
+    UpdateFrames() {
+        if (this.atlasTextureName === null) {
+            return;
+        }
+        const atlasTextureName = this.atlasTextureName;
+        const textures = this._scene.textures;
+        const texture = textures.get(atlasTextureName);
+
+        this._hierarchyView.ForEach((node, depth) => {
+            const sprite = node._userData.sprite;
+            const frameName = sprite.uid;
+            
+            if (texture.has(frameName)) {
+                texture.remove(frameName);
+            }
+            texture.add(frameName, 0, sprite.x, sprite.y, sprite.width, sprite.height);
+            //const frame = textures.getFrame(atlasTextureName, frameName);
+        });
+
+        this._hierarchyView.ForEach((node, depth) => {
+            const sprite = node._userData.sprite;
+            sprite.sprite.setFrame(sprite.uid);
+            sprite.sprite.setOrigin(sprite.pivotX, sprite.pivotY);
+        });
+    }
+
 
     constructor(scene, parent = null) {
         super(scene, parent);
         const self = this;
+        this._scene = scene;
 
         this.fileInput = document.getElementById("file-upload");
 
@@ -75,7 +118,7 @@ export default class AssetsView extends UIView {
         
                 reader.onload = () => {
                     const base64 = reader.result;
-                    const name = 'Atlas' + (++AssetsView.AtlasIndex);
+                    const name = this.atlasTextureName = 'Atlas' + (++AssetsView.AtlasIndex);
 
                     scene.textures.addBase64(name, base64).once(Phaser.Textures.Events.LOAD, () => {
                         if (self._previewImage !== null) {
@@ -87,12 +130,14 @@ export default class AssetsView extends UIView {
                         self._previewImage.setActive(this._visible).setVisible(this._visible);
                         self.Layout();
 
-                        this._spriteSheetTextField.text = fileName;
+                        self._spriteSheetTextField.text = fileName;
 
                         self._hierarchyView.ForEach((node, depth) => {
                             const sprite = node._userData.sprite.sprite;
                             sprite.setTexture(name);
                         });
+
+                        self.UpdateFrames();
                     });
                 };
         
