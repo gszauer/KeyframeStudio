@@ -22,6 +22,8 @@ export default class AssetsView extends UIView {
     _previewImage = null;
 
     fileInput = null;
+    jsonInput = null;
+
     onImageChanged = null; // (imgName, imgWidth, imgHeight, imgObject);
     _visible = false;
     _scene = null;
@@ -78,6 +80,7 @@ export default class AssetsView extends UIView {
         this._scene = scene;
 
         this.fileInput = document.getElementById("file-upload");
+        this.jsonInput = document.getElementById("json-upload");
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
@@ -97,7 +100,9 @@ export default class AssetsView extends UIView {
 
         this._atlasTextField = new UIStringBox(scene, "");
 
-        this._atlasButton = new UITextButton(scene, "Browse", null);
+        this._atlasButton = new UITextButton(scene, "Browse", (btn) => {
+            self.jsonInput.click();
+        });
 
         this._previewLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, "Sprite Sheet Preview");
         this._previewLabel.setDepth(UIGlobals.WidgetLayer);
@@ -109,6 +114,18 @@ export default class AssetsView extends UIView {
         this._previewBackground = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._previewBackground.setDepth(UIGlobals.WidgetLayer);
         this._previewBackground.setOrigin(0, 0);
+
+        this.jsonInput.onchange = (event) => {
+            event.preventDefault();
+
+            // TODO: Finish presets for sprites to avoid having to manually sprite sheet
+            // https://stackoverflow.com/questions/36127648/uploading-a-json-file-and-using-it
+
+            const selectedFiles = self.jsonInput.files;
+            for (let i = 0; i < selectedFiles.length; i++) {
+                 return; // Only process 1 file
+            }
+        };
 
         this.fileInput.onchange = (event) => {
             event.preventDefault();
@@ -146,7 +163,7 @@ export default class AssetsView extends UIView {
         
                 reader.readAsDataURL(selectedFiles[i]);
 
-                return;
+                return; // Only process 1 file
             }
         }
     }
@@ -255,7 +272,7 @@ export default class AssetsView extends UIView {
                 this._previewImage.setPosition(x, y);
 
                 const needsResize = this._previewImage.width > width || this._previewImage.height > height;
-                console.log("Needs resize: " + needsResize);
+                //console.log("Needs resize: " + needsResize);
                 if (needsResize) {
                     let aspect = 1;
                     if (this._previewImage.width >= this._previewImage.height) {
