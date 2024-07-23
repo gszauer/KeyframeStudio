@@ -129,6 +129,7 @@ export default class UIDropdown {
 
     SetMenu(popupMenu) {
         if (this._popupMenu != null) {
+            this._popupMenu.Destroy();
             this._popupMenu._uiOnPointerUp = null;
         }
 
@@ -144,7 +145,6 @@ export default class UIDropdown {
             if (this._popupMenu._labels != null && this._popupMenu._labels.length > 0) {
                 self._displayText.text = this._popupMenu._labels[0];
             }
-
         }
 
         this._ShowActiveMenu();

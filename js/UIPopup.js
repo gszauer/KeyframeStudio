@@ -6,6 +6,7 @@ export default class UIPopup {
     _height = 100;
     _width = 100;
     _defaultWidth = 100;
+    _forceWidth = -1;
 
     _scene = null;
     _borderSprite = null;
@@ -37,6 +38,39 @@ export default class UIPopup {
 
         self._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         self._backgroundSprite.setDepth(UIGlobals.OverlayLayer);
+    }
+
+    Destroy() {
+        this._scene = null;
+        this._borderSprite.destroy();
+        this._borderSprite = null;
+        this._backgroundSprite.destroy();
+        this._backgroundSprite = null;
+        this._labels = null;
+
+        let size = this._highlightSprites.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._highlightSprites[i] != null) {
+                this._highlightSprites[i].destroy();
+            }
+        }
+        this._highlightSprites = null;
+
+        size = this._itemTexts.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._itemTexts[i] != null) {
+                this._itemTexts[i].destroy();
+            }
+        }
+        this._itemTexts = null;
+
+        size = this._seperatorSprites.length;
+        for (let i = 0; i < size; ++i) {
+            if (this._seperatorSprites[i] != null) {
+                this._seperatorSprites[i].destroy();
+            }
+        }
+        this._seperatorSprites = null;
     }
 
     HandlePointerUpEvent(pointer, currentlyOver) {
@@ -165,6 +199,9 @@ export default class UIPopup {
         }
         else {
             this._width = width;
+        }
+        if (this._forceWidth >= 0) {
+            this._width = this._forceWidth;
         }
 
         if (this._itemTexts.length == 0) {

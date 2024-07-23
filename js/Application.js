@@ -64,8 +64,6 @@ export default class Application extends Phaser.Scene {
 
         self._toolBar = new UIToolBar(self);
         
-        
-
         this._mainSplitter = new UISplitView(this, null);
         this._mainSplitter._distance = 300;
         this._mainSplitter.pinnedMinSize = 280;
@@ -102,7 +100,7 @@ export default class Application extends Phaser.Scene {
 
         const toolSplitter = this._mainSplitter.b = new UISplitView(this, this._mainSplitter);
         toolSplitter.horizontal = false;
-        toolSplitter._distance = 386;
+        toolSplitter._distance = 440;
         toolSplitter.pinnedMinSize = 33;
 
         const inspectorTabs = toolSplitter.a = new UITabView(this, toolSplitter.a);
@@ -128,6 +126,7 @@ export default class Application extends Phaser.Scene {
         sceneView._assetsView = assetsView;
         inspectorView._hierarchyView = hierarchyView;
         assetsView._hierarchyView= hierarchyView;
+        assetsView._inspectorView = inspectorView;
 
         hierarchyView.onSelectionChanged = (oldNode, newNode) => {
             inspectorView.FocusOn(newNode);

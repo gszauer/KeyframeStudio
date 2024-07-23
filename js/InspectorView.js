@@ -33,10 +33,6 @@ export default class InspectorView extends UIView {
     _scaleYLabel = null;
     _scaleYTextField = null;
 
-    //_scaleModeLabel = null;
-    //_scaleModeDropdown = null;
-    //_doUniformScale = false;
-
     _spriteSheetLabel = null;
     _spriteSheetDropdown = null;
 
@@ -57,9 +53,6 @@ export default class InspectorView extends UIView {
 
     _frameHLabel = null;
     _frameHTextField = null;
-
-    //_alphaLabel = null;
-    //_alphaTextField = null;
 
     _pivotXLabel = null;
     _pivotXTextField = null;
@@ -120,7 +113,7 @@ export default class InspectorView extends UIView {
 
         this._spriteSheetLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._spriteSheetLabel.setDepth(UIGlobals.WidgetLayer);
-        this._spriteSheetLabel.text = "JSON preset";
+        this._spriteSheetLabel.text = "Sprite Atlas (json presets)";
 
         this._tintLabel = scene.add.bitmapText(0, 0, UIGlobals.Font50, name);
         this._tintLabel.setDepth(UIGlobals.WidgetLayer);
@@ -173,9 +166,7 @@ export default class InspectorView extends UIView {
 
         popup = new UIPopup(scene);
         popup.Add("None");
-        popup.Add("Filler 1 delete me.png");
-        popup.Add("Filler 2 delete me.png");
-        popup.Add("Filler 3 delete me.png");
+        popup.Add("None");
         this._spriteSheetDropdown = new UIDropdown(scene, popup);
 
         const NumerisizeString = (str) => {
@@ -253,10 +244,6 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.scaleX = Number(value);
-                /*if (self._doUniformScale) {
-                    self._focused._userData.transform.scaleY = Number(value);
-                    self._scaleYTextField.text = value;
-                }*/
                 self._scaleXTextField.text = "" + value;
                 self._hierarchyView._UpdateTransforms();
             }
@@ -265,10 +252,6 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 value = NumerisizeString(value);
                 self._focused._userData.transform.scaleY = Number(value);
-                /*if (self._doUniformScale) {
-                    self._focused._userData.transform.scaleX = Number(value);
-                    self._scaleXTextField.text = "" + value;
-                }*/
                 self._scaleYTextField.text = "" + value;
                 self._hierarchyView._UpdateTransforms();
             }
@@ -277,7 +260,6 @@ export default class InspectorView extends UIView {
         this._frameYTextField = new UITextBox(scene, "");
         this._frameWTextField = new UITextBox(scene, "");
         this._frameHTextField = new UITextBox(scene, "");
-        //this._alphaTextField = new UITextBox(scene, "");
         this._pivotXTextField = new UITextBox(scene, "");
         this._pivotYTextField = new UITextBox(scene, "");
         this._tintButton = new UIColorButton(scene);
@@ -328,16 +310,6 @@ export default class InspectorView extends UIView {
                 UpdateFrame();
             }
         };
-        /*this._alphaTextField.onTextEdit  = (value) => {
-            if (self._focused != null) {
-                value = Number(NumerisizeString(value));
-                if (value < 0) { value = 0; }
-                if (value > 1) { value = 1; }
-                self._focused._userData.sprite.alpha = value;
-                self._alphaTextField.text = "" + value;
-                UpdateFrame();
-            }
-        };*/
         this._pivotXTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = Number(NumerisizeString(value));
@@ -370,12 +342,15 @@ export default class InspectorView extends UIView {
         this._frameWTextField.Disable();
         this._spriteIsEnabledCheckBox.Disable();
         this._frameHTextField.Disable();
-        //this._alphaTextField.Disable();
         this._pivotXTextField.Disable();
         this._pivotYTextField.Disable();
         this._spriteSheetDropdown.Disable();
         this._visibleDropdown.Disable();
         this._tintButton.Disable();
+   }
+
+   UpdatePresetPopup(newPopup) {
+    this._spriteSheetDropdown.SetMenu(newPopup);
    }
 
     UpdateColors() {
@@ -444,34 +419,44 @@ export default class InspectorView extends UIView {
         this._spriteLabel.setPosition(x - (margin / 2) + UIGlobals.Sizes.CheckboxSize, y);
         y = y + this._spriteLabel.height + Math.floor(skip * 2);
 
-        // label
-        this._spriteSheetLabel.setPosition(x, y);
+        const frameMap = this._assetsView.frameMap;
+        if (frameMap != null && frameMap.size > 0) {
+            this._spriteSheetLabel.setPosition(x, y);
+            y = y + this._spriteSheetLabel.height + skip;
+            
+            this._spriteSheetDropdown.Layout(x, y, width - margin * 4);
+            y = y + this._spriteSheetDropdown._height + skip;
+        }
+        else {
+            this._spriteSheetLabel.setActive(false).setVisible(false);
+            this._spriteSheetDropdown.Disable();
+        }
+
+        this._visibleLabel.setPosition(x, y);
         this._frameXLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
         y = y + this._frameYLabel.height + skip;
         
-        // element
-        this._spriteSheetDropdown.Layout(x, y, rowWidth);//(x + rowWidth + margin * 2, y, width - rowWidth - margin * 6);
+        this._visibleDropdown.Layout(x, y, rowWidth);
         this._frameXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
-
         y = y + this._frameYTextField._height + skip;
-        this._visibleLabel.setPosition(x, y);
+        
+        this._tintLabel.setPosition(x, y);
         this._frameWLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
-
         y = y + this._frameHLabel.height + skip;
-        this._visibleDropdown.Layout(x, y, rowWidth);
+
+        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
         this._frameWTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._frameHTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
-
         y = y + this._frameHTextField._height + skip;
-        this._tintLabel.setPosition(x, y);
+
+        
         this._pivotXLabel.setPosition(x + rowWidth + margin * 2, y, rowWidth);
         this._pivotYLabel.setPosition(x + rowWidth * 2 + margin * 4, y, rowWidth);
-
         y = y + this._pivotYLabel.height + skip;
-        this._tintButton.Layout(x, y, rowWidth, UIGlobals.Sizes.TextboxHeight);
+        
         this._pivotXTextField.Layout(x + rowWidth + margin * 2, y, rowWidth);
         this._pivotYTextField.Layout(x + rowWidth * 2 + margin * 4, y, rowWidth);
     }
@@ -606,12 +591,20 @@ export default class InspectorView extends UIView {
             this._frameWTextField.Enable();
             this._spriteIsEnabledCheckBox.Enable();
             this._frameHTextField.Enable();
-            //this._alphaTextField.Enable();
             this._pivotXTextField.Enable();
             this._pivotYTextField.Enable();
-            this._spriteSheetDropdown.Enable();
             this._visibleDropdown.Enable();
             this._tintButton.Enable();
+
+            const frameMap = this._assetsView.frameMap;
+            if (frameMap != null && frameMap.size > 0) {
+                this._spriteSheetDropdown.Enable();
+                this._spriteSheetLabel.setActive(true).setVisible(true);
+            }
+            else {
+                this._spriteSheetDropdown.Disable();
+                this._spriteSheetLabel.setActive(false).setVisible(false);
+            }
         }
         else {
             this._nameTextField.Disable();
@@ -625,7 +618,6 @@ export default class InspectorView extends UIView {
             this._frameWTextField.Disable();
             this._spriteIsEnabledCheckBox.Disable();
             this._frameHTextField.Disable();
-            //this._alphaTextField.Disable();
             this._pivotXTextField.Disable();
             this._pivotYTextField.Disable();
             this._spriteSheetDropdown.Disable();

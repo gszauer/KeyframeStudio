@@ -1,11 +1,12 @@
 import UIGlobals from './UIGlobals.js'
 import UIView from './UIView.js'
-import UITextBox from './UITextBox.js'
 import UITextButton from './UITextButton.js'
 import UIStringBox from './UIStringBox.js'
+import UIPopup from './UIPopup.js'
 
 export default class AssetsView extends UIView {
     _hierarchyView = null;
+    _inspectorView = null;
     _backgroundSprite = null;
 
     _spriteSheetLabel = null;
@@ -21,6 +22,7 @@ export default class AssetsView extends UIView {
     _previewBackground = null;
     _previewImage = null;
 
+    frameMap = new Map();
     fileInput = null;
     jsonInput = null;
 
@@ -118,13 +120,73 @@ export default class AssetsView extends UIView {
         this.jsonInput.onchange = (event) => {
             event.preventDefault();
 
-            // TODO: Finish presets for sprites to avoid having to manually sprite sheet
-            // https://stackoverflow.com/questions/36127648/uploading-a-json-file-and-using-it
+            try {
+                const files = self.jsonInput.files;
+                if (!files.length) {
+                    console.log('No file selected!');
+                    return;
+                }
+                let file = files[0];
+                let reader = new FileReader();
 
-            const selectedFiles = self.jsonInput.files;
-            for (let i = 0; i < selectedFiles.length; i++) {
-                 return; // Only process 1 file
+                reader.onload = (event) => {
+                    const obj = JSON.parse(event.target.result);
+
+                    self.frameMap = new Map();
+
+                    if (obj.hasOwnProperty("textures")) {
+                        const textures = obj.textures;
+                        if (textures.length > 0) {
+                            const texture = textures[0];
+                            if (texture.hasOwnProperty("frames")) {
+                                const frames = texture.frames;
+                                const framesLen = frames.length;
+                                for (let i = 0; i < framesLen; ++i) {
+                                    const frame = frames[i];
+
+                                    let frameName = "";
+                                    const frameData = { x: 0, y: 0, width: 0, height: 0 };
+
+                                    if (frame.hasOwnProperty("filename")) {
+                                        frameName = frame.filename;
+                                    }
+                                    if (frame.hasOwnProperty("frame")) {
+                                        const frm = frame.frame;
+                                        if (frm.hasOwnProperty("x")) {
+                                            frameData.x = frm.x;
+                                        }
+                                        if (frm.hasOwnProperty("y")) {
+                                            frameData.y = frm.y;
+                                        }
+                                        if (frm.hasOwnProperty("w")) {
+                                            frameData.width = frm.w;
+                                        }
+                                        if (frm.hasOwnProperty("h")) {
+                                            frameData.width = frm.h;
+                                        }
+                                    }
+
+                                    self.frameMap.set(frameName, frameData);
+                                }
+                            }
+                        }
+                    }
+
+                    self._atlasTextField.text = file.name;
+
+                    const popup = new UIPopup(scene);
+                    popup._forceWidth = 250;
+                    for (let [key, value] of  self.frameMap.entries()) {
+                        popup.Add(key, null);
+                    }
+
+                    self._inspectorView.UpdatePresetPopup(popup);
+                };
+                reader.readAsText(file);
+            } catch (err) {
+                console.error(err);
             }
+            this._hierarchyView.Deselect();
         };
 
         this.fileInput.onchange = (event) => {
@@ -165,6 +227,7 @@ export default class AssetsView extends UIView {
 
                 return; // Only process 1 file
             }
+            this._hierarchyView.Deselect();
         }
     }
 
