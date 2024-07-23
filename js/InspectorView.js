@@ -511,6 +511,10 @@ export default class InspectorView extends UIView {
     }
 
     FocusOn(node) {
+        /*if (node === undefined) {
+            node = this._focused;
+        }*/
+
         this._focused = node;
 
         let name = "";

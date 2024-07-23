@@ -145,7 +145,7 @@ export default class AssetsView extends UIView {
                                     const frame = frames[i];
 
                                     let frameName = "";
-                                    const frameData = { x: 0, y: 0, width: 0, height: 0 };
+                                    const frameData = { x: 0, y: 0, width: 0, height: 0, px: 0.5, py: 0.5 };
 
                                     if (frame.hasOwnProperty("filename")) {
                                         frameName = frame.filename;
@@ -162,7 +162,16 @@ export default class AssetsView extends UIView {
                                             frameData.width = frm.w;
                                         }
                                         if (frm.hasOwnProperty("h")) {
-                                            frameData.width = frm.h;
+                                            frameData.height = frm.h;
+                                        }
+                                    }
+                                    if (frame.hasOwnProperty("pivot")) {
+                                        const pvt = frame.pivot;
+                                        if (pvt.hasOwnProperty("x")) {
+                                            frameData.px = pvt.x;
+                                        }
+                                        if (pvt.hasOwnProperty("y")) {
+                                            frameData.py = pvt.y;
                                         }
                                     }
 
@@ -179,6 +188,25 @@ export default class AssetsView extends UIView {
                     for (let [key, value] of  self.frameMap.entries()) {
                         popup.Add(key, null);
                     }
+
+                    const inspectorView = self._inspectorView;
+                    popup.onSelect = (label, _popup) => {
+                        if (inspectorView._focused === null) {
+                            return;
+                        }
+
+                        const data = self.frameMap.get(label);
+                        const sprt = inspectorView._focused._userData.sprite;
+                        sprt.x = data.x;
+                        sprt.y = data.y;
+                        sprt.width = data.width;
+                        sprt.height = data.height;
+                        sprt.pivotX = data.px;
+                        sprt.pivotY = data.py;
+
+                        self.UpdateFrames();
+                        inspectorView.FocusOn(inspectorView._focused);
+                    };
 
                     self._inspectorView.UpdatePresetPopup(popup);
                 };

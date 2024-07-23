@@ -115,8 +115,6 @@ export default class Application extends Phaser.Scene {
 
         const hierarchyView = new HierarchyView(this, sceneTabs, drawOrderView, sceneView);
         sceneTabs.Add("Hierarchy", hierarchyView);
-        //sceneTabs.Add("Draw Order", drawOrderView);
-        //sceneTabs.Add("Assets", new AssetsView(this, sceneTabs));
         sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
 
         inspectorView._assetsView = assetsView;
