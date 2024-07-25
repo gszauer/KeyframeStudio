@@ -1,6 +1,5 @@
 import UIGlobals from './UIGlobals.js'
 import UIColorPicker from './UIColorPicker.js'
-import ColorRGB from './ColorRGB.js'
 
 export default class UIColorButton {
     _scene = null;

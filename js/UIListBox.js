@@ -390,8 +390,18 @@ export default class UIListBox {
         this.Deselect();
         const index = this._buttons.indexOf(item);
         if (index > -1) {
+            //this._buttons[index].Destroy();
             this._buttons.splice(index, 1);
         }
         this.Layout(this._x, this._y, this._width, this._height);
+    }
+
+    FindUserDataIndex(data) {
+        for (let i = 0; i < this._buttons.length; ++i) {
+            if (this._buttons[i].item.data === data) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

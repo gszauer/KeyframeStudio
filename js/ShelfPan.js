@@ -1,11 +1,8 @@
 import UIGlobals from './UIGlobals.js'
-import UIView from './UIView.js'
 import UIToolBarShelf  from './UIToolBarShelf.js';
 import UITextBox from './UITextBox.js'
 import UIDropdown from './UIDropdown.js'
 import UIPopup from './UIPopup.js'
-import UIToggle from './UIToggle.js'
-import XForm from './Transform.js'
 
 export default class PanShelf extends UIToolBarShelf {
     _sceneView = null;

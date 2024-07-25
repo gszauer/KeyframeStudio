@@ -1,5 +1,3 @@
-import UIGlobals from './UIGlobals.js'
-
 // https://github.com/phaserjs/phaser/blob/v3.80.0/src/gameobjects/components/Transform.js
 // https://github.com/phaserjs/phaser/blob/master/src/gameobjects/components/TransformMatrix.js#L39
 

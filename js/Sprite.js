@@ -1,7 +1,6 @@
 import XForm from './Transform.js'
 import ColorRGB from './ColorRGB.js'
 import UIGlobals from './UIGlobals.js'
-import DrawOrderView from './DrawOrderView.js'
 
 export default class SpriteImg {
     _uiTreeNode = null; // Node that this sprite is attached to
