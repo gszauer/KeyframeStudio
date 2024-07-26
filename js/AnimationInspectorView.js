@@ -25,12 +25,11 @@ export default class AnimationInspectorView extends UIView {
 
     _loopingCheckBox = null;
 
-    _hierarchyView = null;
-    _sceneView = null;
-    _assetsView = null;
+    _animView = null;
 
-    constructor(scene, parent = null) {
+    constructor(scene, parent = null, animView = null) {
         super(scene, parent);
+        this._animView = animView;
 
         this._backgroundSprite = scene.add.sprite(0, 0, UIGlobals.Atlas, UIGlobals.Solid);
         this._backgroundSprite.setDepth(UIGlobals.WidgetLayer);
@@ -78,8 +77,8 @@ export default class AnimationInspectorView extends UIView {
         this._nameTextField = new UITextBox(scene, "");
         this._nameTextField.onTextEdit = (value) => {
             if (self._focused != null) {
-                self._focused.name = value;
-                self._focused._userData.drawOrder._labelText.text = value;
+                self._focused.name = "" + value;
+                self._animView.UpdateNames();
             }
         };
         this._nameTextField.Disable();
@@ -88,9 +87,8 @@ export default class AnimationInspectorView extends UIView {
         this._frameCountTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                self._focused._userData.transform.x = Number(value);
+                self._focused.frameCount = Number(value);
                 self._frameCountTextField.text = "" + value;
-                self._hierarchyView._UpdateTransforms();
             }
         }
         this._frameCountTextField.Disable();
@@ -99,18 +97,20 @@ export default class AnimationInspectorView extends UIView {
         this._frameRateTextField.onTextEdit = (value) => {
             if (self._focused != null) {
                 value = NumerisizeString(value);
-                while(value < 0) {  value += 360; }
-                while (value > 360) { value -= 360; }
-                if (value == 360) { value = 0; }
-                self._focused._userData.transform.degrees = Number(value);
+                self._focused.frameRate = Number(value);
                 self._frameRateTextField.text = "" + value;
-                self._hierarchyView._UpdateTransforms();
             }
         }
         this._frameRateTextField.Disable();
 
-        this._loopingCheckBox = new UIToggle(scene, "Looping", null);
+        this._loopingCheckBox = new UIToggle(scene, "Looping", (value, control) => {
+            self._focused.looping = value;
+        });
         this._loopingCheckBox.Disable();
+
+        animView.onSelectionChanged = (animTarget) => {
+            self.FocusOn(animTarget);
+        };
    }
 
     UpdateColors() {
@@ -196,5 +196,42 @@ export default class AnimationInspectorView extends UIView {
 
     Show() {
         this._SetVisibility(true);
+    }
+
+    FocusOn(animation) {
+        this._focused = animation;
+
+        let name = "";
+        let frameRate = "";
+        let frameCount = "";
+        let looping = false;
+
+        if (animation != null) {
+            name = "" + animation.name;
+            frameRate = animation.frameRate;
+            frameCount = animation.frameCount;
+            looping = animation.looping;
+        }
+
+
+        this._nameTextField.text = name;
+        this._frameRateTextField.text = "" + frameRate;
+        this._frameCountTextField.text = "" + frameCount;
+        this._loopingCheckBox._state = looping;
+
+        if (animation != null) {
+            this._nameTextField.Enable();
+            this._frameRateTextField.Enable();
+            this._frameCountTextField.Enable();
+            this._loopingCheckBox.Enable();
+        }
+        else {
+            this._nameTextField.Disable();
+            this._frameRateTextField.Disable();
+            this._frameCountTextField.Disable();
+            this._loopingCheckBox.Disable();
+        }
+
+        this.UpdateColors();
     }
 }

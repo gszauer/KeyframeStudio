@@ -91,7 +91,7 @@ export default class Application extends Phaser.Scene {
         this._toolBox.AddTop("", null);
         this._toolBox.AddTop(UIGlobals.IconHand, null);
         this._toolBox.AddTop(UIGlobals.IconZoomIn, null);
-        this._toolBox.AddBottom("IconHelp.png", null);
+        //this._toolBox.AddBottom("IconHelp.png", null);
         this._toolBox.AddBottom("IconDownload.png", null);
         this._toolBox.AddBottom("IconUpload.png", null);
         this._toolBox.AddBottom("IconNew.png", null);
@@ -105,17 +105,18 @@ export default class Application extends Phaser.Scene {
         toolSplitter.pinnedMinSize = 33;
 
         const inspectorTabs = toolSplitter.a = new UITabView(this, toolSplitter.a);
+        const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
         const drawOrderView = new DrawOrderView(this, inspectorTabs);
         
         const inspectorView = new InspectorView(this,  inspectorTabs);
-        const animInspectorView = new AnimationInspectorView(this, inspectorTabs);
+        const animationsView = new AnimationsView(this, sceneTabs);
+        const animInspectorView = new AnimationInspectorView(this, inspectorTabs, animationsView);
         
         const subTabs = new UITabView(this, inspectorTabs, true);
         subTabs.Add("Hierarchy", inspectorView);//inspectorView);
         subTabs.Add("Animations", animInspectorView);//inspectorView);
         
         const assetsView = new AssetsView(this, inspectorTabs);
-        const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
 
         inspectorTabs.Add("Inspector", subTabs);//inspectorView);
         inspectorTabs.Add("Draw Order", drawOrderView);
@@ -123,7 +124,7 @@ export default class Application extends Phaser.Scene {
 
         const hierarchyView = new HierarchyView(this, sceneTabs, drawOrderView, sceneView);
         sceneTabs.Add("Hierarchy", hierarchyView);
-        sceneTabs.Add("Animations", new AnimationsView(this, sceneTabs));
+        sceneTabs.Add("Animations", animationsView);
 
         inspectorView._assetsView = assetsView;
         inspectorView._sceneView = sceneView;
@@ -133,6 +134,7 @@ export default class Application extends Phaser.Scene {
         inspectorView._hierarchyView = hierarchyView;
         assetsView._hierarchyView= hierarchyView;
         assetsView._inspectorView = inspectorView;
+        animInspectorView._animView = animationsView;
 
         hierarchyView.onSelectionChanged = (oldNode, newNode) => {
             inspectorView.FocusOn(newNode);

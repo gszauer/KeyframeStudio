@@ -53,7 +53,9 @@ export class Track {
 
 export default class Clip {
     name = null;
-    duration = 0;
+    frameRate = 60;
+    frameCount = 60;
+    looping = false;
     tracks = null;
 
     static TrackPositionX = "position.x";
@@ -64,16 +66,11 @@ export default class Clip {
     static VisibleTrack = "visible";
     static TintTrack = "tint";
 
-    constructor(name, duration) {
-        if (!name) {
-            name = "Animation Clip";
-        }
-        if (!duration) {
-            duration = 0;
-        }
-
+    constructor(name = "Animation Clip", frameRate = 60, frameCount = 60, looping = false) {
         this.name = "" + name;
-        this.duration = duration;
+        this.frameRate = frameRate;
+        this.frameCount = frameCount;
+        this.looping = looping;
         this.tracks = [];
     }
 
@@ -112,7 +109,7 @@ export default class Clip {
     }
 
     Evaluate(time) {
-        time = time % this.duration;
+        //time = time % this.duration;
 
         const tracks = this.tracks;
         const length = this.tracks.length;

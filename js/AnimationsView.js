@@ -132,4 +132,12 @@ export default class AnimationsView extends UIView {
     Show() {
         this.SetVisibility(true);
     }
+
+    UpdateNames() {
+        const listButtons = this._list._buttons;
+        const length = listButtons.length;
+        for (let i = 0; i < length; ++i) {
+            listButtons[i]._labelText.text = listButtons[i].item.data.name;
+        }
+    }
 }
