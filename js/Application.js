@@ -5,7 +5,8 @@ import UIToolBar from './UIToolBar.js'
 import UIToolBox from './UIToolBox.js'
 import UISplitView from './UISplitView.js'
 import UITabView from './UITabView.js'
-import InspectorView from './InspectorView.js'
+import InspectorView from './HierarchyInspectorView.js'
+import AnimationInspectorView from './AnimationInspectorView.js'
 import DrawOrderView from './DrawOrderView.js'
 import AnimationsView from './AnimationsView.js'
 import AssetsView from './AssetsView.js'
@@ -104,12 +105,19 @@ export default class Application extends Phaser.Scene {
         toolSplitter.pinnedMinSize = 33;
 
         const inspectorTabs = toolSplitter.a = new UITabView(this, toolSplitter.a);
-        const inspectorView = new InspectorView(this,  inspectorTabs);
         const drawOrderView = new DrawOrderView(this, inspectorTabs);
+        
+        const inspectorView = new InspectorView(this,  inspectorTabs);
+        const animInspectorView = new AnimationInspectorView(this, inspectorTabs);
+        
+        const subTabs = new UITabView(this, inspectorTabs, true);
+        subTabs.Add("Hierarchy", inspectorView);//inspectorView);
+        subTabs.Add("Animations", animInspectorView);//inspectorView);
+        
         const assetsView = new AssetsView(this, inspectorTabs);
         const sceneTabs = toolSplitter.b = new UITabView(this, toolSplitter.b);
 
-        inspectorTabs.Add("Inspector", inspectorView);
+        inspectorTabs.Add("Inspector", subTabs);//inspectorView);
         inspectorTabs.Add("Draw Order", drawOrderView);
         inspectorTabs.Add("Sprite Sheet", assetsView);
 
@@ -128,6 +136,10 @@ export default class Application extends Phaser.Scene {
 
         hierarchyView.onSelectionChanged = (oldNode, newNode) => {
             inspectorView.FocusOn(newNode);
+        };
+
+        sceneTabs.onViewChanged = (view, tag) => {
+            subTabs.Activate(tag);
         };
 
         self.Layout();
