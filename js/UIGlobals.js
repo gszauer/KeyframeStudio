@@ -113,6 +113,8 @@ export default class UIGlobals {
         ToolBarShelfTextTopOffset: 6,
         ToolBarShelfItemsGap: 6,
         ToolBarShelfTextBoxWidth: 75,
+
+        KeyframeViewHeaderHeight: 30,
     };
 
     // https://spectrum.adobe.com/page/color-system/#Static-color-palette

@@ -12,6 +12,7 @@ import AnimationsView from './AnimationsView.js'
 import AssetsView from './AssetsView.js'
 import HierarchyView from './HierarchyView.js'
 import SceneView from './SceneView.js'
+import KeyframesView from './KeyframesView.js'
 import * as TextEditPlugin from './rextexteditplugin.js';
 import XForm from './Transform.js'
 
@@ -78,6 +79,8 @@ export default class Application extends Phaser.Scene {
 
         const sceneView = timelineSplitter.a = new SceneView(this, timelineSplitter);
         sceneView.CreateToolShelves(self._toolBar);
+
+        const keyframeView = timelineSplitter.b = new KeyframesView(this, timelineSplitter);
 
         self._toolBox = new UIToolBox(self, (btnName, btnObj) => {
             sceneView.activeShelf = self._toolBar.Activate(btnName);
