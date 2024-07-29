@@ -12,6 +12,7 @@ export default class AnimationsView extends UIView {
 
     selectedAnimation = null;
     _selectedIndex = -1;
+    _keyframesView = null;
 
     onSelectionChanged = null; // (selectedAnimation)
 
@@ -23,6 +24,9 @@ export default class AnimationsView extends UIView {
         if (this.selectedAnimation != valeu) {
             if (this.onSelectionChanged != null) {
                 this.onSelectionChanged(valeu);
+            }
+            if (this._keyframesView != null) {
+                this._keyframesView.FocusOn(valeu);
             }
         }
         this.selectedAnimation = valeu;

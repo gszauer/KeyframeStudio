@@ -6,6 +6,8 @@ export default class UISplitView extends UIView {
     b = null; // Right or bottom
 
     _distance = 0; // In pixels
+    onResize = null; // callback(disatnce)
+
     horizontal = true;
 
     // Only one will be true
@@ -18,6 +20,13 @@ export default class UISplitView extends UIView {
 
     _dividerSprite = null;
     pinnedMinSize = 0;
+
+    get distance() {
+        if (this._distance < this.pinnedMinSize) {
+            return this.pinnedMinSize;
+        }
+        return this._distance;
+    }
 
     constructor(scene, parent = null) {
         super(scene, parent);
@@ -68,6 +77,7 @@ export default class UISplitView extends UIView {
             if (dragY < self._y) { dragY = self._y; }
             if (dragY > self._y + self._height) { dragY = self._y + self._height; }
 
+            const oldDistance = self._distance;
             if (self.horizontal) {
                 gameObject.x = dragX;// - Math.floor(UIGlobals.Sizes.SplitViewSplitterSize * 0.5);
 
@@ -83,6 +93,18 @@ export default class UISplitView extends UIView {
                 let t = y / self._height;
                 if (!self.pinTop) {  t = 1.0 - t; }
                 self._distance = (self._height * t);
+            }
+
+            if (self.pinnedMinSize > 0) {
+                if (self._distance < self.pinnedMinSize) {
+                    self._distance = self.pinnedMinSize;
+                }
+            }
+
+            if (oldDistance !== self._distance) {
+                if (self.onResize != null) {
+                    self.onResize(self._distance);
+                }
             }
 
             self.Layout(self._x, self._y, self._width, self._height);

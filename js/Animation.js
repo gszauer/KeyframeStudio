@@ -16,9 +16,20 @@ export class Track {
         this.type = type;
     }
     
-    AddFrame(time, value) {
+    SetFrame(time, value) {
         const frames = this.frames;
         const length = this.frames.length;
+
+        for (let i = 0; i < length; ++i) {
+            const _time = frames[i].time;
+            if (_time == time) {
+                frames[i].value = value;
+                return frames[i];
+            }
+            else if (_time > time) {
+                break;
+            }
+        }
 
         const frame = {
             time: time,
@@ -88,6 +99,15 @@ export default class Clip {
         return -1;
     }
 
+    GetTrack(target, track) {
+        let trackIndex = this.TrackIndex(target, track);
+        if (trackIndex === -1) {
+           return null;
+        }
+        
+        return this.tracks[trackIndex];
+    }
+
     AddTrack(target, track) {    
         let trackIndex = this.TrackIndex(target, track);
         if (trackIndex === -1) {
@@ -106,6 +126,15 @@ export default class Clip {
         }
 
         this.tracks.splice(toRemove, 1);
+    }
+
+    SetValue(target, track, time, value) {
+        let targetTrack = this.GetTrack(target, track);
+        if (targetTrack == null) {
+            targetTrack = this.AddTrack(target, track);
+        }
+
+        return targetTrack.SetFrame(time, value);
     }
 
     Evaluate(time) {

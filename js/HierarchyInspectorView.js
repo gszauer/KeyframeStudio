@@ -6,6 +6,7 @@ import UIPopup from './UIPopup.js'
 import UIColorButton from './UIColorButton.js'
 import ColorRGB from './ColorRGB.js'
 import UIToggle from './UIToggle.js'
+import Clip from './Animation.js'
 
 export default class InspectorView extends UIView {
     _focused = null;
@@ -65,6 +66,14 @@ export default class InspectorView extends UIView {
     _hierarchyView = null;
     _sceneView = null;
     _assetsView = null;
+    _keyframesView = null;
+
+    get focusedAnimation() {
+        if (this._keyframesView == null) {
+            return null;
+        }
+        return this._keyframesView.clip;
+    }
 
     get texture() {
         return this._assetsView.atlasTexture;
@@ -195,6 +204,11 @@ export default class InspectorView extends UIView {
             if (self._focused != null) {
                 self._focused.name = value;
                 self._focused._userData.drawOrder._labelText.text = value;
+
+                const clip = self.focusedAnimation;
+                if (clip !== null) {
+                    self._keyframesView.FocusOn(clip);
+                }
             }
         };
         this._nameTextField.Disable();
@@ -231,6 +245,16 @@ export default class InspectorView extends UIView {
                 self._focused._userData.transform.degrees = Number(value);
                 self._rotationTextField.text = "" + value;
                 self._hierarchyView._UpdateTransforms();
+
+                const clip = self.focusedAnimation;
+                if (clip !== null) {
+                    clip.SetValue(self._focused._userData.transform, 
+                                Clip.TrackRotation, 0, Number(value));
+                    console.log("WARNING: IGNORING TIME!");
+                    console.log("TODO: THIS IS ACTUALLY WRONG! IF THERE IS A CLIP, " + 
+                                "AND A FRAME IS SELECTED, SET THE FRAME, NOT THE TRANSFORM");
+                    self._keyframesView.FocusOn(clip);
+                }
             }
         }
         this._rotationTextField.Disable();
