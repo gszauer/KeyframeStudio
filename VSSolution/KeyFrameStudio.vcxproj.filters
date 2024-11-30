@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Dependancies">
+      <UniqueIdentifier>{743a702a-64fe-4617-a379-cc09b6a01145}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dependancies">
+      <UniqueIdentifier>{90a4b6e1-afb6-4933-88df-8962f4219aaf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Code\Libraries\stb_image.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imstb_truetype.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imstb_textedit.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imstb_rectpack.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\ImMath.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imgui_stdlib.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imgui_neo_sequencer.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imgui_neo_internal.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imgui_internal.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imgui.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\imconfig.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\gabor_json.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\base64.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\sokol_app.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\sokol_gfx.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\sokol_glue.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\sokol_imgui.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Libraries\sokol_time.h">
+      <Filter>Header Files\Dependancies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\UndoManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\TransformNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Track.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\SpriteNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\SceneNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Embedded.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\AssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Asset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Action.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Code\Platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Code\Libraries\ImMath.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_widgets.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_tables.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_stdlib.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_neo_sequencer.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_neo_internal.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui_draw.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\imgui.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\gabor_json.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\stb_image.c">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\base64.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\UndoManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\TransformNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Track.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\SpriteNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\SceneNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Embedded.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Asset.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Action.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\Libraries\sokol_impl.cpp">
+      <Filter>Source Files\Dependancies</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Code\PlatformWin32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

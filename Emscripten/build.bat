@@ -1,0 +1,1 @@
+emcc -o Build/index.html -fno-rtti -fno-exceptions -sUSE_WEBGL2 --shell-file=shell.html -s ALLOW_MEMORY_GROWTH=1 -Wno-nontrivial-memaccess -Wno-format-security -Wno-dynamic-class-memaccess build.cpp
