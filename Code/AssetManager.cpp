@@ -34,6 +34,95 @@ Asset* AssetManager::Get(const std::string& uuid) {
     return assets[uuid];
 }
 
+AtlasAsset* AssetManager::LoadAtlasFromMemory(const std::string& atlasName, const char* fileName, unsigned char* buffer, unsigned int size) {
+    if (buffer != 0 && size != 0 && fileName != 0 && fileName[0] != 0) {
+        JsonValue* root = JsonParseString((char*)buffer, size);
+        AtlasAsset* result = AssetManager::GetInstance()->NewAtlas(atlasName);
+
+        if (root != 0 && root->type == JsonValueType::JSON_OBJECT) {
+            ImVec2 imgSize(1, 1);
+            JsonValue* meta = JsonObjectGet(root, "meta");
+            if (meta != 0) {
+                JsonValue* size = JsonObjectGet(meta, "size");
+                if (size != 0) {
+                    if (JsonObjectGet(size, "w") != 0) {
+                        imgSize.x = (float)JsonObjectGet(size, "w")->asNumber;
+                    }
+                    if (JsonObjectGet(size, "h") != 0) {
+                        imgSize.y = (float)JsonObjectGet(size, "h")->asNumber;
+                    }
+                }
+            }
+            result->sourceSize = imgSize;
+
+            JsonValue* frames = JsonObjectGet(root, "frames");
+            if (frames != 0 && frames->type == JsonValueType::JSON_OBJECT) {
+                /*for (int i = 0; i < frames->asObject.count; ++i) {
+                    std::cout << "Loaded frame: " << frames->asObject.names[i] << "\n";
+                }*/
+                for (JsonIterator iter = JsonGetIterator(frames); iter.valid; JsonIteratorAdvance(&iter)) {
+                    std::string frameName = "::ERROR";
+                    if (iter.name != 0) {
+                        frameName = iter.name;
+                    }
+
+                    if (iter.value == 0 || iter.value->type != JsonValueType::JSON_OBJECT) {
+                        continue;
+                    }
+                    JsonValue* frame = iter.value;
+
+                    ImVec2 minP(0, 0);
+                    ImVec2 maxP(imgSize.x, imgSize.y);
+
+                    JsonValue* spriteFrame = JsonObjectGet(frame, "frame");
+                    if (spriteFrame != 0) {
+                        if (JsonObjectGet(spriteFrame, "x") != 0) {
+                            minP.x = (float)JsonObjectGet(spriteFrame, "x")->asNumber;
+                            //minP.x /= imgSize.x;
+                        }
+                        if (JsonObjectGet(spriteFrame, "y") != 0) {
+                            minP.y = (float)JsonObjectGet(spriteFrame, "y")->asNumber;
+                            //minP.y /= imgSize.y;
+                        }
+                        if (JsonObjectGet(spriteFrame, "w") != 0) {
+                            maxP.x = (float)JsonObjectGet(spriteFrame, "w")->asNumber;
+                            //maxP.x /= imgSize.x;
+                            maxP.x += minP.x;
+                        }
+                        if (JsonObjectGet(spriteFrame, "h") != 0) {
+                            maxP.y = (float)JsonObjectGet(spriteFrame, "h")->asNumber;
+                            //maxP.y /= imgSize.y;
+                            maxP.y += minP.y;
+                        }
+                    }
+
+                    ImVec2 p0 = minP;
+                    ImVec2 p1(maxP.x, minP.y);
+                    ImVec2 p2 = maxP;
+                    ImVec2 p3(minP.x, maxP.y);
+
+                    bool rotation = false;
+                    JsonValue* rotated = JsonObjectGet(frame, "rotated");
+                    if (rotated != 0) {
+                        JsonObjectGet(frame, "rotated");;
+                        if (rotated->asBool) {
+                            rotation = true;
+                        }
+                    }
+
+                    result->AddFrame(frameName, p0, p1, p2, p3, rotation);
+                }
+            }
+        }
+        JsonFree(root);
+        
+        return result;
+
+    }
+    return 0;
+}
+
+#if 0
 void AssetManager::LoadAtlasFromFile(const std::string& atlasName, const std::string& fileName, AssetManagerLoadCallback callback) {
     Application::GetInstance()->_FileOperationStarted();
     _lastRequestedAsset = atlasName;
@@ -237,6 +326,7 @@ void AssetManager::LoadAtlasFromFile(const std::string& atlasName, const std::st
     return result;
 #endif
 }
+#endif
 
 ImageAsset* AssetManager::DeserializeImage(const char* name, const char* guid, const void* data, int data_len) {
     ImageAsset* result = new ImageAsset(name, data, data_len);
@@ -245,6 +335,26 @@ ImageAsset* AssetManager::DeserializeImage(const char* name, const char* guid, c
     return result;
 }
 
+ImageAsset* AssetManager::LoadImageFromMemory(const char* _fileName_, unsigned char* buffer, unsigned int size) {
+    if (buffer != 0 && _fileName_ != 0 && _fileName_[0] != 0 && size != 0) {
+        std::string fileName = _fileName_;
+        size_t lastIndex = fileName.find_last_of('/');
+        if (lastIndex == std::string::npos) {
+            lastIndex = fileName.find_last_of("\\");
+        }
+        if (lastIndex != std::string::npos) {
+            fileName = fileName.substr(lastIndex + 1);
+        }
+
+        ImageAsset* result = new ImageAsset(fileName, (const void*)buffer, (size_t)size);
+        AssetManager::GetInstance()->assets[result->uuid] = result;
+        return result;
+    }
+    
+    return 0;
+}
+
+#if 0
 void AssetManager::LoadImageFromFile(const std::string& fileName, AssetManagerLoadCallback callback) {
     Application::GetInstance()->_FileOperationStarted();
     _lastCallback = callback;
@@ -274,6 +384,7 @@ void AssetManager::LoadImageFromFile(const std::string& fileName, AssetManagerLo
             Application::GetInstance()->_FileOperationFinished();
         }
     );
+#endif
 
 #if 0
     size_t lastIndex = _fileName.find_last_of('/');
@@ -307,8 +418,8 @@ void AssetManager::LoadImageFromFile(const std::string& fileName, AssetManagerLo
 
     free(target);
     return result;
-#endif
 }
+#endif
 
 std::map<std::string, Asset*>::iterator AssetManager::Begin() {
     return assets.begin();

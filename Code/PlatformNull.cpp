@@ -4,10 +4,6 @@ std::string MakeNewGuid() {
 	return "-INVALID-GUID-";
 }
 
-extern "C" void PlatformReadFile(const char* fileName, PlatformReadFileResult result) {
-    result(fileName, 0, 0);
-}
-
 extern "C" void PlatformSaveAs(const unsigned char* data, unsigned int size, PlatformSaveAsResult result) {
     result(false);
 }

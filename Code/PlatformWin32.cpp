@@ -55,6 +55,7 @@ extern "C" void UI_WriteClipboard(const char* buffer) {
 }
 #endif
 
+#if 0
 extern "C" void PlatformReadFile(const char* fileName, PlatformReadFileResult result) {
     HANDLE hFile = CreateFileA(fileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     DWORD bytesInFile = GetFileSize(hFile, 0);
@@ -76,6 +77,7 @@ extern "C" void PlatformReadFile(const char* fileName, PlatformReadFileResult re
     delete[] fileBuffer;
     CloseHandle(hFile);
 }
+#endif
 
 extern "C" void PlatformSaveAs(const unsigned char* data, unsigned int size, PlatformSaveAsResult result) {
     static char path[1024] = { 0 };
@@ -103,6 +105,7 @@ extern "C" void PlatformSaveAs(const unsigned char* data, unsigned int size, Pla
     }
 }
 
+#if 0
 extern "C" void PlatformSelectFile(const char* filter, PlatformSelectFileResult result) {
     static CHAR UI_fileNameBuffer[1024] = { 0 };
     memset(UI_fileNameBuffer, 0, 1024);
@@ -128,5 +131,55 @@ extern "C" void PlatformSelectFile(const char* filter, PlatformSelectFileResult 
 
     if (GetOpenFileNameA(&ofn) == TRUE) {
         result(UI_fileNameBuffer);
+    }
+}
+#endif
+
+extern "C" void PlatformSelectFile(const char* filter, PlatformSelectFileResult result) {
+    static CHAR UI_fileNameBuffer[1024] = { 0 };
+    memset(UI_fileNameBuffer, 0, 1024);
+    OPENFILENAMEA ofn;
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = GetActiveWindow();
+    ofn.lpstrFile = UI_fileNameBuffer;
+    ofn.nMaxFile = sizeof(UI_fileNameBuffer);
+    if (filter != 0) {
+        ofn.lpstrFilter = (filter);
+    }
+    else {
+        ofn.lpstrFilter = ("All\0*.*\0png\0*.png\0kfs\0*.kfs\0\0");
+    }
+
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileNameA(&ofn) == TRUE) {
+        HANDLE hFile = CreateFileA(UI_fileNameBuffer, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        DWORD bytesInFile = GetFileSize(hFile, 0);
+        DWORD bytesRead = 0;
+
+        if (hFile == INVALID_HANDLE_VALUE) {
+            return;
+        }
+        unsigned char* fileBuffer = new unsigned char[bytesInFile + 1];
+
+        if (ReadFile(hFile, fileBuffer, bytesInFile, &bytesRead, NULL) != 0) {
+            fileBuffer[bytesInFile] = 0; // Force json parser to stop
+            result(UI_fileNameBuffer, fileBuffer, bytesInFile);
+        }
+        else {
+            result(UI_fileNameBuffer, 0, 0);
+        }
+
+        delete[] fileBuffer;
+        CloseHandle(hFile);
+    }
+    else {
+        result(0, 0, 0);
     }
 }

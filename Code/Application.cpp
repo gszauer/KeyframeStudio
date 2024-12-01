@@ -70,6 +70,8 @@ Application::Application() {
     openScene = false;
 
     guiLoadAtlasFromFile = false;
+    guiAtlasFileData = 0;
+    guiAtlasFileSize = 0;
 
     rotationDisplay = RotationDisplayType::RADIAN_SLIDER;
     
@@ -894,12 +896,13 @@ void Application::ImguiAssets() {
             _FileOperationStarted();
            
             PlatformSelectFile("json\0*.json\0All\0*.*\0\0",
-                [](const char* _fileName_) {
+                [](const char* _fileName_, unsigned char* _buffer_, unsigned int _size_) {
                     std::string& newThingName = Application::GetInstance()->newThingName;
                     std::string& guiAtlasTargetFileName = Application::GetInstance()->guiAtlasTargetFileName;
                     bool& guiLoadAtlasFromFile = Application::GetInstance()->guiLoadAtlasFromFile;
+                    void*& guiAtlasFileData = Application::GetInstance()->guiAtlasFileData;
+                    unsigned int& guiAtlasFileSize = Application::GetInstance()->guiAtlasFileSize;
 
-                    //const char* _fileName_ = UI_SelectFile();
                     newThingName = (_fileName_ == 0) ? "" : _fileName_;
                     guiAtlasTargetFileName = newThingName;
 
@@ -912,7 +915,12 @@ void Application::ImguiAssets() {
                         newThingName = newThingName.substr(lastIndex + 1);
                     }
 
-                    guiLoadAtlasFromFile = _fileName_ != 0 && _fileName_[0] != 0;
+                    guiLoadAtlasFromFile = _fileName_ != 0 && _fileName_[0] != 0 && _buffer_ != 0 && _size_ != 0;
+                    if (guiLoadAtlasFromFile) {
+                        guiAtlasFileData = malloc(_size_);
+                        memcpy(guiAtlasFileData, _buffer_, _size_);
+                        guiAtlasFileSize = _size_;
+                    }
 
                     Application::GetInstance()->_FileOperationFinished();
                 }
@@ -927,13 +935,17 @@ void Application::ImguiAssets() {
         if (ImGui::Button("Create", ImVec2(70 * windowDevicePixelRatio, 20 * windowDevicePixelRatio))) {
             if (guiLoadAtlasFromFile) {
                 //newAtlas = AssetManager::GetInstance()->LoadAtlasFromFile(newThingName, guiAtlasTargetFileName.c_str());
-                UndoManager::GetInstance()->NewAtlasFromFile(newThingName.c_str(), guiAtlasTargetFileName.c_str());
+                //UndoManager::GetInstance()->NewAtlasFromFile(newThingName.c_str(), guiAtlasTargetFileName.c_str());
+                UndoManager::GetInstance()->NewAtlasFromMemory(newThingName.c_str(), guiAtlasTargetFileName.c_str(), (unsigned char*)guiAtlasFileData, guiAtlasFileSize);
+                free(guiAtlasFileData);
             }
             else {
                 //newAtlas = AssetManager::GetInstance()->NewAtlas(newThingName);
                 UndoManager::GetInstance()->NewAtlas(newThingName.c_str());
             }
             guiLoadAtlasFromFile = false;
+            guiAtlasFileData = 0;
+            guiAtlasFileSize = 0;
             
             ImGui::CloseCurrentPopup();
         }
@@ -2093,22 +2105,12 @@ void Application::_OpenScene() {
     _FileOperationStarted();
 
     PlatformSelectFile("kfs\0*.kfs\0All\0*.*\0\0",
-        [](const char* fileName) {
-            //const char* fileName = UI_SelectFile();
-
-            if (fileName != 0 && fileName[0] != 0) {
-                PlatformReadFile(fileName,
-                    [](const char* path, unsigned char* buffer, unsigned int size) {
-                        if (buffer != 0) {
-                            Application::GetInstance()->_NewScene();
-                            Application::GetInstance()->Deserialize((const char*)buffer, size);
-                        }
-                        Application::GetInstance()->_FileOperationFinished();
-                    });
+        [](const char* fileName, unsigned char* buffer, unsigned int size) {
+            if (buffer != 0) {
+                Application::GetInstance()->_NewScene();
+                Application::GetInstance()->Deserialize((const char*)buffer, size);
             }
-            else {
-                Application::GetInstance()->_FileOperationFinished();
-            }
+            Application::GetInstance()->_FileOperationFinished();
         }
     );
 

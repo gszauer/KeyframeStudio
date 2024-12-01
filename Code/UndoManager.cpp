@@ -563,24 +563,25 @@ void UndoManager::SelectAsset(class Asset* oldAss, class Asset* newAss, bool old
 
 void UndoManager::NewImage() {
 	PlatformSelectFile("png\0*.png\0All\0*.*\0\0",
-		[](const char* selectedFile) {
+		[](const char* selectedFile, unsigned char* data, unsigned int size) {
 			//const char* selectedFile = UI_SelectFile();
-			if (selectedFile != 0 && selectedFile[0] != '\0') {
-				AssetManager::GetInstance()->LoadImageFromFile(selectedFile,
-					[](const char* fileName, Asset* resultAsset) {
-						if (resultAsset != 0) {
-							ImageAsset* result = (ImageAsset *)resultAsset;
-
-							OmniAction* o = UndoManager::GetInstance()->GetAction();
-							NewImageAction* action = new(o) NewImageAction(result);
-						}
-					}
-				);
+			if (selectedFile != 0 && selectedFile[0] != '\0' && data != 0 && size != 0) {
+				ImageAsset* result = AssetManager::GetInstance()->LoadImageFromMemory(selectedFile, data, size);
+				OmniAction* o = UndoManager::GetInstance()->GetAction();
+				NewImageAction* action = new(o) NewImageAction(result);
 			}
 		}
 	);
 }
 
+AtlasAsset* UndoManager::NewAtlasFromMemory(const char* name, const char* fileName, unsigned char* data, unsigned int size) {
+	AtlasAsset* newAtlas = AssetManager::GetInstance()->LoadAtlasFromMemory(name, fileName, data, size);
+	OmniAction* o = UndoManager::GetInstance()->GetAction();
+	NewAtlasAction* action = new(o) NewAtlasAction(newAtlas);
+	return newAtlas;
+}
+
+#if 0
 void UndoManager::NewAtlasFromFile(const char* name, const char* file) {
 	// No need to edit the last one
 	AssetManager::GetInstance()->LoadAtlasFromFile(name, file,
@@ -593,6 +594,7 @@ void UndoManager::NewAtlasFromFile(const char* name, const char* file) {
 		}
 	);
 }
+#endif
 
 class AtlasAsset* UndoManager::NewAtlas(const char* name) {
 	// No need to edit the last one

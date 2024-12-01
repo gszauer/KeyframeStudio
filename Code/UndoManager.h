@@ -69,7 +69,7 @@ public:
 	void NewAnimation(const std::string& name, int frameRate, int frmaeCount, bool looping);
 	void NewImage(); // Select File
 	class AtlasAsset* NewAtlas(const char* name);
-	void NewAtlasFromFile(const char* name, const char* file);
+	AtlasAsset* NewAtlasFromMemory(const char* name, const char* fileName, unsigned char* data, unsigned int size);
 	void DeleteAsset(Asset* ass);
 
 	void SetName(class AnimationAsset* target, const std::string& name);

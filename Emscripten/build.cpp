@@ -22,6 +22,6 @@
 #include "../Code/TransformNode.cpp"
 #include "../Code/UndoManager.cpp"
 
-#include "../Code/PlatformNull.cpp"
+#include "../Code/PlatformWasm.cpp"
 #include "../Code/Libraries/stb_image.c"
 #include "../Code/Libraries/sokol_impl.cpp"

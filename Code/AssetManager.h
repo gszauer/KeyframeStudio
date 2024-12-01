@@ -24,14 +24,11 @@ protected:
 
 	AssetManager(const AssetManager&) = delete;
 	AssetManager& operator=(const AssetManager&) = delete;
-
-	std::string _lastRequestedAsset; // Initial value doesn't matter. Used as a temp helper for callbacks
-	AssetManagerLoadCallback _lastCallback;
 public:
 	Asset* Get(const std::string& uuid);
 	
-	void LoadImageFromFile(const std::string& fileName, AssetManagerLoadCallback callback);
-	void LoadAtlasFromFile(const std::string& atlasName, const std::string& fileName, AssetManagerLoadCallback callback);
+	ImageAsset* LoadImageFromMemory(const char* fileName, unsigned char* buffer, unsigned int size);
+	AtlasAsset* LoadAtlasFromMemory(const std::string& atlasName, const char* fileName, unsigned char* buffer, unsigned int size);
 
 	AnimationAsset* NewAnimation(const std::string& name, int frameRate, int frameCount, bool looping);
 	AtlasAsset* NewAtlas(const std::string& name);

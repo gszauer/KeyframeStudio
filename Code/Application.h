@@ -60,6 +60,9 @@ protected:
 	std::vector<SpriteNode*> visibleSplires;
 
 	bool guiLoadAtlasFromFile; // No need to give an initial value
+	void* guiAtlasFileData;
+	unsigned int guiAtlasFileSize;
+
 	std::string guiAtlasTargetFileName;
 
 	RotationDisplayType rotationDisplay;
