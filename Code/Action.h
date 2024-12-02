@@ -66,37 +66,28 @@ public:
 	virtual void Do();
 	virtual void Undo();
 
-	inline virtual const char* GetName() {
-		return "Base Action";
-	}
-
-	inline ActionType GetType() {
-		return rtti;
-	}
+	virtual const char* GetName();
+	virtual ActionType GetType();
 };
 
 class InvalidAction : public Action {
 	friend class UndoManager;
 public:
-	inline InvalidAction() { rtti = ActionType::InvalidAction; }
-	inline ~InvalidAction() { }
+	InvalidAction();
+	virtual ~InvalidAction();
+	virtual void Do();
+	virtual void Undo();
 
-	inline void Do() { }
-	inline void Undo() { }
-
-	inline virtual const char* GetName() {
-		return "INVALID ACTION";
-	}
+	virtual const char* GetName();
 };
 
 class FirstAction : public Action {
 	friend class UndoManager;
 public:
 	FirstAction();
-	inline ~FirstAction() { }
-
-	void Do();
-	void Undo();
+	virtual ~FirstAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Initial State";
@@ -113,13 +104,13 @@ protected:
 	//static void* operator new(std::size_t) = delete;
 public:
 	SetNameAction(class SceneNode* target, const std::string& name);
-	inline ~SetNameAction() { }
+	virtual ~SetNameAction();
 	
 	//static void* operator new(std::size_t size, class UndoManager& udm);
 	//void operator delete(void* memory, <your parameters here>);
 
-	void Do();
-	void Undo();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Rename Node";
@@ -136,9 +127,9 @@ protected:
 	class TransformNode* target;
 public:
 	SetPositionAction(class TransformNode* target, const ImVec2& newPos, bool setX, bool setY);
-	inline ~SetPositionAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetPositionAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -163,9 +154,9 @@ protected:
 	float newRotation;
 public:
 	SetRotationAction(class TransformNode* target, float newRot);
-	inline ~SetRotationAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetRotationAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Rotation";
@@ -182,9 +173,9 @@ protected:
 	class TransformNode* target;
 public:
 	SetScaleAction(class TransformNode* target, const ImVec2& newScale, bool setX, bool setY);
-	inline ~SetScaleAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetScaleAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -211,9 +202,9 @@ protected:
 	int frame;
 public:
 	AddFrameFAction(class Track* _track, float _data, int _frame);
-	inline ~AddFrameFAction() { }
-	void Do();
-	void Undo();
+	virtual ~AddFrameFAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (existing == 0) {
@@ -233,9 +224,9 @@ protected:
 	int frame;
 public:
 	AddFrameCAction(class Track* _track, ImU32 _data, int _frame);
-	inline ~AddFrameCAction() { }
-	void Do();
-	void Undo();
+	virtual ~AddFrameCAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (existing == 0) {
@@ -255,9 +246,9 @@ protected:
 	int frame;
 public:
 	AddFrameBAction(class Track* _track, bool _data, int _frame);
-	inline ~AddFrameBAction() { }
-	void Do();
-	void Undo();
+	virtual ~AddFrameBAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (existing == 0) {
@@ -277,9 +268,9 @@ protected:
 	int frame;
 public:
 	AddFrameIAction(class Track* _track, int _data, int _frame);
-	inline ~AddFrameIAction() { }
-	void Do();
-	void Undo();
+	virtual ~AddFrameIAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (existing == 0) {
@@ -297,9 +288,9 @@ protected:
 	int newSort;
 public:
 	SetSortAction(class SpriteNode* _target, int sort);
-	inline ~SetSortAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetSortAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (oldSort < newSort) {
@@ -320,9 +311,9 @@ protected:
 	bool newVisible;
 public:
 	SetVisibleAction(class SpriteNode* _target, bool vis);
-	inline ~SetVisibleAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetVisibleAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (newVisible) {
@@ -340,9 +331,9 @@ protected:
 	ImU32 newTint;
 public:
 	SetTintAction(class SpriteNode* _target, ImU32 tint);
-	inline ~SetTintAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetTintAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Color / Tint";
@@ -358,9 +349,9 @@ protected:
 	bool newFocusNode;
 public:
 	HierarchySelectionAction(class SceneNode* oldNode, class SceneNode* newNode, bool oldFocus, bool newFocus);
-	inline ~HierarchySelectionAction() { }
-	void Do();
-	void Undo();
+	virtual ~HierarchySelectionAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Hierarchy Selection";
@@ -380,9 +371,9 @@ protected:
 	int newAnimFrame;
 public:
 	AssetSelectionAction(class Asset* oldAss, class Asset* newAss, bool oldFocus, bool newFocus, class AnimationAsset* oldSelectedAnim, AnimationAsset* newSelectedAnim, int oldFrame, int newFrame);
-	inline ~AssetSelectionAction() { }
-	void Do();
-	void Undo();
+	virtual ~AssetSelectionAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Asset Selection";
@@ -396,9 +387,9 @@ protected:
 	class SceneNode* parent;
 public:
 	NewTransformNodeAction(class TransformNode* _target, class SceneNode* _parent);
-	inline ~NewTransformNodeAction() { }
-	void Do();
-	void Undo();
+	virtual ~NewTransformNodeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "New Transform Node";
@@ -412,9 +403,9 @@ protected:
 	class SceneNode* parent;
 public:
 	NewSpriteNodeAction(class SpriteNode* _target, class SceneNode* _parent);
-	inline ~NewSpriteNodeAction() { }
-	void Do();
-	void Undo();
+	virtual ~NewSpriteNodeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "New Sprite Node";
@@ -429,9 +420,9 @@ protected:
 	class SceneNode* nextSibling;
 public:
 	DeleteNodeAction(class SceneNode* node);
-	inline ~DeleteNodeAction() { }
-	void Do();
-	void Undo();
+	virtual ~DeleteNodeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Delete Node";
@@ -444,9 +435,9 @@ protected:
 	class Asset* target;
 public:
 	DeleteAssetAction(class Asset* node);
-	inline ~DeleteAssetAction() { }
-	void Do();
-	void Undo();
+	virtual ~DeleteAssetAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Delete Asset";
@@ -464,9 +455,9 @@ protected:
 	bool isValid;
 public:
 	ReparentNodeAction(class SceneNode* node, class SceneNode* parent, class SceneNode* nextSibling);
-	inline ~ReparentNodeAction() { }
-	void Do();
-	void Undo();
+	virtual ~ReparentNodeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Reparent Node";
@@ -479,9 +470,9 @@ protected:
 	class ImageAsset* tracking;
 public:
 	NewImageAction(class ImageAsset* asset);
-	inline ~NewImageAction() { }
-	void Do();
-	void Undo();
+	virtual ~NewImageAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Import Image";
@@ -494,9 +485,9 @@ protected:
 	class AnimationAsset* tracking;
 public:
 	NewAnimationAction(class AnimationAsset* asset);
-	inline ~NewAnimationAction() { }
-	void Do();
-	void Undo();
+	virtual ~NewAnimationAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Create Animation";
@@ -509,9 +500,9 @@ protected:
 	class AtlasAsset* tracking;
 public:
 	NewAtlasAction(class AtlasAsset* asset);
-	inline ~NewAtlasAction() { }
-	void Do();
-	void Undo();
+	virtual ~NewAtlasAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Create Atlas";
@@ -528,9 +519,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetSpriteSizeAction(class SpriteNode* target, const ImVec2& newSize, bool setX, bool setY);
-	inline ~SetSpriteSizeAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetSpriteSizeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -557,9 +548,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetSpritePivotAction(class SpriteNode* target, const ImVec2& newPivot, bool setX, bool setY);
-	inline ~SetSpritePivotAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetSpritePivotAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -586,9 +577,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetFrameMinAction(class SpriteNode* target, const ImVec2& newVal, bool setX, bool setY);
-	inline ~SetFrameMinAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetFrameMinAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -615,9 +606,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetFrameMaxAction(class SpriteNode* target, const ImVec2& newVal, bool setX, bool setY);
-	inline ~SetFrameMaxAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetFrameMaxAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (setX && setY) {
@@ -648,9 +639,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetSpriteRefAction(class SpriteNode* target, ImageAsset* asset, const ImVec2& size_, const ImVec2& min_, const ImVec2& max_);
-	inline ~SetSpriteRefAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetSpriteRefAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (newAsset != 0) {
@@ -674,9 +665,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetFrameRefAction(class SpriteNode* target, AtlasFrame* asset, const ImVec2& size_, const ImVec2& min_, const ImVec2& max_);
-	inline ~SetFrameRefAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetFrameRefAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (newAsset != 0) {
@@ -694,9 +685,9 @@ protected:
 	std::string newName;
 public:
 	RenameAnimationAction(class AnimationAsset* target, const std::string& newName);
-	inline ~RenameAnimationAction() { }
-	void Do();
-	void Undo();
+	virtual ~RenameAnimationAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Rename Animation";
@@ -711,9 +702,9 @@ protected:
 	int oldFPS;
 public:
 	SetFrameRateAction(class AnimationAsset* target, int fps);
-	inline ~SetFrameRateAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetFrameRateAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Framerate";
@@ -728,9 +719,9 @@ protected:
 	int oldCount;
 public:
 	SetFrameCountAction(class AnimationAsset* target, int count);
-	inline ~SetFrameCountAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetFrameCountAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Frame Count";
@@ -745,9 +736,9 @@ protected:
 	bool oldLoop;
 public:
 	SetLoopingAction(class AnimationAsset* target, bool val);
-	inline ~SetLoopingAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetLoopingAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (newLoop) {
@@ -765,9 +756,9 @@ protected:
 	std::string newName;
 public:
 	RenameImageAction(class ImageAsset* target, const std::string& newName);
-	inline ~RenameImageAction() { }
-	void Do();
-	void Undo();
+	virtual ~RenameImageAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Rename Image";
@@ -782,9 +773,9 @@ protected:
 	std::string newName;
 public:
 	RenameAtlasAction(class AtlasAsset* target, const std::string& newName);
-	inline ~RenameAtlasAction() { }
-	void Do();
-	void Undo();
+	virtual ~RenameAtlasAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Rename Atlas";
@@ -799,9 +790,9 @@ protected:
 	ImVec2 newSize;
 public:
 	SetAtlasSizeAction(class AtlasAsset* _target, const ImVec2& size);
-	inline ~SetAtlasSizeAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetAtlasSizeAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Atlas Size";
@@ -815,9 +806,9 @@ protected:
 	class AtlasFrame* frame;
 public:
 	AddAtlasFrameAction(class AtlasAsset* _target);
-	inline ~AddAtlasFrameAction() { }
-	void Do();
-	void Undo();
+	virtual ~AddAtlasFrameAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Create Atlas Frame";
@@ -832,9 +823,9 @@ protected:
 	std::string newName;
 public:
 	RenameAtlasFrameAction(class AtlasFrame* _target, const std::string& _newName);
-	inline ~RenameAtlasFrameAction() { }
-	void Do();
-	void Undo();
+	virtual ~RenameAtlasFrameAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Rename Atlas Frame";
@@ -850,9 +841,9 @@ protected:
 	int index;
 public:
 	AtlasFrameSetPointAction(class AtlasFrame* _target, const ImVec2& point, int _index);
-	inline ~AtlasFrameSetPointAction() { }
-	void Do();
-	void Undo();
+	virtual ~AtlasFrameSetPointAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (index == 0) {
@@ -881,9 +872,9 @@ protected:
 	bool newVal;
 public:
 	AtlasFrameSetRotatedAction(class AtlasFrame* _target, bool val);
-	inline ~AtlasFrameSetRotatedAction() { }
-	void Do();
-	void Undo();
+	virtual ~AtlasFrameSetRotatedAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		if (newVal) {
@@ -903,9 +894,9 @@ protected:
 	bool reviveTarget;
 public:
 	DeleteAnimFrameAction(class Track* _target, int rawFrameIndex);
-	inline ~DeleteAnimFrameAction() { }
-	void Do();
-	void Undo();
+	virtual ~DeleteAnimFrameAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Delete Anim Frame";
@@ -918,9 +909,9 @@ protected:
 	class Track* target;
 public:
 	DeleteTrackAction(class Track* _target);
-	inline ~DeleteTrackAction() { }
-	void Do();
-	void Undo();
+	virtual ~DeleteTrackAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Delete Anim Track";
@@ -933,9 +924,9 @@ protected:
 	class Track* head;
 public:
 	DeleteTrackGroupAction(class Track* _target);
-	inline ~DeleteTrackGroupAction() { }
-	void Do();
-	void Undo();
+	virtual ~DeleteTrackGroupAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Delete Node Tracks";
@@ -952,9 +943,9 @@ protected:
 	class SpriteNode* target;
 public:
 	SetPivotToolAction(class SpriteNode* target, const ImVec2& newPivot, const ImVec2& newPos);
-	inline ~SetPivotToolAction() { }
-	void Do();
-	void Undo();
+	virtual ~SetPivotToolAction();
+	virtual void Do();
+	virtual void Undo();
 
 	inline virtual const char* GetName() {
 		return "Set Pivot";

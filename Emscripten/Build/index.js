@@ -990,6 +990,20 @@ function simgui_js_is_osx() { if (navigator.userAgent.includes('Macintosh')) { r
           }
       };
 
+  var _JS_OpenURL = (stringPtr) => {
+          let stringArray = new Uint8Array(HEAPU8.buffer, stringPtr);
+          let stringLength = 0;
+          for (let i = 0; i < 256; ++i, ++stringLength) {
+              if (stringArray[i] == 0) {
+                  break;
+              }
+          }
+          stringArray = new Uint8Array(HEAPU8.buffer, stringPtr, stringLength);
+          let url = new TextDecoder().decode(stringArray);
+          
+          window.open(url, "_blank");
+      };
+
   var _JS_PresentFile = (voidPtr, size) => {
           let memoryArray = new Uint8Array(HEAPU8.buffer, voidPtr, size);// Module.HEAPU8.subarray(voidPtr, size);
           let blobObject = new Blob([memoryArray], {
@@ -6885,6 +6899,8 @@ function checkIncomingModuleAPI() {
 var wasmImports = {
   /** @export */
   JS_GenGUID: _JS_GenGUID,
+  /** @export */
+  JS_OpenURL: _JS_OpenURL,
   /** @export */
   JS_PresentFile: _JS_PresentFile,
   /** @export */

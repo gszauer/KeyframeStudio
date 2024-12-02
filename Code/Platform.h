@@ -15,3 +15,5 @@ extern "C" void PlatformSaveAs(const unsigned char* data, unsigned int size, Pla
 
 typedef void(*PlatformSelectFileResult)(const char* path, unsigned char* buffer, unsigned int size);
 extern "C" void PlatformSelectFile(const char* inputFilter, PlatformSelectFileResult result);
+
+extern "C" void PlatformOpenURL(const char* url);

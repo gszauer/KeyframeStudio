@@ -26,6 +26,7 @@ protected:
 	AssetManager& operator=(const AssetManager&) = delete;
 public:
 	Asset* Get(const std::string& uuid);
+	Asset* GetAssetByName(const std::string& name);
 	
 	ImageAsset* LoadImageFromMemory(const char* fileName, unsigned char* buffer, unsigned int size);
 	AtlasAsset* LoadAtlasFromMemory(const std::string& atlasName, const char* fileName, unsigned char* buffer, unsigned int size);

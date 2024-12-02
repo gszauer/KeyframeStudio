@@ -256,7 +256,8 @@ void UndoManager::Undo() {
 	while (idx < 0) { idx += MAX_UNDO_STEPS; }
 
 	if (actions[idx].asAction.rtti != ActionType::InvalidAction) {
-		actions[idx].asAction.Undo();
+		Action* act = &actions[idx].asAction; 
+		act->Undo();
 	}
 
 	current += 1;
@@ -279,7 +280,8 @@ void UndoManager::Redo() {
 	while (idx < 0) { idx += MAX_UNDO_STEPS; }
 
 	if (actions[idx].asAction.rtti != ActionType::InvalidAction) {
-		actions[idx].asAction.Do();
+		Action* act = &actions[idx].asAction;
+		act->Do();
 	}
 }
 

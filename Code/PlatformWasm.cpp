@@ -3,6 +3,7 @@
 // https://emscripten.org/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#implement-c-in-javascript
 
 extern "C" void JS_GenGUID(const char* ptr);
+extern "C" void JS_OpenURL(const char* ptr);
 extern "C" void JS_PresentFile(void* data, unsigned int size);
 extern "C" void JS_SelectFile(PlatformSelectFileResult callback);
 
@@ -25,4 +26,8 @@ extern "C" void WASM_InvokePlatformSelectCallback(PlatformSelectFileResult targe
 
 extern "C" void PlatformSelectFile(const char* filter, PlatformSelectFileResult result) {
     JS_SelectFile(result);
+}
+
+extern "C" void PlatformOpenURL(const char* url) {
+    JS_OpenURL(url);
 }

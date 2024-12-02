@@ -36,6 +36,8 @@ void Application::DestroyInstance() {
 }
 
 Application::Application() {
+    setDebugPan = false;
+    firstUpdate = true;
     argon = icon = xenon = 0;
     newThingName = "";
     newAnimFrameRate = 30;
@@ -99,6 +101,7 @@ void Application::SetSelectedAsset(Asset* node, bool focus, AnimationAsset* sele
 void Application::FillWithDebugData() {
     //JsonValue* parsed = JsonParseString("{\"obj\":{\"foo\":7,\"bar\":true}}", 0);
 
+#if 0
     (new SceneNode("Scene Node"))->SetParent(rootNode);
     
     TransformNode* xFormNod = new TransformNode("Transform Node");
@@ -194,9 +197,13 @@ void Application::FillWithDebugData() {
         t->AddFrameB(false, 50);
         t->AddFrameB(false, 60);
     }
+#endif
 
-    selectedAnimation = 0;
+    Deserialize((const char*)knight, knight_size);
+    selectedAnimation = (AnimationAsset*)AssetManager::GetInstance()->GetAssetByName("idle");
     selectedNode = 0;
+
+    setDebugPan = true;
 }
 
 void Application::SkinImGui(float dpi) {
@@ -1238,6 +1245,10 @@ void Application::ImguiScene() {
     if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
     ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x - 1, canvas_p0.y + canvas_sz.y - 1);
 
+    if (setDebugPan) {
+        setDebugPan = false;
+        panTool.pan.y = canvas_sz.y * 0.5f;
+    }
     ImVec2 cameraPanView = panTool.pan + canvas_sz * 0.5f;
 
     ImDrawList* list = ImGui::GetWindowDrawList();
@@ -1594,8 +1605,7 @@ void Application::ImguiScene() {
 
         ImGui::PushFont(argon);
         if (ImGui::Selectable("Key Frame Studio")) {
-        }
-        if (ImGui::Selectable("Github")) {
+            PlatformOpenURL("https://github.com/gszauer/KeyframeStudio");
         }
         ImGui::PopFont();
 
@@ -1677,7 +1687,6 @@ void Application::Initialize(float dpi) {
 }
 
 void Application::Update() {
-
     if (resetDockSpace) {
         ResetDockSpace();
     }
@@ -1702,6 +1711,11 @@ void Application::Update() {
     ImguiSequencer();
     ImguiHistory();
     ImguiScene();
+
+    if (firstUpdate) {
+        firstUpdate = false;
+        FillWithDebugData();
+    }
 
     lastActiveTool = activeTool;
 

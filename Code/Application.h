@@ -77,6 +77,9 @@ protected:
 	int newAnimFrameRate;
 	int newAnimFrameCount;
 	bool newAnimLooping;
+
+	bool setDebugPan;
+	bool firstUpdate;
 public:
 	inline void PushDefaultFramePadding() {
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, defaultFramePadding);

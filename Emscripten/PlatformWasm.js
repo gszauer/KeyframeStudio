@@ -112,5 +112,18 @@ addToLibrary({
         fileElement.requestFileCallback = null;
         fileElement.requestFileCallback = callbackPtr;
         fileElement.click();
+    },
+    JS_OpenURL: (stringPtr) => {
+        let stringArray = new Uint8Array(HEAPU8.buffer, stringPtr);
+        let stringLength = 0;
+        for (let i = 0; i < 256; ++i, ++stringLength) {
+            if (stringArray[i] == 0) {
+                break;
+            }
+        }
+        stringArray = new Uint8Array(HEAPU8.buffer, stringPtr, stringLength);
+        let url = new TextDecoder().decode(stringArray);
+        
+        window.open(url, "_blank");
     }
   });

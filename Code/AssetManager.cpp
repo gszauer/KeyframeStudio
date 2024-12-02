@@ -34,6 +34,16 @@ Asset* AssetManager::Get(const std::string& uuid) {
     return assets[uuid];
 }
 
+Asset* AssetManager::GetAssetByName(const std::string& name) {
+    for (std::map<std::string, Asset*>::iterator iter = Begin(), end = End(); iter != end; iter++) {
+        if (iter->second->name == name) {
+            return iter->second;
+        }
+    }
+    return 0;
+}
+
+
 AtlasAsset* AssetManager::LoadAtlasFromMemory(const std::string& atlasName, const char* fileName, unsigned char* buffer, unsigned int size) {
     if (buffer != 0 && size != 0 && fileName != 0 && fileName[0] != 0) {
         JsonValue* root = JsonParseString((char*)buffer, size);

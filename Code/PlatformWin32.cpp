@@ -105,6 +105,10 @@ extern "C" void PlatformSaveAs(const unsigned char* data, unsigned int size, Pla
     }
 }
 
+extern "C" void PlatformOpenURL(const char* url) {
+    ShellExecuteA(0, 0, url, 0, 0, SW_SHOW);
+}
+
 #if 0
 extern "C" void PlatformSelectFile(const char* filter, PlatformSelectFileResult result) {
     static CHAR UI_fileNameBuffer[1024] = { 0 };

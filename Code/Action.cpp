@@ -21,6 +21,66 @@ void Action::Undo() { IM_ASSERT(false); }
 FirstAction::FirstAction() { rtti = ActionType::FirstAction; }
 void FirstAction::Do() { }
 void FirstAction::Undo() { }
+FirstAction::~FirstAction() { }
+
+InvalidAction::InvalidAction() { rtti = ActionType::InvalidAction; }
+InvalidAction::~InvalidAction() { }
+void InvalidAction::Do() { }
+void InvalidAction::Undo() { }
+
+SetPositionAction::~SetPositionAction() { }
+SetRotationAction::~SetRotationAction() { }
+SetScaleAction::~SetScaleAction() { }
+AddFrameFAction::~AddFrameFAction() { }
+AddFrameCAction::~AddFrameCAction() { }
+AddFrameBAction::~AddFrameBAction() { }
+AddFrameIAction::~AddFrameIAction() { }
+SetSortAction::~SetSortAction() { }
+SetVisibleAction::~SetVisibleAction() { }
+SetTintAction::~SetTintAction() { }
+HierarchySelectionAction::~HierarchySelectionAction() { }
+AssetSelectionAction::~AssetSelectionAction() { }
+NewTransformNodeAction::~NewTransformNodeAction() { }
+NewSpriteNodeAction::~NewSpriteNodeAction() { }
+DeleteNodeAction::~DeleteNodeAction() { }
+DeleteAssetAction::~DeleteAssetAction() { }
+ReparentNodeAction::~ReparentNodeAction() { }
+NewImageAction::~NewImageAction() { }
+NewAnimationAction::~NewAnimationAction() { }
+NewAtlasAction::~NewAtlasAction() { }
+SetSpriteSizeAction::~SetSpriteSizeAction() { }
+SetSpritePivotAction::~SetSpritePivotAction() { }
+SetFrameMinAction::~SetFrameMinAction() { }
+SetFrameMaxAction::~SetFrameMaxAction() { }
+SetSpriteRefAction::~SetSpriteRefAction() { }
+SetFrameRefAction::~SetFrameRefAction() { }
+RenameAnimationAction::~RenameAnimationAction() { }
+SetFrameRateAction::~SetFrameRateAction() { }
+SetFrameCountAction::~SetFrameCountAction() { }
+SetLoopingAction::~SetLoopingAction() { }
+RenameImageAction::~RenameImageAction() { }
+RenameAtlasAction::~RenameAtlasAction() { }
+SetAtlasSizeAction::~SetAtlasSizeAction() { }
+AddAtlasFrameAction::~AddAtlasFrameAction() { }
+RenameAtlasFrameAction::~RenameAtlasFrameAction() { }
+AtlasFrameSetPointAction::~AtlasFrameSetPointAction() { }
+AtlasFrameSetRotatedAction::~AtlasFrameSetRotatedAction() { }
+DeleteAnimFrameAction::~DeleteAnimFrameAction() { }
+DeleteTrackAction::~DeleteTrackAction() { }
+DeleteTrackGroupAction::~DeleteTrackGroupAction() { }
+SetPivotToolAction::~SetPivotToolAction() { }
+
+const char* Action::GetName() {
+	return "Base Action";
+}
+
+const char* InvalidAction::GetName() {
+	return "INVALID ACTION";
+}
+
+ActionType Action::GetType() {
+	return rtti;
+}
 
 SetNameAction::SetNameAction(SceneNode* target, const std::string& name) {
 	rtti = ActionType::SetNameAction;
@@ -29,6 +89,7 @@ SetNameAction::SetNameAction(SceneNode* target, const std::string& name) {
 	this->newName = name;
 	Do();
 }
+SetNameAction::~SetNameAction() { }
 
 void SetNameAction::Do() {
 	target->SetName(newName);
