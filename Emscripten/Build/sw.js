@@ -5,6 +5,7 @@ var filesToCache = [
     '/index.html',
     '/index.wasm',
     '/index.js',
+    '/icon.png',
 ];
 
 self.addEventListener('install', function (e) {
