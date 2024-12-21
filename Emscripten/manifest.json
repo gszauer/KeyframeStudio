@@ -1,0 +1,17 @@
+{
+    "name": "Key Frame Studio",
+    "short_name": "Key Frame Studio",
+    "theme_color": "#2d2d2d",
+    "background_color": "#000000",
+    "display": "fullscreen",
+    "orientation": "landscape",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+      {
+        "src": "./icon.png",
+        "sizes": "256x256",
+        "type": "image/png"
+      }
+    ]
+  }
