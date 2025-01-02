@@ -1,14 +1,17 @@
 # Keyframe Studio
 
-![Keyframe Studio](designs/final_v2.png)
-
 Keyframe Studio is a minimal 2D skeletal animation software. It's built in C++ for the web. 
+ Try it at [keyframestudio.app](https://keyframestudio.app)
+
+![Keyframe Studio](designs/final_v2.png)
 
 ## V2
 
 Whats new? Everything.
 
 V2 is a compleate rewrite. The software now uses [sokol](https://github.com/floooh/sokol) and compiles with emscripten. The new output format is just a json file, making it easy for other applications to use these animations.
+
+The previous is still available to use at [keyframestudio.app/v1](https://keyframestudio.app/v1), and it's source code is available on the [V1 branch](https://github.com/gszauer/KeyframeStudio/tree/v1)
 
 ## Output Format
 
